@@ -5,27 +5,73 @@
     // $assetsUrlBase = theme_url::assets() .'/';
 	// -- also there: theme_url::base()
 	
-	function convertGrobgliederungCallback($request) {
+	function convertCallback($request) {
+		
+		// !!! maybe better to use request and methods of objects inside
+		// dump($request);
+
+		$formData = rex_request('FORM');
+		$fieldFromForm = strtolower($formData['formular'][0]);
+		
+		switch ($fieldFromForm) {
+			case 'nd_beleg quellen':
+				$sourceField = 'quellen_idlist';
+				$targetTable = 'tth_begriff_quellen';
+				$targetIdField = 'quelle_id';
+				break;
+			case 'oberbegriffe':
+				$sourceField = 'oberbegriffe';
+				$targetTable = 'tth_begriff_oberbegriffe';
+				$targetIdField = 'oberbegriff_id';
+				break;
+			case 'unterbegriffe':
+				$sourceField = 'unterbegriffe';
+				$targetTable = 'tth_begriff_unterbegriffe';
+				$targetIdField = 'unterbegriff_id';
+				break;
+			case 'äquivalente begriffe':
+				$sourceField = 'aequivalent';
+				$targetTable = 'tth_begriff_aequivalente';
+				$targetIdField = 'aequivalent_id';
+				break;
+			case 'verwandte begriffe':
+				$sourceField = 'verwandte';
+				$targetTable = 'tth_begriff_verwandte';
+				$targetIdField = 'verwandt_id';
+				break;
+			default:
+				$sourceField = 'grobgliederung';
+				$targetTable = 'tth_begriff_grobgliederung';
+				$targetIdField = 'grobgliederung_id';
+				break;
+		}
+
+		// dump($sourceField);
+		// dump($targetTable);
+		// dump($targetIdField);
+
 		// $sourceField = 'grobgliederung';
-		$sourceField = 'quellen_idlist';
+		// $sourceField = 'quellen_idlist';
+		// $sourceField = 'oberbegriffe';
 		// $targetTable = 'tth_begriff_grobgliederung';
-		$targetTable = 'tth_begriff_quellen';
-		$targetIdField = 'quelle_id';
+		// $targetTable = 'tth_begriff_quellen';
+		// $targetTable = 'tth_begriff_oberbegriffe';
+		// $targetIdField = 'oberbegriff_id';
 		$sql = rex_sql::factory();
 
-		// $query = 'TRUNCATE '.$targetTable;
-		// $sql->setQuery($query);
+		$query = 'TRUNCATE '.$targetTable;
+		$sql->setQuery($query);
 		
 		// !!! for a new operation you must be sure the last one is ready (maybe asynch!!)
 
 		// - begriff field only for control outputs
 		$query = 'SELECT id,begriff,'.$sourceField.' FROM tth_wortliste WHERE 1';
 		// $query = 'SELECT id,begriff,grobgliederung FROM tth_wortliste WHERE grobgliederung LIKE "%;%"';
-		// $sql->setQuery($query);
 		$rows = $sql->getArray($query);
 		
 		$insertList = '';
 		$count = 0;
+		$insertCount = 0;
 		foreach($rows as $row) {
 			if(trim($row[$sourceField])) {
 				$count++;
@@ -34,24 +80,28 @@
 				foreach($nodes as $node) {
 					if (trim($node)) {
 						$insertList .= '('.$row['id'].','.$node."),\n";
+						$insertCount++;
 					}
 				}
 			}
 		}
-
-		echo '<div class="alert alert-info" role="alert">Betroffene Datensätze: '.$count.' von '.count($rows).'</div>';
 
 		// remove last comma!
 		$insertList = substr($insertList,0,strrpos($insertList,','));
 		// dump($insertList);
 		// echo $insertList;
 		$query = 'INSERT INTO '.$targetTable.' (begriff_id, '.$targetIdField.') VALUES '.$insertList;
-		echo $query;
+		echo '<h3>SQL-Befehl</h3><p>'.$query.'</p>';
 
 		$sql->setQuery($query);
-		// echo '<div class="alert alert-info" role="alert">
-		// 	DB nicht verändert.
-		// </div>';
+
+		echo '<div class="alert alert-success" role="alert">
+			<p>
+			Quell-Feld: '.$fieldFromForm.'<br>
+			Ziel-ID-Feld: '.$targetIdField.'<br>
+			Betroffene Datensätze: '.$count.' von '.count($rows).'</p>
+			<p>'.$insertCount.' Einträge in Tabelle <strong>'.$targetTable.'</strong> neu geschrieben (vorige Einträge vollständig gelöscht!).</p>
+			</div>';
 	}	
 	
 	?><!doctype html>

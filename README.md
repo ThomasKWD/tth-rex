@@ -56,7 +56,7 @@ Tabelle Wortliste : begriffe
 
 ### Beziehungen (Nodes)
 
-Die meisten Beziehungen *innerhalb* `tth_begriffe` (Wortliste) sind 1-to-1-Beziehungen (1:1) oder 1-to-Many-Beziehungen (1:n) oder Many-to-Many-Beziehungen (n:m) mit `tth_begriffe` selbst.
+Die meisten Beziehungen *innerhalb* `tth_begriffe` (Wortliste) 1-to-Many-Beziehungen (1:n) oder Many-to-Many-Beziehungen (n:m) mit `tth_begriffe` selbst.
 
 Für die in der Tabelle folgenden Felder gilt:
 
