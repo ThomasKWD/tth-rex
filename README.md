@@ -62,7 +62,7 @@ Für die in der Tabelle folgenden Felder gilt:
 
 * das urspüngliche Feld der accdb wird erhalten aber nicht mehr verändert. 
 * für n:m-Beziehungen ist eine separate Beziehungstabelle ist erfordrlich.
-* mit Code aus Modul **** können die Daten wiederholt aus dem ursprünglichen Feld in die Beziehungstabelle geschrieben werden.
+* mit im [template](./theme/private/redaxo/templates/Basis%20[2]/2.Basis.template.php) implementiertem Werkzeug können die Daten wiederholt aus dem ursprünglichen Feld in die Beziehungstabelle geschrieben werden.
 
 |Feld|Typ der Beziehung|Beziehungstabelle|
 |---|---|---|
@@ -85,7 +85,7 @@ Diese haben teilweise auch zusätzliche Beziehungstabellen (n:m,1:n)
 
 ### Medien
 
-Hier wird eine vereinfachte Sonderform gewählt: Kommagetrennte Liste von Dateinamen. Nachteil: bei Löschen von Bildern Verwaltung kompliziert wen nicht Redaxo/YForm genutzt werden kann.
+Hier wird eine vereinfachte Sonderform gewählt: Kommagetrennte Liste von Dateinamen. Nachteil: bei Löschen von Bildern Verwaltung kompliziert wenn nicht Redaxo/YForm genutzt werden kann.
 
 Aufgaben: MEDIA_WIDGET für Editieren!
 
