@@ -6,15 +6,52 @@
 	// -- also there: theme_url::base()
 	
 	function convertGrobgliederungCallback($request) {
-		$sourceField = 'grobgliederung';
+		// $sourceField = 'grobgliederung';
+		$sourceField = 'quellen_idlist';
+		// $targetTable = 'tth_begriff_grobgliederung';
+		$targetTable = 'tth_begriff_quellen';
+		$targetIdField = 'quelle_id';
 		$sql = rex_sql::factory();
-		$query = 'SELECT id,begriff,grobgliederung FROM tth_wortliste WHERE grobgliederung LIKE "%;%"';
+
+		// $query = 'TRUNCATE '.$targetTable;
+		// $sql->setQuery($query);
+		
+		// !!! for a new operation you must be sure the last one is ready (maybe asynch!!)
+
+		// - begriff field only for control outputs
+		$query = 'SELECT id,begriff,'.$sourceField.' FROM tth_wortliste WHERE 1';
+		// $query = 'SELECT id,begriff,grobgliederung FROM tth_wortliste WHERE grobgliederung LIKE "%;%"';
 		// $sql->setQuery($query);
 		$rows = $sql->getArray($query);
-		dump(count($rows));
+		
+		$insertList = '';
+		$count = 0;
 		foreach($rows as $row) {
-			echo '[' .$row['id'] . '] '.$row['begriff'] .': '.$row['grobgliederung'] .'<br>';
+			if(trim($row[$sourceField])) {
+				$count++;
+				$nodes = explode(';',$row[$sourceField]);
+				// - don't need NULL check for $nodes
+				foreach($nodes as $node) {
+					if (trim($node)) {
+						$insertList .= '('.$row['id'].','.$node."),\n";
+					}
+				}
+			}
 		}
+
+		echo '<div class="alert alert-info" role="alert">Betroffene Datensätze: '.$count.' von '.count($rows).'</div>';
+
+		// remove last comma!
+		$insertList = substr($insertList,0,strrpos($insertList,','));
+		// dump($insertList);
+		// echo $insertList;
+		$query = 'INSERT INTO '.$targetTable.' (begriff_id, '.$targetIdField.') VALUES '.$insertList;
+		echo $query;
+
+		$sql->setQuery($query);
+		// echo '<div class="alert alert-info" role="alert">
+		// 	DB nicht verändert.
+		// </div>';
 	}	
 	
 	?><!doctype html>
@@ -43,6 +80,14 @@
 <!-- End Matomo -->
   </head>
   <body>
+		<nav class="main-nav">
+			<?php
+			$nav = rex_navigation::factory();
+			$nav->show();
+			?>
+		</nav>
+
+
       <div class="container">
           <div class="header-login">
 	    	</div>
