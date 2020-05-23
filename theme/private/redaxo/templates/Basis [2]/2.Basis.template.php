@@ -100,7 +100,7 @@
 			$query = 'INSERT INTO '.$targetTable.' (begriff_id, '.$targetIdField.') VALUES '.$insertList;
 			echo '<h3>SQL-Befehl</h3><p>'.$query.'</p>';
 
-			$sql->setQuery($query);
+			// $sql->setQuery($query);
 
 			echo '<div class="alert alert-success" role="alert">
 				<p>
@@ -109,6 +109,10 @@
 				Betroffene Datensätze: '.$count.' von '.count($rows).'</p>
 				<p>'.$insertCount.' Einträge in Tabelle <strong>'.$targetTable.'</strong> neu geschrieben (vorige Einträge bestehen weiterhin zusätzlich!).</p>
 				</div>';
+			echo '<div class="alert alert-warning" role="alert">
+			<p>
+			Der eigentliche Schreibvorgang ist aus Sicherheitsgründen <em>deaktiviert</em>. Die DB wurde nicht verändert.
+			</p></div>';
 		}
 		else {
 			echo '<div class="alert alert-primary" role="alert">
