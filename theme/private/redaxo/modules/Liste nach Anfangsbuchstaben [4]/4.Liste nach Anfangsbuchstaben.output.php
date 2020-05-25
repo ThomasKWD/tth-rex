@@ -17,7 +17,7 @@ if ($startLetter) {
 	// dump($startLetter);
 	$sql = rex_sql::factory();
 
-	$query = 'SELECT id, begriff FROM tth_wortliste WHERE begriff LIKE "'.$startLetter.'%" ORDER BY begriff';
+	$query = 'SELECT id, begriff FROM tth_wortliste WHERE begriff LIKE "'.$startLetter.'%" ORDER BY begriff ASC';
 	// $query = 'SELECT id,begriff,grobgliederung FROM tth_wortliste WHERE grobgliederung LIKE "%;%"';
 	$rows = $sql->getArray($query);
 	$i = 1;

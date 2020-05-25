@@ -131,7 +131,7 @@
 
     <link rel="icon" type="image/png" sizes="32x32" href="<?=theme_url::assets('mosaik_icon_32.png')?>">
 
-    <title>LOCAL Demo MKB</title>
+    <title>TTH - <?php echo $this->getValue('name')?></title>
 
     <style>
         .header-login {
