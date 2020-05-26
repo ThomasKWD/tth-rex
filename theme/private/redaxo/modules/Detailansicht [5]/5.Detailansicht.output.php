@@ -18,7 +18,7 @@
 		}
 	}
 
-	if (!function_exists('checkTruthyWord')) {
+	if (!function_exists('makeLinkList')) {
 		function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
 			$str = '';
 			foreach ($array as $s) {
