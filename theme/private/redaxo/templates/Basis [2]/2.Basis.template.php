@@ -127,11 +127,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 
-    <link rel="icon" type="image/png" sizes="32x32" href="<?=theme_url::assets('mosaik_icon_32.png')?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?=theme_url::assets('tth-icon-32.png')?>">
+    
+	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>">
 
-    <title>TTH - <?php echo $this->getValue('name')?></title>
+    <title>TTH - <?=$this->getValue('name')?></title>
 
     <style>
         .header-login {
@@ -155,7 +157,7 @@
 		</nav>
 
 
-      <div class="container">
+      <div class="container main-container">
           <div class="header-login">
 	    	</div>
 
@@ -165,6 +167,9 @@
         <div class="project-title">Technischer Thesaurus Holzbau (TTH)</div>
 
 		<h1><?php echo $this->getValue('name')?></h1>
+
+		<?php // ! convention every module must be aware to be inside the main container and should always provide rows and cols
+		?>
         REX_ARTICLE[]
 		<?php 
 		 ?>
