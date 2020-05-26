@@ -13,6 +13,7 @@ if (!function_exists('getLink')) {
 if (!function_exists('makeLinkList')) {
 	function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
 		$str = '';
+		// !!! use `for` with counter and avoid last comma
 		foreach ($array as $s) {
 			$str .= getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ', ';
 		}
@@ -39,7 +40,59 @@ if ($search) {
 		$sql = rex_sql::factory();
 		$query = "SELECT id,begriff from tth_wortliste WHERE begriff LIKE '".str_replace('*','%',$searchPattern)."'";
 		?>
-		<div class="link-list"><?=makeLinkList($sql->getArray($query), 'begriff_id', 'begriff', 6);?></div>
+		<div class="link-list"><?=makeLinkList($sql->getArray($query), 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]');?></div>
+		<?php
+	}
+}
+else {
+	$lang = rex_request('sprache_id');
+	$region = rex_request('region_id');
+	$style = rex_request('sprachstil_id');
+
+	if ($lang || 0 === $lang || '0' === $lang) {
+		$sql = rex_sql::factory();
+		// !!! need select of language again to gain name (or pass it in URL!)
+		// !!! more verbose: check if null result
+		?>
+		<p><strong>Begriffe nach Sprache <?=$lang?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprache_id=$lang"), 'begriff_id', 'begriff')?></p>
+		<?php
+	}
+	else if ($region || 0 === $region || '0' === $region) {
+		$sql = rex_sql::factory();
+		// !!! need select of region again to gain name (or pass it in URL!)
+		// !!! more verbose: check if null result
+		?>
+		<p><strong>Begriffe nach Region <?=$region?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE region_id=$region"), 'begriff_id', 'begriff')?></p>
+		<?php	
+	}
+	else if ($style || 0 === $style || '0' === $style) {
+		$sql = rex_sql::factory();
+		?>
+		<p><strong>Begriffe nach Sprachstil <?=$style?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprachstil_id=$style"), 'begriff_id', 'begriff')?></p>
+		<?php	
+	}
+	else {
+		// !!! output only depending on param in module input because sometimes not wanted
+		$sql = rex_sql::factory();
+
+		// !!! make functions for the array selects
+		$languages = $sql->getArray("SELECT id,sprache FROM tth_sprachen WHERE 1");
+		// id = 0 automatically causes SQL to find unset entries
+		array_push($languages, array( 'id' => 0, 'sprache' => 'nicht gesetzt'));
+		?>
+		<p><strong>Sprache:</strong> <?=makeLinkList($languages, 'sprache_id', 'sprache')?></p>
+		<?php
+
+		$regions = $sql->getArray("SELECT id,region FROM tth_regionen WHERE 1");
+		array_push($regions, array( 'id' => 0, 'region' => 'nicht gesetzt'));
+		?>
+		<p><strong>Region:</strong> <?=makeLinkList($regions, 'region_id', 'region')?></p>
+		<?php
+
+		$styles = $sql->getArray("SELECT id,stil FROM tth_sprachstile WHERE 1");
+		array_push($styles, array( 'id' => 0, 'stil' => 'nicht gesetzt'));
+		?>
+		<p><strong>Sprachstil:</strong> <?=makeLinkList($styles, 'sprachstil_id', 'stil')?></p>
 		<?php
 	}
 }

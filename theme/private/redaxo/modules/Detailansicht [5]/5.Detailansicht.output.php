@@ -226,6 +226,7 @@
 		}
 	}
 	else {
+		// !!! make text editable in module input
 		echo rex_view::warning('Eine Detailansicht benötigt die ID als GET-Parameter "begriff_id". Beginne am besten mit der alphabetichen Übersicht!');
 	}
 ?>
