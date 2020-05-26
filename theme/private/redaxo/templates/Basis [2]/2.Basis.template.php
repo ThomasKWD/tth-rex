@@ -152,7 +152,8 @@
 		<nav class="main-nav">
 			<?php
 			$nav = rex_navigation::factory();
-			$nav->show();
+			// public function show($category_id = 0, $depth = 3, $open = false, $ignore_offlines = false)
+			$nav->show(0,3,true,true);
 			?>
 		</nav>
 
