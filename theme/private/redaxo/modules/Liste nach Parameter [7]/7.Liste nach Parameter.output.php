@@ -54,7 +54,7 @@ else {
 		// !!! need select of language again to gain name (or pass it in URL!)
 		// !!! more verbose: check if null result
 		?>
-		<p><strong>Begriffe nach Sprache <?=$lang?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprache_id=$lang"), 'begriff_id', 'begriff')?></p>
+		<p><strong>Begriffe nach Sprache <?=$lang?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprache_id=$lang"), 'begriff_id', 'begriff',  'REX_LINK[id=1 output=id]')?></p>
 		<?php
 	}
 	else if ($region || 0 === $region || '0' === $region) {
@@ -62,13 +62,13 @@ else {
 		// !!! need select of region again to gain name (or pass it in URL!)
 		// !!! more verbose: check if null result
 		?>
-		<p><strong>Begriffe nach Region <?=$region?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE region_id=$region"), 'begriff_id', 'begriff')?></p>
+		<p><strong>Begriffe nach Region <?=$region?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE region_id=$region"), 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
 		<?php	
 	}
 	else if ($style || 0 === $style || '0' === $style) {
 		$sql = rex_sql::factory();
 		?>
-		<p><strong>Begriffe nach Sprachstil <?=$style?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprachstil_id=$style"), 'begriff_id', 'begriff')?></p>
+		<p><strong>Begriffe nach Sprachstil <?=$style?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprachstil_id=$style"), 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
 		<?php	
 	}
 	else {
