@@ -1,19 +1,34 @@
 <!-- you will need to use bootstrap rows/cols -->
-<div class="detailed-view">
+<div class="row detailed-view">
+	<div class="col">
 <?php
+	/// !!! please put into class into theme!
+
 	if (!function_exists('makeRow')) {
 		function makeRow($key,$value) {
-			return '|'.$key.'|'.$value."|\n";
+			// return '|'.$key.'|'.$value."|\n";
+			return '<tr><td>'.$key.'</td><td>'.$value."</td></tr>\n";
 		}
 	}
 
-	if (!function_exists('getEntityLink')) {
-		function getEntityLink($id, $name, $article_id = '') {
-			return '<a href="'.rex_getUrl($article_id, '', array('begriff_id' => $id)).'">'.$name.'</a>';
+	if (!function_exists('getLink')) {
+		function getLink($idName, $id, $desc, $article_id = '') {
+			// return '<a href="'.rex_getUrl($article_id, '', array('begriff_id' => $id)).'">'.$name.'</a>';
+			return '<a href="'.rex_getUrl($article_id, '', array($idName => $id)).'">'.$desc.'</a>';
 		}
 	}
 
 	if (!function_exists('checkTruthyWord')) {
+		function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
+			$str = '';
+			foreach ($array as $s) {
+				$str .= getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ', ';
+			}
+			return $str;
+		}
+	}
+
+		if (!function_exists('checkTruthyWord')) {
 		function checkTruthyWord($word) {
 			if ($word) {
 				$word = strtoupper($word);
@@ -28,7 +43,8 @@
 
 	$id = rex_request('begriff_id');
 	if ($id) {
-		$sourcesArticleId = 6;
+		$sourcesArticleId = 'REX_LINK[id=1 output=id]';
+		if (!$sourcesArticleId) $sourcesArticleId = 'REX_ARTICLE_ID';
 
 		$tableEntities = 'tth_wortliste';
 		$tableAuthors = 'tth_autoren';
@@ -40,7 +56,11 @@
 		$tableSources = 'tth_quellen';
 		$tableRelationSources = 'tth_begriff_quellen';
 		
+		$tableRelationGrobgliederung = 'tth_begriff_grobgliederung';
 		$tableRelationOberbegriffe = 'tth_begriff_oberbegriffe';
+		$tableRelationUnterbegriffe = 'tth_begriff_unterbegriffe';
+		$tableRelationAequivalents = 'tth_begriff_aequivalente';
+		$tableRelationRelatives = 'tth_begriff_verwandte';
 		
 		$sql = rex_sql::factory();
 
@@ -59,6 +79,8 @@
 		// $query.= "GROUP BY $tableEntities.id";
 
 		// !!! can i combine several joins?
+		// ??? or at least sub function for repetition
+		// ??? write other join n:m and combine later
 		$query = "SELECT $tableSources.id, $tableSources.kurz ";
 		$query.= "FROM $tableEntities ";
 		$query.= "JOIN $tableRelationSources ON $tableEntities.id = $tableRelationSources.begriff_id ";
@@ -68,12 +90,48 @@
 		$sourcesArray = $sql->getArray($query);
 		// dump($sourcesArray);
 
+		$query = "SELECT e2.id, e2.begriff ";
+		$query.= "FROM $tableEntities e1 ";
+		$query.= "JOIN $tableRelationGrobgliederung g1 ON e1.id = g1.begriff_id ";
+		$query.= "JOIN $tableEntities e2 ON e2.id = g1.grobgliederung_id ";
+		$query.= "WHERE e1.id=$id ";
+		// test debug
+		// $query = "SELECT id, begriff, grobgliederung FROM $tableEntities WHERE grobgliederung LIKE '%;%'";
+		$grobgliederungArray = $sql->getArray($query);
+
+		$query = "SELECT e2.id, e2.begriff ";
+		$query.= "FROM $tableEntities e1 ";
+		$query.= "JOIN $tableRelationOberbegriffe g1 ON e1.id = g1.begriff_id ";
+		$query.= "JOIN $tableEntities e2 ON e2.id = g1.oberbegriff_id ";
+		$query.= "WHERE e1.id=$id ";
+		$oberbegriffeArray = $sql->getArray($query);
+
+		$query = "SELECT e2.id, e2.begriff ";
+		$query.= "FROM $tableEntities e1 ";
+		$query.= "JOIN $tableRelationUnterbegriffe g1 ON e1.id = g1.begriff_id ";
+		$query.= "JOIN $tableEntities e2 ON e2.id = g1.unterbegriff_id ";
+		$query.= "WHERE e1.id=$id ";
+		$unterbegriffeArray = $sql->getArray($query);
+
+		$query = "SELECT e2.id, e2.begriff ";
+		$query.= "FROM $tableEntities e1 ";
+		$query.= "JOIN $tableRelationAequivalents g1 ON e1.id = g1.begriff_id ";
+		$query.= "JOIN $tableEntities e2 ON e2.id = g1.aequivalent_id ";
+		$query.= "WHERE e1.id=$id ";
+		$aequivalentsArray = $sql->getArray($query);
+
+		$query = "SELECT e2.id, e2.begriff ";
+		$query.= "FROM $tableEntities e1 ";
+		$query.= "JOIN $tableRelationRelatives g1 ON e1.id = g1.begriff_id ";
+		$query.= "JOIN $tableEntities e2 ON e2.id = g1.verwandter_id ";
+		$query.= "WHERE e1.id=$id ";
+		$relativesArray = $sql->getArray($query);
+
 		// don't use the '*' and name all fields needed
 
 		// ! b is first alias for $tableEntities, b2 is the second for benutze
 
-		// ! some fields are selected for debug only
-		$query = "SELECT b.begriff,b.id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.quellen_idlist,b.bild,$tableStati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,";
+		$query = "SELECT b.begriff,b.id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.bild,$tableStati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,";
 		$query .= "b2.begriff AS benutze_begriff,CONCAT($tableAuthors.vorname, ' ', $tableAuthors.name) AS autor,";
 		$query .= "$tableLanguage.sprache AS sprache,";
 		$query .= "$tableRegions.region AS region, ";
@@ -89,71 +147,79 @@
 		$rows = $sql->getArray($query);
 		if ($rows && count($rows)) {
 			$r = $rows[0];
-		
-			$mdOutput = "h2. ${r["begriff"]}\n\n|ID|$id|\n";
 			
-			$mdOutput .= "|Definition|${r['definition']}|\n";
+			$html = "<h2>${r["begriff"]}</h2>\n";
+
+			$html .= '<table class="table table-responsive">';
+
+			// make header line of table
+			$html .= '<thead><tr><th>Feld</th><th>Inhalt</th></thead>';
 			
-			$mdOutput .= makeRow('Sprache', $r['sprache']);
-			$mdOutput .= makeRow('Sprachstil', $r['sprachstil']);
-			$mdOutput .= makeRow('Region', ($r['region']) ? $r['region'] : "");
-			$mdOutput .= makeRow('Begriffcode', $r['code']);
-			$mdOutput .= makeRow('Begriffs-Status',$r['status']);
+			$html .= makeRow('Definition', $r['definition']);
+			
+			$html .= makeRow('Sprache', $r['sprache']);
+			$html .= makeRow('Sprachstil', $r['sprachstil']);
+			$html .= makeRow('Region', ($r['region']) ? $r['region'] : "");
+			$html .= makeRow('Begriffcode', $r['code']);
+			$html .= makeRow('Begriffs-Status',$r['status']);
 			// ! redaxo file list is *comma* separated
 			if ($r['bild']) {
+				// ! separator ',' is determined by redaxo
 				$images = explode(',',$r['bild']);
 				$imgHTML = '';
 				foreach ($images as $img) {
-					// !!! make real html for classes needed
-					// the class call adds a stupid './' which breaks the url
-					// $imgHTML .= '!'.rex_media_manager::getUrl('tth_horizontal_list',$img).'!';
-					$imgHTML .= '!index.php?rex_media_type=tth_horizontal_list&rex_media_file='.$img.'!';
+					$imgHTML .= '<img src="index.php?rex_media_type=tth_horizontal_list&rex_media_file='.$img.'">';
 				}
-				$mdOutput .= makeRow('Bilder',$imgHTML);
+				$html .= makeRow('Bilder',$imgHTML);
 			}
 			
+			$html .= makeRow('Grobgliederung',makeLinkList($grobgliederungArray,'begriff_id','begriff'));
+
 			// ! first link
 			// !!! make sub function because links often needed (even same as in list views -> make class with helper methods)
-			$mdOutput .= makeRow(
-				'Deskriptor (Benutze)',
-				getEntityLink($r['benutze'], $r['benutze_begriff'])
-			);
-			
+			$html .= makeRow('Synonym von (Benutze)',getLink('begriff_id', $r['benutze'], $r['benutze_begriff']));
+
+
 			// ! needs 5/6 extra queries because of n:m-self relations
-			// !!! try to make list by sql (join, group concat etc.) 
+			// !!! use function
 			$syns = '';
 			foreach($synonyms as $s) {
-				$syns .= getEntityLink($s['id'],$s['begriff']).', ';
+				$syns .= getLink('begriff_id', $s['id'],$s['begriff']).', ';
 			}
 			
-			$mdOutput .= makeRow('Synonyme (Benutzt von)',$syns);
+			$html .= makeRow('Deskriptor von (Benutzt für)',$syns);
 
-			
-			$mdOutput .= "|Autor|";
+			// !!! make function in function to DRY the 'begriff_id','begriff'
+			$html .= makeRow('Oberbegriffe',makeLinkList($oberbegriffeArray,'begriff_id','begriff'));
+			$html .= makeRow('Unterbegriffe',makeLinkList($unterbegriffeArray,'begriff_id','begriff'));
+			$html .= makeRow('Äquivalente Begriffe',makeLinkList($aequivalentsArray,'begriff_id','begriff'));
+			$html .= makeRow('Verwandte Begriffe',makeLinkList($relativesArray,'begriff_id','begriff'));
+
+			$authorText = '';
 			// ! the `if` is important because the SQL may still returen the first entry of tth_autoren for some reason when autor_id=''  ! whole data set not returned when no author; need 0 clause in inner join
 			if ($r['autor']) { // is a generated value; and is NULL when not set
 				// !!! use makeRow
-				$mdOutput .= $r['autor'];
-				if (trim($r['gnd'])) $mdOutput .= ' (GND: '.$r['gnd'].')';
+				$authorText .= $r['autor'];
+				if (trim($r['gnd'])) $authorText .= ' (GND: '.$r['gnd'].')';
 			}
-			$mdOutput .= "|\n";
-			if ($r['quelle_seite']) $mdOutput .= makeRow('Seite in Quelle',$r['quelle_seite']);
+			$html .= makeRow('Autor',$authorText);
 
-			$sourcesStr = '';
-			foreach ($sourcesArray as $s) {
-				$sourcesStr .= getEntityLink($s['id'], $s['kurz'], $sourcesArticleId) . ', ';
-			}
-			$mdOutput .= makeRow('Quellen',$sourcesStr);
+			if ($r['quelle_seite']) $html .= makeRow('Seite in Quelle',$r['quelle_seite']);
+			
+			$html .= makeRow('Quellen',makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
 
-			$mdOutput .= makeRow('Scoped Notes',$r['notes']);
-			$mdOutput .= makeRow('Kategorie',checkTruthyWord($r['kategorie']));
-			$mdOutput .= makeRow('Veröffentlichen?',checkTruthyWord($r['veroeffentlichen']));
-			$mdOutput .= makeRow('Noch bearbeiten',checkTruthyWord($r['bearbeiten']));
+			$html .= makeRow('Scoped Notes',$r['notes']);
+			$html .= makeRow('Kategorie',checkTruthyWord($r['kategorie']));
+			$html .= makeRow('Veröffentlichen?',checkTruthyWord($r['veroeffentlichen']));
+			$html .= makeRow('Noch bearbeiten',checkTruthyWord($r['bearbeiten']));
 						
 			// !!! MD discard! because we need bootstrap responsive table and later cols/rows
-			echo markitup::parseOutput ('textile', $mdOutput);
+			// echo markitup::parseOutput ('textile', $html);
+			echo $html.'</table>';
 			
+			echo '<tr><td></td><td>';
 			dump($rows[0]);
+			echo '</td></tr>';
 		} 
 		else {
 			echo rex_view::warning('Eintrag für ID = '.$id.' nicht gefunden.');
@@ -163,4 +229,5 @@
 		echo rex_view::warning('Eine Detailansicht benötigt die ID als GET-Parameter "begriff_id". Beginne am besten mit der alphabetichen Übersicht!');
 	}
 ?>
+	</div>
 </div>
