@@ -1,34 +1,72 @@
 <?php
 
-function makeFullLineTablle($array) {
-	$html = '';
-	foreach($array as $a) {
-		foreach($a as $key => $value) {
-			$html .= "$key : $value, ";
-		}
-	}
+// !!! need options
+//     - define white-space: nowrap for some columns OR at least column id as CSS class for each cell
+//     - hide some cols
+//     - custom names for field names
+if (!function_exists('makeFullLineTable')) {
+	function makeFullLineTable($array) {
+		$html = '';
 
-	return $html;
+		if (count($array)) {
+			// !!! define outer html outside because you also need a reasonable header!
+			$html = '<table class="table table-responsive">';
+
+			foreach($array[0] as $key => $value) {
+				$html .= '<th>'.$key.'</th>';
+			}
+
+			foreach($array as $a) {
+				$html .= "<tr>";
+				
+				foreach($a as $key => $value) {			
+					$html .= '<td>'.$value.'</td>';
+				}
+				
+				$html .= "</tr>\n";
+			}
+			
+			$html .= '</table>';
+		}
+
+		return $html;
+	}
 }
 
 $prefix = 'tth_';
 $table = '';
 
+// !!! centralized object which contains all information about table schemas and addtional infos such as custom field description names
+//     - should use information from YFORM!! (because you have almost all the info there, additionals could go into rex-config)
 switch('REX_VALUE[1]') {
 	case 'Autoren' : 
 		$table = $prefix.'autoren';
-		// !!! adjustable by in put later
+		// !!! adjustable by input later
 		$order = 'name';
 	break;
 	case 'Begriffsstati' : 
-		$table = $prefix.'begriffstati';
-		// !!! adjustable by in put later
+		$table = $prefix.'begriffsstati';
+		// !!! adjustable by input later
 		$order = 'status';
 	break;
 	case 'Quellen' : 
 		$table = $prefix.'quellen';
-		// !!! adjustable by in put later
+		// !!! adjustable by input later
 		$order = 'kurz';
+	break;
+	case 'Sprachen' : 
+		$table = $prefix.'sprachen';
+		// !!! adjustable by input later
+		$order = 'sprache';
+	break;
+	case 'Regionen' : 
+		$table = $prefix.'regionen';
+		// !!! adjustable by input later
+		$order = 'region';
+	break;
+	case 'Sprachstile' : 
+		$table = $prefix.'sprachstile';
+		$order = 'stil';
 	break;
 }
 
@@ -40,7 +78,7 @@ if ($table) {
 	// dump($rows);
 
 	$html = '';
-	$html .= makeFullLineTablle($rows);
+	$html .= makeFullLineTable($rows);
 	echo $html;
 }
 else {
