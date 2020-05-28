@@ -178,7 +178,7 @@
 
 			// ! first link
 			// !!! make sub function because links often needed (even same as in list views -> make class with helper methods)
-			$html .= makeRow('Synonym von (Benutze)',getLink('begriff_id', $r['benutze'], $r['benutze_begriff']));
+			$html .= makeRow('Synonym von (Benutze)',getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
 
 
 			// ! needs 5/6 extra queries because of n:m-self relations
@@ -187,8 +187,9 @@
 			foreach($synonyms as $s) {
 				$syns .= getLink('begriff_id', $s['id'],$s['begriff']).', ';
 			}
-			
-			$html .= makeRow('Deskriptor von (Benutzt für)',$syns);
+
+			// !!! use small def from Bootstrap
+			$html .= makeRow('Deskriptor von (Benutzt für)',$syns.'<br><small>diese sind zusammen mit dem Begriff "'.$r['begriff'].'" selbst die <em>Äquivalenzklasse</em></small>');
 
 			// !!! make function in function to DRY the 'begriff_id','begriff'
 			$html .= makeRow('Oberbegriffe',makeLinkList($oberbegriffeArray,'begriff_id','begriff'));

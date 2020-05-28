@@ -77,21 +77,36 @@ else {
 	else if ($source || 0 === $source || '0' === $source) {
 		$sql = rex_sql::factory();
 
+		// !!! you'll need to find another way for "not set"
+		//     - need extra treatment for $source === 0
+
 		$tableEntities = 'tth_wortliste';
 		$tableRelationSources = 'tth_begriff_quellen';
 		$tableSources = 'tth_quellen';
 
-		$query = "SELECT $tableEntities.begriff,$tableEntities.id
-		FROM $tableRelationSources
-	    INNER JOIN $tableEntities
-        ON $tableRelationSources.begriff_id = $tableEntities.id
-    	INNER JOIN $tableSources
-		ON $tableRelationSources.quelle_id = $tableSources.id
-		WHERE $tableSources.id = $source";
-		
-		$rows = $sql->getArray($query);
+		if ($source) {
 
-		?><p><strong>Begriffe nach Quelle (ID=<?=$source?>, <?=count($rows)?> Einträge):</strong> <?=makeLinkList($rows, 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
+			$query = "SELECT $tableEntities.id,$tableEntities.begriff
+			FROM $tableRelationSources
+			INNER JOIN $tableEntities
+			ON $tableRelationSources.begriff_id = $tableEntities.id
+			INNER JOIN $tableSources
+			ON $tableRelationSources.quelle_id = $tableSources.id
+			WHERE $tableSources.id = $source";
+		}
+		else {
+			$query = "SELECT $tableEntities.id,$tableEntities.begriff
+			FROM   $tableEntities
+			WHERE  NOT EXISTS
+			  (SELECT *
+			   FROM   $tableRelationSources
+			   WHERE  $tableRelationSources.begriff_id = $tableEntities.id)";
+		}
+			
+		$rows = $sql->getArray($query);
+		
+		// !!! again: provide texts by input value or by SPROG replacement
+		?><p><strong>Begriffe nach Quelle (<?=($source ? 'ID='.$source : 'nicht gesetzt')?>, <?=count($rows)?> Einträge):</strong> <?=makeLinkList($rows, 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
 		<?php	
 	}
 	else {
@@ -119,6 +134,7 @@ else {
 		<?php
 
 		$quellen = $sql->getArray("SELECT id,kurz FROM tth_quellen WHERE 1");
+		// ! you'll need to find another way for "not set"
 		array_push($quellen, array( 'id' => 0, 'kurz' => 'nicht gesetzt'));
 		?>
 		<p><strong>Quelle:</strong> <?=makeLinkList($quellen, 'quelle_id', 'kurz')?></p>
