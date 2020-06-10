@@ -5,6 +5,7 @@
     // $assetsUrlBase = theme_url::assets() .'/';
 	// -- also there: theme_url::base()
 	
+	// !!! put into module or class, like callback for sources
 	function convertCallback($request) {
 		
 		// !!! maybe better to use request and methods of objects inside
@@ -119,7 +120,7 @@
 				<p>Ungültige Auswahl. Überprüfe das Eingabe-Formular!</p>
 				</div>';
 		}
-	}	
+	}
 	
 	?><!doctype html>
 <html lang="en">
@@ -163,9 +164,11 @@
 	    	</div>
 
         <div class="project-logo">
-            <img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" >
-        </div>
-        <div class="project-title">Technischer Thesaurus Holzbau (TTH)</div>
+			<a href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>">
+				<img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" >
+				<span class="project-title">{{ProjektTitel}}</span>
+			</a>
+		</div>
 
 		<h1><?php echo $this->getValue('name')?></h1>
 
