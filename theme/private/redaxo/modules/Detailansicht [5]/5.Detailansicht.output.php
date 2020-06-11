@@ -41,7 +41,7 @@
 		}
 	}
 
-	$id = rex_request('begriff_id');
+	$id = rex_request('begriff_id','int');
 	if ($id) {
 		$sourcesArticleId = 'REX_LINK[id=1 output=id]';
 		if (!$sourcesArticleId) $sourcesArticleId = 'REX_ARTICLE_ID';
@@ -53,8 +53,9 @@
 		$tableRegions = 'tth_regionen';
 		$tableStyles = 'tth_sprachstile';
 
-		$tableSources = 'tth_quellen';
-		$tableRelationSources = 'tth_begriff_quellen';
+		$tableSources = 'tth_quellen'; // needed for resolving names in $tableReferences
+		// $tableRelationSources = 'tth_begriff_quellen';
+		$tableReferences = 'tth_quellenangaben';
 		
 		$tableRelationGrobgliederung = 'tth_begriff_grobgliederung';
 		$tableRelationOberbegriffe = 'tth_begriff_oberbegriffe';
@@ -78,15 +79,19 @@
 		// $query.= "WHERE $tableEntities.id=$id ";
 		// $query.= "GROUP BY $tableEntities.id";
 
-		// !!! can i combine several joins?
-		// ??? or at least sub function for repetition
-		// ??? write other join n:m and combine later
-		$query = "SELECT $tableSources.id, $tableSources.kurz ";
-		$query.= "FROM $tableEntities ";
-		$query.= "JOIN $tableRelationSources ON $tableEntities.id = $tableRelationSources.begriff_id ";
-		$query.= "JOIN $tableSources ON $tableSources.id = $tableRelationSources.quelle_id ";
-		$query.= "WHERE $tableEntities.id=$id ";
-		// $query.= "GROUP BY $tableEntities.id";
+		// original direct sources:
+		// $query = "SELECT $tableSources.id, $tableSources.kurz ";
+		// $query.= "FROM $tableEntities ";
+		// $query.= "JOIN $tableRelationSources ON $tableEntities.id = $tableRelationSources.begriff_id ";
+		// $query.= "JOIN $tableSources ON $tableSources.id = $tableRelationSources.quelle_id ";
+		// $query.= "WHERE $tableEntities.id=$id ";
+		// references list
+		$query = "SELECT r.id, r.quelle_id, r.seitenzahl, r.bevorzugt, s.kurz "; //s.kurz
+		$query.= "FROM $tableReferences r ";
+		$query.= "JOIN $tableSources s ON r.quelle_id = s.id ";
+		// $query.= "JOIN $tableSources ON $tableSources.id = $tableRelationSources.quelle_id ";
+		$query.= "WHERE r.begriff_id=$id ORDER BY r.id ASC";
+
 		$sourcesArray = $sql->getArray($query);
 		// dump($sourcesArray);
 
@@ -197,31 +202,45 @@
 			$html .= makeRow('Äquivalente Begriffe',makeLinkList($aequivalentsArray,'begriff_id','begriff'));
 			$html .= makeRow('Verwandte Begriffe',makeLinkList($relativesArray,'begriff_id','begriff'));
 
-			$authorText = '';
-			// ! the `if` is important because the SQL may still returen the first entry of tth_autoren for some reason when autor_id=''  ! whole data set not returned when no author; need 0 clause in inner join
-			if ($r['autor']) { // is a generated value; and is NULL when not set
-				// !!! use makeRow
-				$authorText .= $r['autor'];
-				if (trim($r['gnd'])) $authorText .= ' (GND: '.$r['gnd'].')';
-			}
-			$html .= makeRow('Autor',$authorText);
-
 			if ($r['quelle_seite']) $html .= makeRow('Seite in Quelle',$r['quelle_seite']);
 			
-			$html .= makeRow('Quellen',makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
+			// $html .= makeRow('Quellen',makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
 
 			$html .= makeRow('Scoped Notes',$r['notes']);
 			$html .= makeRow('Kategorie',checkTruthyWord($r['kategorie']));
 			$html .= makeRow('Veröffentlichen?',checkTruthyWord($r['veroeffentlichen']));
 			$html .= makeRow('Noch bearbeiten',checkTruthyWord($r['bearbeiten']));
-						
-			// !!! MD discard! because we need bootstrap responsive table and later cols/rows
-			// echo markitup::parseOutput ('textile', $html);
+	
+			$authorText = '';
+			// ! the `if` is important because the SQL may still returen the first entry of tth_autoren for some reason when autor_id=''  ! whole data set not returned when no author; need 0 clause in inner join
+			if ($r['autor']) { // is a generated value; and is NULL when not set
+				$authorText .= $r['autor'];
+				// !!! provide link for GND (see code in details of "Quelle")
+				if (trim($r['gnd'])) $authorText .= ' (GND: '.$r['gnd'].')';
+			}
+			$html .= makeRow('Autor',$authorText);
+
 			echo $html.'</table>';
 			
-			echo '<tr><td></td><td>';
-			dump($rows[0]);
-			echo '</td></tr>';
+			// dump($rows[0]);
+			// begin new table for Sources-Entries:
+			$html = '<table class="table table-responsive">';
+			// make header line of table
+			$html .= "<thead><tr><th>#</th><th>Quelle</th><th>Seitenzahl</th><th>Bevorzugt?</th></thead>\n";
+			$i = 1;
+			foreach($sourcesArray as $s) {
+				$html .= "<tr>\n";
+				$html .= "<td>$i</td> ";
+				$html .= "<td>".getLink('quelle_id',$s['quelle_id'], $s['kurz'], $sourcesArticleId)."</td> ";
+				// check for any truthy value
+				$html .= "<td>".($s['seitenzahl'] ? $s['seitenzahl'] : '')."</td> ";
+				// check for any truthy value
+				$html .= "<td>".($s['bevorzugt'] ? 'bevorzugt' : '')."</td> ";
+				// $html .= "<td>${s['bevorzugt']}</td> ";
+				$html .= "</tr>\n";
+				$i++;
+			}
+			echo $html.'</table>';
 		} 
 		else {
 			echo rex_view::warning('Eintrag für ID = '.$id.' nicht gefunden.');
