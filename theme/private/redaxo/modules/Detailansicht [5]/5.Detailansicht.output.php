@@ -160,7 +160,7 @@
 			// make header line of table
 			$html .= '<thead><tr><th>Feld</th><th>Inhalt</th></thead>';
 			
-			$html .= makeRow('ID', $r['id']);
+			// $html .= makeRow('ID', $r['id']);
 			$html .= makeRow('Definition', $r['definition']);
 			
 			$html .= makeRow('Sprache', $r['sprache']);
