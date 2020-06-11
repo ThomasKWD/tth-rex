@@ -150,12 +150,81 @@
 <!-- End Matomo -->
   </head>
   <body>
-		<nav class="main-nav">
-			<?php
-			$nav = rex_navigation::factory();
-			// public function show($category_id = 0, $depth = 3, $open = false, $ignore_offlines = false)
-			$nav->show(0,3,true,true);
-			?>
+		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			<a class="navbar-brand" href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>"><img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" alt="Logo mit übereinanderliegenden Buchstaben TTH, in Braun und Schwarz" width="30" height="30" ></a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		    	<span class="navbar-toggler-icon"></span>
+  			</button>
+
+		  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+			<ul class="navbar-nav ml-auto">
+
+				<?php
+				$path = rex_article::getCurrent()->getPathAsArray();
+				$path1 = ((!empty($path[0])) ? $path[0] : '');
+				$path2 = ((!empty($path[1])) ? $path[1] : '');
+				
+					foreach (rex_category::getRootCategories() as $lev1) {
+						if ($lev1->isOnline(true)) {
+				
+							// zweite Ebene, muss man schon fuer li wissen
+							$lev1Size = sizeof($lev1->getChildren());
+
+							$active = ($lev1->getId() == $path1) ? 'active' : '';
+							$dropdown = ($lev1Size != "0") ? 'dropdown' : '';
+							echo '<li class="nav-item '.$active.' '.$dropdown.'">';
+							if ($dropdown) {
+								echo '<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'.htmlspecialchars($lev1->getValue('name')).'</a>';
+							}
+							else {
+								echo '<a class="nav-link" href="'.$lev1->getUrl().'">'.htmlspecialchars($lev1->getValue('name')).'</a>';
+							}
+				
+				
+							// Soll nur der jeweils aktive Kategoriebaum erscheinen?
+							// Dann die folgende Zeile auskommentieren:
+							// if ($lev1->getId() == $path1) {
+				
+							if ($lev1Size != "0") {
+				
+								// echo '<ul>';
+								echo '<div class="dropdown-menu" aria-labelledby="navbarDropdown">';
+				
+									foreach ($lev1->getChildren() as $lev2) {
+										if ($lev2->isOnline(true)) {
+				
+											$active = ($lev2->getId() == $path2) ? 'active' : '';
+											echo '<a class="dropdown-item '.$active.'" href="'.$lev2->getUrl().'">'.htmlspecialchars($lev2->getValue('name')).'</a>';
+										}
+									}
+				
+								// echo '</ul>';
+								echo '</div>';
+				
+							}
+				
+							// Soll nur der jeweils aktive Kategoriebaum erscheinen?
+							// Dann die folgende Zeile auskommentieren:
+							// }
+				
+							echo '</li>';
+						}
+					}
+				
+
+				// $nav = rex_navigation::factory();
+				// // public function show($category_id = 0, $depth = 3, $open = false, $ignore_offlines = false)
+				// $nav->show(0,3,true,true);
+				?>
+			</ul>
+
+			<!-- <form class="form-inline my-2 my-lg-0">
+			<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+			<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form> -->
+		</div>
+
 		</nav>
 
 
@@ -163,12 +232,22 @@
           <div class="header-login">
 	    	</div>
 
-        <div class="project-logo">
-			<a href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>">
-				<img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" >
-				<span class="project-title">{{ProjektTitel}}</span>
-			</a>
-		</div>
+				<!-- this only start page -->
+				<?php 
+				if (rex_article::getSiteStartArticle()->getId() === rex_article::getCurrent()->getId()) {
+					?>
+				<div class="project-logo">
+					<a href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>">
+						<img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" >
+						<span class="project-title">{{ProjektTitel}}</span>
+					</a>
+				</div>
+				<?php 
+				}
+				else {
+					echo 'normalpage';
+				}
+				?>
 
 		<h1><?php echo $this->getValue('name')?></h1>
 
