@@ -8,7 +8,7 @@ if (!function_exists('makeRow')) {
 }
 
 
-$quelleId = rex_request('quelle_id',int); // the param 'int' should prevent from dangerous inputs
+$quelleId = rex_request('quelle_id','int'); // the param 'int' should prevent from dangerous inputs
 // is_numeric is enough sanitize if we just need an id
 if ($quelleId && is_numeric($quelleId)) {
 	echo 'Zeige Quelle id '.$quelleId;
