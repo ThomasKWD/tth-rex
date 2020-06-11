@@ -175,10 +175,10 @@
 							$dropdown = ($lev1Size != "0") ? 'dropdown' : '';
 							echo '<li class="nav-item '.$active.' '.$dropdown.'">';
 							if ($dropdown) {
-								echo '<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'.htmlspecialchars($lev1->getValue('name')).'</a>';
+								echo '<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'.htmlspecialchars($lev1->getValue('catname')).'</a>';
 							}
 							else {
-								echo '<a class="nav-link" href="'.$lev1->getUrl().'">'.htmlspecialchars($lev1->getValue('name')).'</a>';
+								echo '<a class="nav-link" href="'.$lev1->getUrl().'">'.htmlspecialchars($lev1->getValue('catname')).'</a>';
 							}
 				
 				
@@ -189,13 +189,13 @@
 							if ($lev1Size != "0") {
 				
 								// echo '<ul>';
-								echo '<div class="dropdown-menu" aria-labelledby="navbarDropdown">';
+								echo '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">';
 				
 									foreach ($lev1->getChildren() as $lev2) {
 										if ($lev2->isOnline(true)) {
 				
 											$active = ($lev2->getId() == $path2) ? 'active' : '';
-											echo '<a class="dropdown-item '.$active.'" href="'.$lev2->getUrl().'">'.htmlspecialchars($lev2->getValue('name')).'</a>';
+											echo '<a class="dropdown-item '.$active.'" href="'.$lev2->getUrl().'">'.htmlspecialchars($lev2->getValue('catname')).'</a>';
 										}
 									}
 				
@@ -243,9 +243,6 @@
 					</a>
 				</div>
 				<?php 
-				}
-				else {
-					echo 'normalpage';
 				}
 				?>
 
