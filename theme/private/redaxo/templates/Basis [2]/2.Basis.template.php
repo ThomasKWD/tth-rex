@@ -132,7 +132,7 @@
 
     <link rel="icon" type="image/png" sizes="32x32" href="<?=theme_url::assets('tth-icon-32.png')?>">
     
-	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>">
+	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.1.0">
 
     <title>TTH - <?=$this->getValue('name')?></title>
 
@@ -151,7 +151,9 @@
   </head>
   <body>
 		<nav class="navbar navbar-expand-lg navbar-light bg-light">
-			<a class="navbar-brand" href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>"><img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" alt="Logo mit übereinanderliegenden Buchstaben TTH, in Braun und Schwarz" width="30" height="30" ></a>
+			<?php if(rex_article::getSiteStartArticle()->getId() !== rex_article::getCurrent()->getId()): ?>
+			<a class="navbar-brand" href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>"><img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" alt="Logo mit übereinanderliegenden Buchstaben TTH, in Braun und Schwarz" width="30" height="30" > {{ProjektTitel}}</a>
+			<?php endif; ?>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 		    	<span class="navbar-toggler-icon"></span>
   			</button>
@@ -234,17 +236,14 @@
 
 				<!-- this only start page -->
 				<?php 
-				if (rex_article::getSiteStartArticle()->getId() === rex_article::getCurrent()->getId()) {
-					?>
+				if (rex_article::getSiteStartArticle()->getId() === rex_article::getCurrent()->getId()): ?>
 				<div class="project-logo">
-					<a href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>">
+					<!-- <a href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>"> -->
 						<img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" >
 						<span class="project-title">{{ProjektTitel}}</span>
-					</a>
+					<!-- </a> -->
 				</div>
-				<?php 
-				}
-				?>
+				<?php endif; ?>
 
 		<h1><?php echo $this->getValue('name')?></h1>
 
