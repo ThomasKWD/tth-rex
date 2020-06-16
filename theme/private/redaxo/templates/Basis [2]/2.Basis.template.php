@@ -132,7 +132,7 @@
 
     <link rel="icon" type="image/png" sizes="32x32" href="<?=theme_url::assets('tth-icon-32.png')?>">
     
-	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.1.0">
+	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.2.0">
 
     <title>TTH - <?=$this->getValue('name')?></title>
 
@@ -152,7 +152,7 @@
   <body>
 		<nav class="navbar navbar-expand-lg navbar-light bg-light">
 			<?php if(rex_article::getSiteStartArticle()->getId() !== rex_article::getCurrent()->getId()): ?>
-			<a class="navbar-brand" href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>"><img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" alt="Logo mit übereinanderliegenden Buchstaben TTH, in Braun und Schwarz" width="30" height="30" > {{ProjektTitel}}</a>
+			<a class="navbar-brand" href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>"><img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" alt="Logo mit übereinanderliegenden Buchstaben TTH, in Braun und Schwarz" width="55" height="55" > {{ProjektTitel}}</a>
 			<?php endif; ?>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 		    	<span class="navbar-toggler-icon"></span>

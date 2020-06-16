@@ -231,7 +231,7 @@
 			foreach($sourcesArray as $s) {
 				$html .= "<tr>\n";
 				$html .= "<td>$i</td> ";
-				$html .= "<td>".getLink('quelle_id',$s['quelle_id'], $s['kurz'], $sourcesArticleId)."</td> ";
+				$html .= "<td>".getLink('quelle_id',$s['quelle_id'], '<div class="author-name">'.$s['kurz'].'</div>', $sourcesArticleId)."</td> ";
 				// check for any truthy value
 				$html .= "<td>".($s['seitenzahl'] ? $s['seitenzahl'] : '')."</td> ";
 				// check for any truthy value

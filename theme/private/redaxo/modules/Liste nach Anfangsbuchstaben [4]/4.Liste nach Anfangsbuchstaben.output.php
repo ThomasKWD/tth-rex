@@ -8,7 +8,9 @@ $targetArticleId = 6;
 
 for($i = 0; $i <= 25; $i++ ) {
 	$letter = chr($i+65);
-	echo '<a href="'.rex_getUrl('','',array( 'startletter' => $letter)).'#marker-letters" class="btn btn-primary">'.$letter.'</a> ';
+	if (23 !== $i && 24 !== $i) {
+		echo '<a href="'.rex_getUrl('','',array( 'startletter' => $letter)).'#marker-letters" class="btn btn-primary">'.$letter.'</a> ';
+	}
 }
 
 $startLetter = rex_request('startletter');

@@ -1,8 +1,5 @@
 // all defs are based on Bootstrap 4
 
-.btn {
-	margin: 0 1em 1em 0;
-}
 
 .main-nav {
 	float: right;
@@ -15,4 +12,57 @@
 .project-title {
 	font-size: 3em;
 	// font-weight: bold;
+}
+
+// !!! PROBLEMS:
+//     - only the first word , not each word
+//     - numbers like Years are small instead of larger
+//     - needs a block level element inside <a> which is NOT tidy HTML
+.author-name {
+	// display: inline;
+	font-size: 80%;
+	text-transform: uppercase;
+
+	&::first-letter {
+		font-size: 120%;
+	}
+}
+
+.main-container {
+	a {
+		&:link,
+		&:visited,
+		&:hover,
+		&:focus,
+		&:active {
+			display: inline-block;
+			border-bottom: 1px solid #f8f8f8;
+			text-decoration: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		&:hover,
+		&:focus {
+			border-bottom-color: #ca0101;
+		}
+
+		&.btn {
+			&:link,
+			&:visited,
+			&:hover,
+			&:focus,
+			&:active {
+				min-width: 2.1em;
+				// font-weight: bold;
+				// font-family: 'Courier New', Courier, monospace;
+				display: inline-block;
+				margin: 0 1em 1em 0;
+				border-bottom-width: 0;
+				text-decoration: none;
+				padding: .5em .5em;
+				line-height: 1;
+			}
+		}
+	}
 }
