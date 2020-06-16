@@ -121,7 +121,23 @@
 				</div>';
 		}
 	}
-	
+
+	if (rex_backend_login::createUser()) {
+		$user =  rex::getuser();
+		$login = $user->getValue("login");
+		if ($user->isAdmin()) {
+			$userLevel = 3;
+		}
+		else {
+			$userLevel = 2;
+		}
+	}
+	else {
+		$login = '';
+		$user = null;
+		$userLevel = 1;
+	}
+
 	?><!doctype html>
 <html lang="en">
   <head>
@@ -136,12 +152,6 @@
 
     <title>TTH - <?=$this->getValue('name')?></title>
 
-    <style>
-        .header-login {
-            text-align: right;
-        }
-
-    </style>
 	<?php // rex var for cookie gedoens:  
 			// R E X _ I W C C[]
 			?>
@@ -168,7 +178,7 @@
 				$path2 = ((!empty($path[1])) ? $path[1] : '');
 				
 					foreach (rex_category::getRootCategories() as $lev1) {
-						if ($lev1->isOnline(true)) {
+						if ($lev1->isOnline(true) && intval($lev1->getValue('cat_backenduser')) <= $userLevel) {
 				
 							// zweite Ebene, muss man schon fuer li wissen
 							$lev1Size = sizeof($lev1->getChildren());
@@ -183,7 +193,6 @@
 								echo '<a class="nav-link" href="'.$lev1->getUrl().'">'.htmlspecialchars($lev1->getValue('catname')).'</a>';
 							}
 				
-				
 							// Soll nur der jeweils aktive Kategoriebaum erscheinen?
 							// Dann die folgende Zeile auskommentieren:
 							// if ($lev1->getId() == $path1) {
@@ -194,7 +203,8 @@
 								echo '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">';
 				
 									foreach ($lev1->getChildren() as $lev2) {
-										if ($lev2->isOnline(true)) {
+										// !!! make function `checkUser($lev2->getValue('cat_backenduser'))`
+										if ($lev2->isOnline(true)  && intval($lev2->getValue('cat_backenduser')) <= $userLevel ) {
 				
 											$active = ($lev2->getId() == $path2) ? 'active' : '';
 											echo '<a class="dropdown-item '.$active.'" href="'.$lev2->getUrl().'">'.htmlspecialchars($lev2->getValue('catname')).'</a>';
@@ -227,12 +237,21 @@
 			</form> -->
 		</div>
 
-		</nav>
+	</nav>
 
 
-      <div class="container main-container">
-          <div class="header-login">
-	    	</div>
+	<div class="header-login">
+		<?php
+			// ! use later again 
+			if ($login):
+				echo "eingeloggt als: $login";
+			else:
+			?>
+				<a href="./redaxo/">Login</a>
+			<?php endif; ?>
+	</div>
+
+	<div class="container main-container">
 
 				<!-- this only start page -->
 				<?php 
