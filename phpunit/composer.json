@@ -1,0 +1,17 @@
+{
+    "name": "thomaskwd/redaxo5_bookingplan_article",
+    "description": "A booking plan class for any source input.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thomas Kühne",
+            "email": "thomas@kuehne-webdienste.de"
+        }
+    ],
+    "require": {
+
+	},
+    "require-dev": {
+        "phpunit/phpunit": "^9"
+    }
+}

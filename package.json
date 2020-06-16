@@ -1,0 +1,23 @@
+{
+  "name": "tth-rex",
+  "version": "1.0.0",
+  "description": "portal for tth",
+  "main": "index.js",
+  "dependencies": {
+    "cypress": "^4.8.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "cypress open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThomasKWD/tth-rex.git"
+  },
+  "author": "Thomas K[hne\u001b[D\u001b[D\u001b[ü\u001b[C\u001b[C\u001b[C",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ThomasKWD/tth-rex/issues"
+  },
+  "homepage": "https://github.com/ThomasKWD/tth-rex#readme"
+}
