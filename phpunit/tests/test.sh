@@ -1,3 +1,3 @@
 #!/bin/bash
 
-../vendor/bin/phpunit --bootstrap ../vendor/autoload.php ./tableBuilder.Test.php
+../vendor/bin/phpunit --bootstrap ../vendor/autoload.php .
