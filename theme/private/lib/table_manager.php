@@ -1,4 +1,11 @@
 <?php
+// IDEA: 
+//  - build queries
+//  - manage outputs
+//  - manage names
+//  - DON'T use redaxo classes like rex_sql directly 
+//  - OR pass the needed classes/methods/information from Redaxo as reference
+
 namespace kwd\tth;
 
 class TableManager {
@@ -29,6 +36,24 @@ class TableManager {
 		// initTableNames()
 	}
 
+	/** generates <a> markup for given parameters.
+	 *  
+	 * ??? uses *predefined* `rex_getUrl`
+	 */
+	public function getLink($idName, $id, $desc, $article_id = '') {
+		return '<a href="'.rex_getUrl($article_id, '', array($idName => $id)).'">'.$desc.'</a>';
+	}
+
+	function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
+		$str = '';
+		// !!! use `for` with counter and avoid last comma
+		foreach ($array as $s) {
+			$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ', ';
+		}
+		return $str;
+	}
+
+	
 	public function getTableNames() {
 		return $this->_tableNames; // ! makes copy
 	}

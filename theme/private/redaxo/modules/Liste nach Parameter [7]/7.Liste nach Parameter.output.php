@@ -3,25 +3,10 @@
 // - set params ins module instead for start view
 // - control output by params from url
 
-if (!function_exists('getLink')) {
-	function getLink($idName, $id, $desc, $article_id = '') {
-		// return '<a href="'.rex_getUrl($article_id, '', array('begriff_id' => $id)).'">'.$name.'</a>';
-		return '<a href="'.rex_getUrl($article_id, '', array($idName => $id)).'">'.$desc.'</a>';
-	}
-}
-
-if (!function_exists('makeLinkList')) {
-	function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
-		$str = '';
-		// !!! use `for` with counter and avoid last comma
-		foreach ($array as $s) {
-			$str .= getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ', ';
-		}
-		return $str;
-	}
-}
 
 $detailsArticleId = 'REX_LINK[id=1 output=id]';
+
+$tm = new \kwd\tth\TableManager();
 
 // !!! probably you should use PHP classes/methods to evaluate it(?)
 $search = rex_request('FORM');
@@ -42,7 +27,7 @@ if ($search) {
 		$sql = rex_sql::factory();
 		$query = "SELECT id,begriff from tth_wortliste WHERE begriff LIKE '".str_replace('*','%',$searchPattern)."'";
 		?>
-		<div class="link-list"><?=makeLinkList($sql->getArray($query), 'begriff_id', 'begriff', $detailsArticleId);?></div>
+		<div class="link-list"><?=$tm->makeLinkList($sql->getArray($query), 'begriff_id', 'begriff', $detailsArticleId);?></div>
 		<?php
 	}
 }
@@ -57,7 +42,7 @@ else {
 		// !!! need select of language again to gain name (or pass it in URL!)
 		// !!! more verbose: check if null result
 		?>
-		<p><strong>Begriffe nach Sprache <?=$lang?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprache_id=$lang"), 'begriff_id', 'begriff',  'REX_LINK[id=1 output=id]')?></p>
+		<p><strong>Begriffe nach Sprache <?=$lang?>:</strong> <?=$tm->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprache_id=$lang"), 'begriff_id', 'begriff',  'REX_LINK[id=1 output=id]')?></p>
 		<?php
 	}
 	else if ($region || 0 === $region || '0' === $region) {
@@ -65,13 +50,13 @@ else {
 		// !!! need select of region again to gain name (or pass it in URL!)
 		// !!! more verbose: check if null result
 		?>
-		<p><strong>Begriffe nach Region <?=$region?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE region_id=$region"), 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
+		<p><strong>Begriffe nach Region <?=$region?>:</strong> <?=$tm->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE region_id=$region"), 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
 		<?php	
 	}
 	else if ($style || 0 === $style || '0' === $style) {
 		$sql = rex_sql::factory();
 		?>
-		<p><strong>Begriffe nach Sprachstil <?=$style?>:</strong> <?=makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprachstil_id=$style"), 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
+		<p><strong>Begriffe nach Sprachstil <?=$style?>:</strong> <?=$tm->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprachstil_id=$style"), 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
 		<?php	
 	}
 	else if ($source || 0 === $source || '0' === $source) {
@@ -106,7 +91,7 @@ else {
 		$rows = $sql->getArray($query);
 		
 		// !!! again: provide texts by input value or by SPROG replacement
-		?><p><strong>Begriffe nach Quelle (<?=($source ? 'ID='.$source : 'nicht gesetzt')?>, <?=count($rows)?> Einträge):</strong> <?=makeLinkList($rows, 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
+		?><p><strong>Begriffe nach Quelle (<?=($source ? 'ID='.$source : 'nicht gesetzt')?>, <?=count($rows)?> Einträge):</strong> <?=$tm->makeLinkList($rows, 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
 		<?php	
 	}
 	else {
@@ -118,27 +103,27 @@ else {
 		// id = 0 automatically causes SQL to find unset entries
 		array_push($languages, array( 'id' => 0, 'sprache' => 'nicht gesetzt'));
 		?>
-		<p><strong>Sprache:</strong> <?=makeLinkList($languages, 'sprache_id', 'sprache')?></p>
+		<p><strong>Sprache:</strong> <?=$tm->makeLinkList($languages, 'sprache_id', 'sprache')?></p>
 		<?php
 
 		$regions = $sql->getArray("SELECT id,region FROM tth_regionen WHERE 1");
 		array_push($regions, array( 'id' => 0, 'region' => 'nicht gesetzt'));
 		?>
-		<p><strong>Region:</strong> <?=makeLinkList($regions, 'region_id', 'region')?></p>
+		<p><strong>Region:</strong> <?=$tm->makeLinkList($regions, 'region_id', 'region')?></p>
 		<?php
 
 		$styles = $sql->getArray("SELECT id,stil FROM tth_sprachstile WHERE 1");
 		array_push($styles, array( 'id' => 0, 'stil' => 'nicht gesetzt'));
 		?>
-		<p><strong>Sprachstil:</strong> <?=makeLinkList($styles, 'sprachstil_id', 'stil')?></p>
+		<p><strong>Sprachstil:</strong> <?=$tm->makeLinkList($styles, 'sprachstil_id', 'stil')?></p>
 		<?php
 
 		$quellen = $sql->getArray("SELECT id,kurz FROM tth_quellen WHERE 1");
 		// ! you'll need to find another way for "not set"
 		array_push($quellen, array( 'id' => 0, 'kurz' => 'nicht gesetzt'));
 		?>
-		<p><strong>Quelle:</strong> <?=makeLinkList($quellen, 'quelle_id', 'kurz')?></p>
+		<p><strong>Quelle:</strong> <?=$tm->makeLinkList($quellen, 'quelle_id', 'kurz')?></p>
 		<?php
-}
+	}
 }
 ?>
