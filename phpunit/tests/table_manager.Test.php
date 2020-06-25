@@ -61,7 +61,7 @@ class DataSetQuellenTest extends TestCase {
 		$this->assertSame($tables['entity_subs'], $prefix.'begriff_unterbegriffe');
 		// ! not used anymore
 		// $this->assertSame($tables['entity_sources'], $prefix.'begriff_quellen');
-		$this->assertSame($tables['entity_equivalent'], $prefix.'begriff_aequivalente');
+		$this->assertSame($tables['entity_equivalents'], $prefix.'begriff_aequivalente');
 		$this->assertSame($tables['references'], $prefix.'quellenangaben');
 		$this->assertSame($tables['references_fields'], $prefix.'quellenangaben_felder');
 		$this->assertSame($tables['tablenames'], $prefix.'tabellennamen');
@@ -134,5 +134,28 @@ class DataSetQuellenTest extends TestCase {
 		// !!! make more flexible by allowing white-space (check with regex)
 		// ! note trailing new-line
 		$this->assertSame("<tr><td>thomas</td><td>andreas</td></tr>\n", $tm->makeRow('thomas', 'andreas'));
+	}
+
+	function testBuildInnerRelationQuery() {
+		$tm = new TableManager();
+		
+		$query = "SELECT e2.id, e2.begriff ";
+		$query.= "FROM tth_wortliste e1 ";
+		$query.= "JOIN tth_begriff_verwandte g1 ON e1.id = g1.begriff_id ";
+		$query.= "JOIN tth_wortliste e2 ON e2.id = g1.verwandter_id ";
+		$query.= "WHERE e1.id=1234 ";
+		$this->assertSame($query, $tm->buildInnerRelationQuery('relatives', 1234));
+		
+		$query = "SELECT e2.id, e2.begriff ";
+		$query.= "FROM tth_wortliste e1 ";
+		$query.= "JOIN tth_begriff_aequivalente g1 ON e1.id = g1.begriff_id ";
+		$query.= "JOIN tth_wortliste e2 ON e2.id = g1.aequivalent_id ";
+		$query.= "WHERE e1.id=654 ";
+		$this->assertSame($query, $tm->buildInnerRelationQuery('equivalents', 654));
+		
+		// the following just test existing of needed table and field names in $tm
+		$this->assertStringContainsString('tth_begriff_grobgliederung', $tm->buildInnerRelationQuery('structuring', 654));
+		$this->assertStringContainsString('tth_begriff_oberbegriffe', $tm->buildInnerRelationQuery('supers', 654));
+		$this->assertStringContainsString('tth_begriff_unterbegriffe', $tm->buildInnerRelationQuery('subs', 654));
 	}
 }

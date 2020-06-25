@@ -20,34 +20,12 @@
 		// $tableRelationSources = 'tth_begriff_quellen';
 		$tableReferences = 'tth_quellenangaben';
 		
-		$tableRelationGrobgliederung = 'tth_begriff_grobgliederung';
-		$tableRelationOberbegriffe = 'tth_begriff_oberbegriffe';
-		$tableRelationUnterbegriffe = 'tth_begriff_unterbegriffe';
-		$tableRelationAequivalents = 'tth_begriff_aequivalente';
-		$tableRelationRelatives = 'tth_begriff_verwandte';
-		
 		$sql = rex_sql::factory();
 
 		// idea: make combi-query via alias names for other self-relations of tth_wortlise
 		// or maybe using other join commands here
 		$synonymsQuery = "SELECT t1.id,t1.begriff from $tableEntities t1 WHERE t1.benutze=$id";
 		$synonyms = $sql->getArray($synonymsQuery);
-		// dump($synonyms);
-
-		// relation table join (comma separated entries)
-		// $query = "SELECT GROUP_CONCAT(CONCAT($tableSources.id,'~',$tableSources.kurz) SEPARATOR \", \" ) AS sources ";
-		// $query.= "FROM $tableEntities ";
-		// $query.= "JOIN $tableRelationSources ON $tableEntities.id = $tableRelationSources.begriff_id ";
-		// $query.= "JOIN $tableSources ON $tableSources.id = $tableRelationSources.quelle_id ";
-		// $query.= "WHERE $tableEntities.id=$id ";
-		// $query.= "GROUP BY $tableEntities.id";
-
-		// original direct sources:
-		// $query = "SELECT $tableSources.id, $tableSources.kurz ";
-		// $query.= "FROM $tableEntities ";
-		// $query.= "JOIN $tableRelationSources ON $tableEntities.id = $tableRelationSources.begriff_id ";
-		// $query.= "JOIN $tableSources ON $tableSources.id = $tableRelationSources.quelle_id ";
-		// $query.= "WHERE $tableEntities.id=$id ";
 		// references list
 		$query = "SELECT r.id, r.quelle_id, r.seitenzahl, r.bevorzugt, s.kurz "; //s.kurz
 		$query.= "FROM $tableReferences r ";
@@ -56,49 +34,8 @@
 		$query.= "WHERE r.begriff_id=$id ORDER BY r.id ASC";
 
 		$sourcesArray = $sql->getArray($query);
-		// dump($sourcesArray);
-
-		$query = "SELECT e2.id, e2.begriff ";
-		$query.= "FROM $tableEntities e1 ";
-		$query.= "JOIN $tableRelationGrobgliederung g1 ON e1.id = g1.begriff_id ";
-		$query.= "JOIN $tableEntities e2 ON e2.id = g1.grobgliederung_id ";
-		$query.= "WHERE e1.id=$id ";
-		// test debug
-		// $query = "SELECT id, begriff, grobgliederung FROM $tableEntities WHERE grobgliederung LIKE '%;%'";
-		$grobgliederungArray = $sql->getArray($query);
-
-		$query = "SELECT e2.id, e2.begriff ";
-		$query.= "FROM $tableEntities e1 ";
-		$query.= "JOIN $tableRelationOberbegriffe g1 ON e1.id = g1.begriff_id ";
-		$query.= "JOIN $tableEntities e2 ON e2.id = g1.oberbegriff_id ";
-		$query.= "WHERE e1.id=$id ";
-		$oberbegriffeArray = $sql->getArray($query);
-
-		$query = "SELECT e2.id, e2.begriff ";
-		$query.= "FROM $tableEntities e1 ";
-		$query.= "JOIN $tableRelationUnterbegriffe g1 ON e1.id = g1.begriff_id ";
-		$query.= "JOIN $tableEntities e2 ON e2.id = g1.unterbegriff_id ";
-		$query.= "WHERE e1.id=$id ";
-		$unterbegriffeArray = $sql->getArray($query);
-
-		$query = "SELECT e2.id, e2.begriff ";
-		$query.= "FROM $tableEntities e1 ";
-		$query.= "JOIN $tableRelationAequivalents g1 ON e1.id = g1.begriff_id ";
-		$query.= "JOIN $tableEntities e2 ON e2.id = g1.aequivalent_id ";
-		$query.= "WHERE e1.id=$id ";
-		$aequivalentsArray = $sql->getArray($query);
-
-		$query = "SELECT e2.id, e2.begriff ";
-		$query.= "FROM $tableEntities e1 ";
-		$query.= "JOIN $tableRelationRelatives g1 ON e1.id = g1.begriff_id ";
-		$query.= "JOIN $tableEntities e2 ON e2.id = g1.verwandter_id ";
-		$query.= "WHERE e1.id=$id ";
-		$relativesArray = $sql->getArray($query);
-
-		// don't use the '*' and name all fields needed
-
+		
 		// ! b is first alias for $tableEntities, b2 is the second for benutze
-
 		$query = "SELECT b.begriff,b.id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.bild,$tableStati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,";
 		$query .= "b2.begriff AS benutze_begriff,CONCAT($tableAuthors.vorname, ' ', $tableAuthors.name) AS autor,";
 		$query .= "$tableLanguage.sprache AS sprache,";
@@ -142,27 +79,42 @@
 				$html .= $tm->makeRow('Bilder',$imgHTML);
 			}
 			
-			$html .= $tm->makeRow('Grobgliederung',$tm->makeLinkList($grobgliederungArray,'begriff_id','begriff'));
-
+			$html .= $tm->makeRow(
+				'Grobgliederung',
+				$tm->getInnerRelationLinkList($sql, 'structuring', $id)
+			);
+			
 			// ! first link
-			// !!! make sub function because links often needed (even same as in list views -> make class with helper methods)
 			$html .= $tm->makeRow('Synonym von (Benutze)',$tm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
-
+			
 			// ! needs 5/6 extra queries because of n:m-self relations
-			// !!! use function
 			$syns = '';
 			foreach($synonyms as $s) {
 				$syns .= $tm->getLink('begriff_id', $s['id'],$s['begriff']).', ';
 			}
-
+			
 			// !!! use small def from Bootstrap
 			$html .= $tm->makeRow('Deskriptor von (Benutzt für)',$syns.'<br><small>diese sind zusammen mit dem Begriff "'.$r['begriff'].'" selbst die <em>Äquivalenzklasse</em></small>');
-
-			// !!! make function in function to DRY the 'begriff_id','begriff'
-			$html .= $tm->makeRow('Oberbegriffe',$tm->makeLinkList($oberbegriffeArray,'begriff_id','begriff'));
-			$html .= $tm->makeRow('Unterbegriffe',$tm->makeLinkList($unterbegriffeArray,'begriff_id','begriff'));
-			$html .= $tm->makeRow('Äquivalente Begriffe',$tm->makeLinkList($aequivalentsArray,'begriff_id','begriff'));
-			$html .= $tm->makeRow('Verwandte Begriffe',$tm->makeLinkList($relativesArray,'begriff_id','begriff'));
+			
+			$html .= $tm->makeRow(
+				'Oberbegriffe',
+				$tm->getInnerRelationLinkList($sql, 'supers', $id)
+			);
+			
+			$html .= $tm->makeRow(
+				'Unterbegriffe',
+				$tm->getInnerRelationLinkList($sql, 'subs', $id)
+			);
+			
+			$html .= $tm->makeRow(
+				'Äquivalente Begriffe',
+				$tm->getInnerRelationLinkList($sql, 'equivalents', $id)
+			);
+			
+			$html .= $tm->makeRow(
+				'Verwandte Begriffe',
+				$tm->getInnerRelationLinkList($sql, 'relatives', $id)
+			);
 
 			if ($r['quelle_seite']) $html .= $tm->makeRow('Seite in Quelle',$r['quelle_seite']);
 			

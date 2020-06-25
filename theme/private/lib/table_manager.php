@@ -11,7 +11,7 @@ namespace kwd\tth;
 class TableManager {
 	const TABLE_PREFIX = 'tth_';
 
-	protected $_tableNames = array(
+	protected $tableNames = array(
 		'entities' => self::TABLE_PREFIX . 'wortliste',
 		'sources' => self::TABLE_PREFIX . 'quellen',
 		'sources_authors' => self::TABLE_PREFIX . 'quellen_autoren',
@@ -22,13 +22,28 @@ class TableManager {
 		'languagestyles' => self::TABLE_PREFIX .'sprachstile',
 		'metaentities' => self::TABLE_PREFIX .'metabegriffe',
 		'entity_relatives' => self::TABLE_PREFIX .'begriff_verwandte',
+		'entity_structuring' => self::TABLE_PREFIX .'begriff_grobgliederung',
 		'entity_supers' => self::TABLE_PREFIX .'begriff_oberbegriffe',
 		'entity_subs' => self::TABLE_PREFIX .'begriff_unterbegriffe',
-		'entity_subs' => self::TABLE_PREFIX .'begriff_unterbegriffe',
-		'entity_equivalent' => self::TABLE_PREFIX .'begriff_aequivalente',
+		'entity_equivalents' => self::TABLE_PREFIX .'begriff_aequivalente',
 		'references' => self::TABLE_PREFIX .'quellenangaben',
 		'references_fields' => self::TABLE_PREFIX .'quellenangaben_felder',
 		'tablenames' => self::TABLE_PREFIX .'tabellennamen'
+	);
+
+
+	protected $tableIdFields = array(
+		'entity' => 'begriff_id',
+		'structuring' => 'grobgliederung_id',
+		'supers' => 'oberbegriff_id',
+		'subs' => 'unterbegriff_id',
+		'relatives' => 'verwandter_id',
+		'equivalents' => 'aequivalent_id',
+	);
+
+	protected $tableFields = array(
+		'name' => 'name',
+		'entity' => 'begriff'
 	);
 
 	function __construct() {
@@ -36,6 +51,26 @@ class TableManager {
 		// initTableNames()
 	}
 
+	/**
+	 * make a SQL query from known tablenames and a certain inner relation of entities and an id.
+	 * 		
+	 * $query = "SELECT e2.id, e2.begriff ";
+		$query.= "FROM $tableEntities e1 ";
+		$query.= "JOIN $tableRelationAequivalents g1 ON e1.id = g1.begriff_id ";
+		$query.= "JOIN $tableEntities e2 ON e2.id = g1.aequivalent_id ";
+		$query.= "WHERE e1.id=$id ";
+ 
+	 */
+	function buildInnerRelationQuery($relationType, $id) {
+		$query = "SELECT e2.id, e2.{$this->tableFields['entity']} ";
+		$query.= "FROM {$this->tableNames['entities']} e1 ";
+		// ! next line gives SQL exception on wrong value in $relationType
+		$query.= "JOIN {$this->tableNames['entity_'.$relationType]} g1 ON e1.id = g1.{$this->tableIdFields['entity']} ";
+		$query.= "JOIN {$this->tableNames['entities']} e2 ON e2.id = g1.{$this->tableIdFields[$relationType]} ";
+		$query.= "WHERE e1.id=$id ";
+		return $query;
+	}
+	
 	/**
 	 * check a boolean field expressed by a word (string) as provided by YForm or Access
 	 * 
@@ -55,6 +90,15 @@ class TableManager {
 		return 'nein';
 	}
 
+	// $tm->getInnerRelationLinkList($sql, 'structuring', $id)
+	public function getInnerRelationLinkList(&$sql, $type, $id) {		
+		return $this->makeLinkList(
+			$sql->getArray($this->buildInnerRelationQuery($type, $id)),
+			'begriff_id',
+			'begriff'
+		);
+	}
+
 	/** generates <a> markup for given parameters.
 	 *  
 	 * ??? uses *predefined* `rex_getUrl`
@@ -64,7 +108,7 @@ class TableManager {
 	}
 
 	public function getTableNames() {
-		return $this->_tableNames; // ! makes copy
+		return $this->tableNames; // ! makes copy
 	}
 
 	public function getTablePrefix() {
