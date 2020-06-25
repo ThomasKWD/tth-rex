@@ -3,7 +3,6 @@
 // - set params ins module instead for start view
 // - control output by params from url
 
-
 $detailsArticleId = 'REX_LINK[id=1 output=id]';
 
 $tm = new \kwd\tth\TableManager();

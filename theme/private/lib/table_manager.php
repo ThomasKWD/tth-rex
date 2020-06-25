@@ -46,13 +46,13 @@ class TableManager {
 
 	function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
 		$str = '';
-		// !!! use `for` with counter and avoid last comma
-		foreach ($array as $s) {
-			$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ', ';
+		$length = count($array);
+		for($i = 0; $i < $length; $i++) {
+			$s = $array[$i];
+			$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ($i < $length - 1 ? ', ' : '');
 		}
 		return $str;
 	}
-
 	
 	public function getTableNames() {
 		return $this->_tableNames; // ! makes copy
