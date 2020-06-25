@@ -112,4 +112,19 @@ class DataSetQuellenTest extends TestCase {
 		$str = $tm->makeLinkList($data, 'begriff_id', 'sprache', 7); // string 'sprache' must be key in sub arrays
 		$this->assertSame('<a href="./index.php?article_id=7&amp;begriff_id=1">Deutsch</a>, <a href="./index.php?article_id=7&amp;begriff_id=2">Englisch</a>, <a href="./index.php?article_id=7&amp;begriff_id=3">Tschechisch</a>',$str);
 	}
+
+	function testCheckTruthyWord() {
+		$tm = new TableManager();
+
+		$this->assertSame('nein', $tm->checkTruthyWord(false));
+		$this->assertSame('ja', $tm->checkTruthyWord(true));
+		$this->assertSame('ja', $tm->checkTruthyWord('true'));
+		$this->assertSame('nein', $tm->checkTruthyWord('false'));
+		$this->assertSame('ja', $tm->checkTruthyWord('TRUE'));
+		$this->assertSame('nein', $tm->checkTruthyWord('FALSE'));
+		$this->assertSame('ja', $tm->checkTruthyWord('WAHR'));
+		$this->assertSame('nein', $tm->checkTruthyWord('Falsch'));
+		$this->assertSame('ja', $tm->checkTruthyWord('Wahr'));
+		$this->assertSame('nein', $tm->checkTruthyWord('falsch'));
+	}
 }

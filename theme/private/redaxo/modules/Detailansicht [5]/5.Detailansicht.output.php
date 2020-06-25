@@ -2,7 +2,7 @@
 <div class="row detailed-view">
 	<div class="col">
 <?php
-	/// !!! please put into class into theme!
+	$tm = new \kwd\tth\TableManager();
 
 	if (!function_exists('makeRow')) {
 		function makeRow($key,$value) {
@@ -11,35 +11,18 @@
 		}
 	}
 
-	if (!function_exists('getLink')) {
-		function getLink($idName, $id, $desc, $article_id = '') {
-			// return '<a href="'.rex_getUrl($article_id, '', array('begriff_id' => $id)).'">'.$name.'</a>';
-			return '<a href="'.rex_getUrl($article_id, '', array($idName => $id)).'">'.$desc.'</a>';
-		}
-	}
+	// 	if (!function_exists('checkTruthyWord')) {
+	// 	function checkTruthyWord($word) {
+	// 		if ($word) {
+	// 			$word = strtoupper($word);
+	// 			if($word === 'WAHR' || $word === 'TRUE'){					
+	// 				return 'ja';
+	// 			}
+	// 		}
 
-	if (!function_exists('makeLinkList')) {
-		function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
-			$str = '';
-			foreach ($array as $s) {
-				$str .= getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ', ';
-			}
-			return $str;
-		}
-	}
-
-		if (!function_exists('checkTruthyWord')) {
-		function checkTruthyWord($word) {
-			if ($word) {
-				$word = strtoupper($word);
-				if($word === 'WAHR' || $word === 'TRUE'){					
-					return 'ja';
-				}
-			}
-
-			return 'nein';
-		}
-	}
+	// 		return 'nein';
+	// 	}
+	// }
 
 	$id = rex_request('begriff_id','int');
 	if ($id) {
@@ -179,32 +162,31 @@
 				$html .= makeRow('Bilder',$imgHTML);
 			}
 			
-			$html .= makeRow('Grobgliederung',makeLinkList($grobgliederungArray,'begriff_id','begriff'));
+			$html .= makeRow('Grobgliederung',$tm->makeLinkList($grobgliederungArray,'begriff_id','begriff'));
 
 			// ! first link
 			// !!! make sub function because links often needed (even same as in list views -> make class with helper methods)
-			$html .= makeRow('Synonym von (Benutze)',getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
-
+			$html .= makeRow('Synonym von (Benutze)',$tm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
 
 			// ! needs 5/6 extra queries because of n:m-self relations
 			// !!! use function
 			$syns = '';
 			foreach($synonyms as $s) {
-				$syns .= getLink('begriff_id', $s['id'],$s['begriff']).', ';
+				$syns .= $tm->getLink('begriff_id', $s['id'],$s['begriff']).', ';
 			}
 
 			// !!! use small def from Bootstrap
 			$html .= makeRow('Deskriptor von (Benutzt für)',$syns.'<br><small>diese sind zusammen mit dem Begriff "'.$r['begriff'].'" selbst die <em>Äquivalenzklasse</em></small>');
 
 			// !!! make function in function to DRY the 'begriff_id','begriff'
-			$html .= makeRow('Oberbegriffe',makeLinkList($oberbegriffeArray,'begriff_id','begriff'));
-			$html .= makeRow('Unterbegriffe',makeLinkList($unterbegriffeArray,'begriff_id','begriff'));
-			$html .= makeRow('Äquivalente Begriffe',makeLinkList($aequivalentsArray,'begriff_id','begriff'));
-			$html .= makeRow('Verwandte Begriffe',makeLinkList($relativesArray,'begriff_id','begriff'));
+			$html .= makeRow('Oberbegriffe',$tm->makeLinkList($oberbegriffeArray,'begriff_id','begriff'));
+			$html .= makeRow('Unterbegriffe',$tm->makeLinkList($unterbegriffeArray,'begriff_id','begriff'));
+			$html .= makeRow('Äquivalente Begriffe',$tm->makeLinkList($aequivalentsArray,'begriff_id','begriff'));
+			$html .= makeRow('Verwandte Begriffe',$tm->makeLinkList($relativesArray,'begriff_id','begriff'));
 
 			if ($r['quelle_seite']) $html .= makeRow('Seite in Quelle',$r['quelle_seite']);
 			
-			// $html .= makeRow('Quellen',makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
+			// $html .= makeRow('Quellen',$tm->makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
 
 			$html .= makeRow('Scoped Notes',$r['notes']);
 			$html .= makeRow('Kategorie',checkTruthyWord($r['kategorie']));
@@ -231,7 +213,7 @@
 			foreach($sourcesArray as $s) {
 				$html .= "<tr>\n";
 				$html .= "<td>$i</td> ";
-				$html .= "<td>".getLink('quelle_id',$s['quelle_id'], '<div class="author-name">'.$s['kurz'].'</div>', $sourcesArticleId)."</td> ";
+				$html .= "<td>".$tm->getLink('quelle_id',$s['quelle_id'], '<div class="author-name">'.$s['kurz'].'</div>', $sourcesArticleId)."</td> ";
 				// check for any truthy value
 				$html .= "<td>".($s['seitenzahl'] ? $s['seitenzahl'] : '')."</td> ";
 				// check for any truthy value

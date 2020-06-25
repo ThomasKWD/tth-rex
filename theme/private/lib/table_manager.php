@@ -36,6 +36,25 @@ class TableManager {
 		// initTableNames()
 	}
 
+	/**
+	 * check a boolean field expressed by a word (string) as provided by YForm or Access
+	 * 
+	 * !!! language independent
+	 * 
+	 * @param word string as found in DB field
+	 * @return string in German which expresses true ("ja") or false ("nein")
+	 */
+	function checkTruthyWord($word) {
+		if ($word) {
+			if ($word !== true) $word = strtoupper($word);
+			if($word === true || $word === 'WAHR' || $word === 'TRUE'){					
+				return 'ja';
+			}
+		}
+
+		return 'nein';
+	}
+
 	/** generates <a> markup for given parameters.
 	 *  
 	 * ??? uses *predefined* `rex_getUrl`
