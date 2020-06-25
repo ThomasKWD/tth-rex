@@ -118,13 +118,21 @@ class DataSetQuellenTest extends TestCase {
 
 		$this->assertSame('nein', $tm->checkTruthyWord(false));
 		$this->assertSame('ja', $tm->checkTruthyWord(true));
-		$this->assertSame('ja', $tm->checkTruthyWord('true'));
 		$this->assertSame('nein', $tm->checkTruthyWord('false'));
-		$this->assertSame('ja', $tm->checkTruthyWord('TRUE'));
+		$this->assertSame('ja', $tm->checkTruthyWord('true'));
 		$this->assertSame('nein', $tm->checkTruthyWord('FALSE'));
-		$this->assertSame('ja', $tm->checkTruthyWord('WAHR'));
+		$this->assertSame('ja', $tm->checkTruthyWord('TRUE'));
 		$this->assertSame('nein', $tm->checkTruthyWord('Falsch'));
-		$this->assertSame('ja', $tm->checkTruthyWord('Wahr'));
+		$this->assertSame('ja', $tm->checkTruthyWord('WAHR'));
 		$this->assertSame('nein', $tm->checkTruthyWord('falsch'));
+		$this->assertSame('ja', $tm->checkTruthyWord('Wahr'));
+	}
+
+	function testMakeRow() {
+		$tm = new TableManager();
+
+		// !!! make more flexible by allowing white-space (check with regex)
+		// ! note trailing new-line
+		$this->assertSame("<tr><td>thomas</td><td>andreas</td></tr>\n", $tm->makeRow('thomas', 'andreas'));
 	}
 }

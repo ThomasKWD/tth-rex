@@ -4,26 +4,6 @@
 <?php
 	$tm = new \kwd\tth\TableManager();
 
-	if (!function_exists('makeRow')) {
-		function makeRow($key,$value) {
-			// return '|'.$key.'|'.$value."|\n";
-			return '<tr><td>'.$key.'</td><td>'.$value."</td></tr>\n";
-		}
-	}
-
-	// 	if (!function_exists('checkTruthyWord')) {
-	// 	function checkTruthyWord($word) {
-	// 		if ($word) {
-	// 			$word = strtoupper($word);
-	// 			if($word === 'WAHR' || $word === 'TRUE'){					
-	// 				return 'ja';
-	// 			}
-	// 		}
-
-	// 		return 'nein';
-	// 	}
-	// }
-
 	$id = rex_request('begriff_id','int');
 	if ($id) {
 		$sourcesArticleId = 'REX_LINK[id=1 output=id]';
@@ -143,14 +123,14 @@
 			// make header line of table
 			$html .= '<thead><tr><th>Feld</th><th>Inhalt</th></thead>';
 			
-			// $html .= makeRow('ID', $r['id']);
-			$html .= makeRow('Definition', $r['definition']);
+			// $html .= $tm->makeRow('ID', $r['id']);
+			$html .= $tm->makeRow('Definition', $r['definition']);
 			
-			$html .= makeRow('Sprache', $r['sprache']);
-			$html .= makeRow('Sprachstil', $r['sprachstil']);
-			$html .= makeRow('Region', ($r['region']) ? $r['region'] : "");
-			$html .= makeRow('Begriffcode', $r['code']);
-			$html .= makeRow('Begriffs-Status',$r['status']);
+			$html .= $tm->makeRow('Sprache', $r['sprache']);
+			$html .= $tm->makeRow('Sprachstil', $r['sprachstil']);
+			$html .= $tm->makeRow('Region', ($r['region']) ? $r['region'] : "");
+			$html .= $tm->makeRow('Begriffcode', $r['code']);
+			$html .= $tm->makeRow('Begriffs-Status',$r['status']);
 			// ! redaxo file list is *comma* separated
 			if ($r['bild']) {
 				// ! separator ',' is determined by redaxo
@@ -159,14 +139,14 @@
 				foreach ($images as $img) {
 					$imgHTML .= '<img src="index.php?rex_media_type=tth_horizontal_list&rex_media_file='.$img.'">';
 				}
-				$html .= makeRow('Bilder',$imgHTML);
+				$html .= $tm->makeRow('Bilder',$imgHTML);
 			}
 			
-			$html .= makeRow('Grobgliederung',$tm->makeLinkList($grobgliederungArray,'begriff_id','begriff'));
+			$html .= $tm->makeRow('Grobgliederung',$tm->makeLinkList($grobgliederungArray,'begriff_id','begriff'));
 
 			// ! first link
 			// !!! make sub function because links often needed (even same as in list views -> make class with helper methods)
-			$html .= makeRow('Synonym von (Benutze)',$tm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
+			$html .= $tm->makeRow('Synonym von (Benutze)',$tm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
 
 			// ! needs 5/6 extra queries because of n:m-self relations
 			// !!! use function
@@ -176,22 +156,22 @@
 			}
 
 			// !!! use small def from Bootstrap
-			$html .= makeRow('Deskriptor von (Benutzt für)',$syns.'<br><small>diese sind zusammen mit dem Begriff "'.$r['begriff'].'" selbst die <em>Äquivalenzklasse</em></small>');
+			$html .= $tm->makeRow('Deskriptor von (Benutzt für)',$syns.'<br><small>diese sind zusammen mit dem Begriff "'.$r['begriff'].'" selbst die <em>Äquivalenzklasse</em></small>');
 
 			// !!! make function in function to DRY the 'begriff_id','begriff'
-			$html .= makeRow('Oberbegriffe',$tm->makeLinkList($oberbegriffeArray,'begriff_id','begriff'));
-			$html .= makeRow('Unterbegriffe',$tm->makeLinkList($unterbegriffeArray,'begriff_id','begriff'));
-			$html .= makeRow('Äquivalente Begriffe',$tm->makeLinkList($aequivalentsArray,'begriff_id','begriff'));
-			$html .= makeRow('Verwandte Begriffe',$tm->makeLinkList($relativesArray,'begriff_id','begriff'));
+			$html .= $tm->makeRow('Oberbegriffe',$tm->makeLinkList($oberbegriffeArray,'begriff_id','begriff'));
+			$html .= $tm->makeRow('Unterbegriffe',$tm->makeLinkList($unterbegriffeArray,'begriff_id','begriff'));
+			$html .= $tm->makeRow('Äquivalente Begriffe',$tm->makeLinkList($aequivalentsArray,'begriff_id','begriff'));
+			$html .= $tm->makeRow('Verwandte Begriffe',$tm->makeLinkList($relativesArray,'begriff_id','begriff'));
 
-			if ($r['quelle_seite']) $html .= makeRow('Seite in Quelle',$r['quelle_seite']);
+			if ($r['quelle_seite']) $html .= $tm->makeRow('Seite in Quelle',$r['quelle_seite']);
 			
-			// $html .= makeRow('Quellen',$tm->makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
+			// $html .= $tm->makeRow('Quellen',$tm->makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
 
-			$html .= makeRow('Scoped Notes',$r['notes']);
-			$html .= makeRow('Kategorie',checkTruthyWord($r['kategorie']));
-			$html .= makeRow('Veröffentlichen?',checkTruthyWord($r['veroeffentlichen']));
-			$html .= makeRow('Noch bearbeiten',checkTruthyWord($r['bearbeiten']));
+			$html .= $tm->makeRow('Scoped Notes',$r['notes']);
+			$html .= $tm->makeRow('Kategorie',$tm->checkTruthyWord($r['kategorie']));
+			$html .= $tm->makeRow('Veröffentlichen?',$tm->checkTruthyWord($r['veroeffentlichen']));
+			$html .= $tm->makeRow('Noch bearbeiten',$tm->checkTruthyWord($r['bearbeiten']));
 	
 			$authorText = '';
 			// ! the `if` is important because the SQL may still returen the first entry of tth_autoren for some reason when autor_id=''  ! whole data set not returned when no author; need 0 clause in inner join
@@ -200,7 +180,7 @@
 				// !!! provide link for GND (see code in details of "Quelle")
 				if (trim($r['gnd'])) $authorText .= ' (GND: '.$r['gnd'].')';
 			}
-			$html .= makeRow('Autor',$authorText);
+			$html .= $tm->makeRow('Autor',$authorText);
 
 			echo $html.'</table>';
 			

@@ -1,12 +1,5 @@
 <?php
-
-if (!function_exists('makeRow')) {
-	function makeRow($key,$value) {
-		// return '|'.$key.'|'.$value."|\n";
-		return '<tr><td>'.$key.'</td><td>'.$value."</td></tr>\n";
-	}
-}
-
+	$tm = new \kwd\tth\TableManager();
 
 $quelleId = rex_request('quelle_id','int'); // the param 'int' should prevent from dangerous inputs
 // is_numeric is enough sanitize if we just need an id
@@ -32,10 +25,10 @@ if ($quelleId && is_numeric($quelleId)) {
 		<table class="table table-responsive">
 		<?php	
 		$html = '';
-		$html .= makeRow('Titel',$r['titel']);
-		$html .= makeRow('Jahr',$r['jahr']);
-		$html .= makeRow('ISBN',$r['isbn']);
-		$html .= makeRow('Kurzform',$r['kurz']);
+		$html .= $tm->makeRow('Titel',$r['titel']);
+		$html .= $tm->makeRow('Jahr',$r['jahr']);
+		$html .= $tm->makeRow('ISBN',$r['isbn']);
+		$html .= $tm->makeRow('Kurzform',$r['kurz']);
 		// !!! make link to details for author table (or general link to table with all authors, still not many)
 		$authorsHtml = '';
 		foreach($authors as $a) {
@@ -46,7 +39,7 @@ if ($quelleId && is_numeric($quelleId)) {
 			}
 			$authorsHtml .= ", ";
 		}
-		$html .= makeRow('Autoren',$authorsHtml.'<small>alte Autor-IDs zum Abgleich: '.$r['autor_id'].'</small>');
+		$html .= $tm->makeRow('Autoren',$authorsHtml.'<small>alte Autor-IDs zum Abgleich: '.$r['autor_id'].'</small>');
 
 		echo $html;
 		?>

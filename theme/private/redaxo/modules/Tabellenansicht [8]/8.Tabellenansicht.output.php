@@ -1,45 +1,14 @@
 <?php
+$tm = new \kwd\tth\TableManager();
 
-// !!! need options
-//     - define white-space: nowrap for some columns OR at least column id as CSS class for each cell
-//     - hide some cols
-//     - custom names for field names
-if (!function_exists('makeFullLineTable')) {
-	function makeFullLineTable($array) {
-		$html = '';
-
-		if (count($array)) {
-			// !!! define outer html outside because you also need a reasonable header!
-			$html = '<table class="table table-responsive">';
-
-			foreach($array[0] as $key => $value) {
-				$html .= '<th>'.$key.'</th>';
-			}
-
-			foreach($array as $a) {
-				$html .= "<tr>";
-				
-				foreach($a as $key => $value) {			
-					$html .= '<td>'.$value.'</td>';
-				}
-				
-				$html .= "</tr>\n";
-			}
-			
-			$html .= '</table>';
-		}
-
-		return $html;
-	}
-}
-
-$prefix = 'tth_';
+$prefix = $tm->getTablePrefix();
 $table = '';
 
 // !!! centralized object which contains all information about table schemas and addtional infos such as custom field description names
 //     - should use information from YFORM!! (because you have almost all the info there, additionals could go into rex-config)
 switch('REX_VALUE[1]') {
 	case 'Autoren' : 
+		// /// try to get around without using table name strings directly 
 		$table = $prefix.'autoren';
 		// !!! adjustable by input later
 		$order = 'name';
@@ -78,7 +47,32 @@ if ($table) {
 	// dump($rows);
 
 	$html = '';
-	$html .= makeFullLineTable($rows);
+
+	// !!! need options
+	//     - define white-space: nowrap for some columns OR at least column id as CSS class for each cell
+	//     - hide some cols
+	//     - custom names for field names
+	if (count($rows)) {
+
+		$html = '<table class="table table-responsive">';
+
+		foreach($rows[0] as $key => $value) {
+			$html .= '<th>'.$key.'</th>';
+		}
+
+		foreach($rows as $a) {
+			$html .= "<tr>";
+			
+			foreach($a as $key => $value) {			
+				$html .= '<td>'.$value.'</td>';
+			}
+			
+			$html .= "</tr>\n";
+		}
+
+		$html .= '</table>';
+	}
+
 	echo $html;
 }
 else {

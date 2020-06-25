@@ -63,6 +63,14 @@ class TableManager {
 		return '<a href="'.rex_getUrl($article_id, '', array($idName => $id)).'">'.$desc.'</a>';
 	}
 
+	public function getTableNames() {
+		return $this->_tableNames; // ! makes copy
+	}
+
+	public function getTablePrefix() {
+		return self::TABLE_PREFIX;
+	}
+
 	function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
 		$str = '';
 		$length = count($array);
@@ -73,12 +81,11 @@ class TableManager {
 		return $str;
 	}
 	
-	public function getTableNames() {
-		return $this->_tableNames; // ! makes copy
-	}
-
-	public function getTablePrefix() {
-		return self::TABLE_PREFIX;
+	/**
+	 * generate simple "key-value-table row"
+	 */
+	function makeRow($key, $value) {
+		return '<tr><td>'.$key.'</td><td>'.$value."</td></tr>\n";
 	}
 
 	/** reads table names from DB and checks if set variables are ok
