@@ -135,11 +135,8 @@ class DataSetQuellenTest extends TestCase {
 
 	/**
 	 * @test
-	 * @covers makeLinkList
+	 * @covers checkTruthyWord
 	 * 
-	 * public function getLink($idName, $id, $desc, $article_id = '') {
-	 * 
-	 * <a href="./index.php?article_id=6&amp;begriff_id=1410"
 	 */
 	function testCheckTruthyWord() {
 		$tm = new TableManager();
@@ -201,6 +198,9 @@ class DataSetQuellenTest extends TestCase {
 	 * @test
 	 * @covers getInnerRelationLinkList
 	 * 
+	 * needs stub for object referenced. The stub of type `rex_sql` cannot 
+	 * parse the given query or even cover side effects
+	 * or throw exceptions as the original object does
 	 */
 	function testGetInnerRelationLinkList() {
 		$rex_sql_instance = new rex_sql();
