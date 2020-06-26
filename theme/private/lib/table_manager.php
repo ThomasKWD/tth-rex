@@ -54,12 +54,6 @@ class TableManager {
 	/**
 	 * make a SQL query from known tablenames and a certain inner relation of entities and an id.
 	 * 		
-	 * $query = "SELECT e2.id, e2.begriff ";
-		$query.= "FROM $tableEntities e1 ";
-		$query.= "JOIN $tableRelationAequivalents g1 ON e1.id = g1.begriff_id ";
-		$query.= "JOIN $tableEntities e2 ON e2.id = g1.aequivalent_id ";
-		$query.= "WHERE e1.id=$id ";
- 
 	 */
 	function buildInnerRelationQuery($relationType, $id) {
 		$query = "SELECT e2.id, e2.{$this->tableFields['entity']} ";
@@ -90,7 +84,11 @@ class TableManager {
 		return 'nein';
 	}
 
-	// $tm->getInnerRelationLinkList($sql, 'structuring', $id)
+	/** queries rows from SQL and produced markup for link list
+	 *  
+	 * This is a helper for DRYing code
+	 * @param sql object of type rex_sql needing method `getArray`
+	 */
 	public function getInnerRelationLinkList(&$sql, $type, $id) {		
 		return $this->makeLinkList(
 			$sql->getArray($this->buildInnerRelationQuery($type, $id)),
@@ -101,7 +99,7 @@ class TableManager {
 
 	/** generates <a> markup for given parameters.
 	 *  
-	 * ??? uses *predefined* `rex_getUrl`
+	 * uses *predefined* `rex_getUrl` stub
 	 */
 	public function getLink($idName, $id, $desc, $article_id = '') {
 		return '<a href="'.rex_getUrl($article_id, '', array($idName => $id)).'">'.$desc.'</a>';

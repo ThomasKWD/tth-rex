@@ -28,6 +28,26 @@ function rex_getUrl($article_id = '', $clang = '', $params = array()) {
 	return "./index.php?article_id=$article_id$c$p";
 }
 
+class rex_sql {
+	public function getArray($query) {
+		$rows = array();
+		$rows[] = array(
+			'id' => 123,
+			'begriff_id' => 234,
+			'begriff' => 'Ankerbalken'
+		);
+		$rows[] = array(
+			'id' => 124,
+			'begriff_id' => '789',
+			'begriff' => 'Holznagel'
+		);
+
+		return $rows;
+	}
+} 
+
+// tests:
+
 /**
 *	@test
 */
@@ -113,6 +133,14 @@ class DataSetQuellenTest extends TestCase {
 		$this->assertSame('<a href="./index.php?article_id=7&amp;begriff_id=1">Deutsch</a>, <a href="./index.php?article_id=7&amp;begriff_id=2">Englisch</a>, <a href="./index.php?article_id=7&amp;begriff_id=3">Tschechisch</a>',$str);
 	}
 
+	/**
+	 * @test
+	 * @covers makeLinkList
+	 * 
+	 * public function getLink($idName, $id, $desc, $article_id = '') {
+	 * 
+	 * <a href="./index.php?article_id=6&amp;begriff_id=1410"
+	 */
 	function testCheckTruthyWord() {
 		$tm = new TableManager();
 
@@ -128,6 +156,11 @@ class DataSetQuellenTest extends TestCase {
 		$this->assertSame('ja', $tm->checkTruthyWord('Wahr'));
 	}
 
+	/**
+	 * @test
+	 * @covers makeRow
+	 * 
+	 */
 	function testMakeRow() {
 		$tm = new TableManager();
 
@@ -136,6 +169,11 @@ class DataSetQuellenTest extends TestCase {
 		$this->assertSame("<tr><td>thomas</td><td>andreas</td></tr>\n", $tm->makeRow('thomas', 'andreas'));
 	}
 
+	/**
+	 * @test
+	 * @covers buildInnerRelationQuery
+	 * 
+	 */
 	function testBuildInnerRelationQuery() {
 		$tm = new TableManager();
 		
@@ -157,5 +195,20 @@ class DataSetQuellenTest extends TestCase {
 		$this->assertStringContainsString('tth_begriff_grobgliederung', $tm->buildInnerRelationQuery('structuring', 654));
 		$this->assertStringContainsString('tth_begriff_oberbegriffe', $tm->buildInnerRelationQuery('supers', 654));
 		$this->assertStringContainsString('tth_begriff_unterbegriffe', $tm->buildInnerRelationQuery('subs', 654));
+	}
+
+	/**
+	 * @test
+	 * @covers getInnerRelationLinkList
+	 * 
+	 */
+	function testGetInnerRelationLinkList() {
+		$rex_sql_instance = new rex_sql();
+		$tm = new TableManager();
+		$links = $tm->getInnerRelationLinkList($rex_sql_instance, 'supers', 678);
+		$this->assertSame(
+			'<a href="./index.php?article_id=1&amp;begriff_id=123">Ankerbalken</a>, <a href="./index.php?article_id=1&amp;begriff_id=124">Holznagel</a>',
+			$links
+		);
 	}
 }
