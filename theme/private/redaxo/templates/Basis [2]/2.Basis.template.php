@@ -8,9 +8,6 @@
 	// !!! put into module or class, like callback for sources
 	function convertCallback($request) {
 		
-		// !!! maybe better to use request and methods of objects inside
-		// dump($request);
-
 		$formData = rex_request('FORM');
 		$fieldFromForm = strtolower($formData['formular'][0]);
 		
@@ -119,6 +116,57 @@
 			echo '<div class="alert alert-primary" role="alert">
 				<p>Ungültige Auswahl. Überprüfe das Eingabe-Formular!</p>
 				</div>';
+		}
+	}
+
+	
+	// setup
+	///////////////////////////////////////////////////////////////////////////////
+
+	// ! sets 6 as default only if no config found
+	// - cool thing: rex_config is *cached*
+	$detailsArticleId = rex_config::get('tth', 'article_entity_details');
+	if (!$detailsArticleId) {
+		$detailsArticleId = 6;
+		rex_config::set('tth','article_entity_details',$detailsArticleId);
+	}
+
+	// central search form
+	///////////////////////////////////////////////////////////////////////////////
+
+	// !!! just get action from searchfield *without YForm*
+	$wSearch = rex_request('wordlistsearch', 'string');
+	if ($wSearch) {
+		$searchPattern = rex_escape($wSearch);
+		if ($searchPattern) {
+
+			// !!! sanitize (e.g. only letters, underscore, space and *)
+
+			// ! change pattern to always have PART of word when no *
+			if (false === strpos($searchPattern,'*')) {
+				$searchPattern = '*'.$searchPattern.'*';
+			}
+			
+			$searchPattern = 
+				str_replace("'","",
+				str_replace("`","",
+				str_replace('"','',
+				str_replace("\n",'',
+				str_replace(';','',
+				$searchPattern
+			)))));
+
+			// !!! set article id by module param
+			$sql = rex_sql::factory();
+			$query = "SELECT id,begriff from tth_wortliste WHERE begriff LIKE ".str_replace('*','%',$sql->escape($searchPattern));
+			$rows = $sql->getArray($query);
+			if ($rows && count($rows)) {
+				$tm = new \kwd\tth\TableManager();
+				$searchResultList = $tm->makeLinkList($rows, 'begriff_id', 'begriff', $detailsArticleId);
+			}
+			else {
+				$searchResultList = '';
+			}
 		}
 	}
 
@@ -231,12 +279,12 @@
 				?>
 			</ul>
 
-			<!-- <form class="form-inline my-2 my-lg-0">
-			<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-			<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-			</form> -->
+			<form class="form-inline my-2 my-lg-0" action="<?=rex_getUrl('')?>" method="get">
+			<input type="hidden" id="article_id" name="article_id" value="<?=rex_article::getCurrent()->getId()?>">
+			<input id="wordlistsearch" name="wordlistsearch" class="form-control mr-sm-2" type="search" placeholder="Wort(teil)" aria-label="Wort">
+			<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Suchen</button>
+			</form>
 		</div>
-
 	</nav>
 
 
@@ -253,17 +301,26 @@
 
 	<div class="container main-container">
 
-				<!-- this only start page -->
-				<?php 
-				if (rex_article::getSiteStartArticle()->getId() === rex_article::getCurrent()->getId()): ?>
-				<div class="project-logo">
-					<!-- <a href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>"> -->
-						<img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" >
-						<span class="project-title">{{ProjektTitel}}</span>
-					<!-- </a> -->
-				</div>
-				<?php endif; ?>
+		<!-- this only start page -->
+		<?php 
+		if (rex_article::getSiteStartArticle()->getId() === rex_article::getCurrent()->getId()): ?>
+		<div class="project-logo">
+			<!-- <a href="<?=rex_getUrl(rex_article::getSiteStartArticle()->getId())?>"> -->
+				<img class="logo-graphics" src="<?=theme_url::assets('tth-logo.png')?>" >
+				<span class="project-title">{{ProjektTitel}}</span>
+			<!-- </a> -->
+		</div>
+		<?php endif; ?>
 
+		<?php 
+		// think about redirecting to a certain search page
+		if ($wSearch):
+		?>
+		<div class="jumbotron">
+			<h3><?php echo $searchResultList ? '' : '<strong>Keine</strong> '?>Ergebnisse für "<?=$wSearch?>"</h3>
+			<p><?=$searchResultList?></p>
+		</div>
+		<?php endif; ?>
 		<h1><?php echo $this->getValue('name')?></h1>
 
 		<?php // ! convention every module must be aware to be inside the main container and should always provide rows and cols

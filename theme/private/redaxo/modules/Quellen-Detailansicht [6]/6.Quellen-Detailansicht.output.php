@@ -23,7 +23,7 @@ if ($quelleId && is_numeric($quelleId)) {
 		echo "<h2>${r['kurz']}</h2>";
 		?>
 		<table class="table table-responsive">
-		<?php	
+		<?php
 		$html = '';
 		$html .= $tm->makeRow('Titel',$r['titel']);
 		$html .= $tm->makeRow('Jahr',$r['jahr']);
