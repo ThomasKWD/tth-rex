@@ -148,7 +148,7 @@
 
     <link rel="icon" type="image/png" sizes="32x32" href="<?=theme_url::assets('tth-logo.png')?>">
     
-	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.2.0">
+	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.2.01">
 
     <title>TTH - <?=$this->getValue('name')?></title>
 
