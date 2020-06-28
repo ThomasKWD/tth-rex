@@ -4,7 +4,8 @@
   "description": "portal for tth",
   "main": "index.js",
   "dependencies": {
-    "cypress": "^4.8.0"
+    "cypress": "^4.8.0",
+    "jquery-autocomplete": "^1.2.8"
   },
   "devDependencies": {},
   "scripts": {

@@ -131,8 +131,25 @@
 		rex_config::set('tth','article_entity_details',$detailsArticleId);
 	}
 
-	// central search form
+	// central search form PRE-send
 	///////////////////////////////////////////////////////////////////////////////
+
+	$sql = rex_sql::factory();
+	$query = "SELECT begriff from tth_wortliste WHERE 1 ORDER BY begriff ASC";
+	$rows = $sql->getArray($query);
+	
+	$completeWordList = '';
+	foreach($rows as $k => $v) {
+		$completeWordList .= '"'. $v['begriff'] .'", ';
+	}
+
+	// echo $completeWordList;
+
+	// central search form EVALUATE-received
+	///////////////////////////////////////////////////////////////////////////////
+
+	// !!! go directly to details
+	//     you can achieve this by sending ids? read more in autocomplete docs!!!
 
 	// !!! just get action from searchfield *without YForm*
 	$wSearch = rex_request('wordlistsearch', 'string');
@@ -157,7 +174,7 @@
 			)))));
 
 			// !!! set article id by module param
-			$sql = rex_sql::factory();
+			// $sql = rex_sql::factory();
 			$query = "SELECT id,begriff from tth_wortliste WHERE begriff LIKE ".str_replace('*','%',$sql->escape($searchPattern));
 			$rows = $sql->getArray($query);
 			if ($rows && count($rows)) {
@@ -196,6 +213,7 @@
 
     <link rel="icon" type="image/png" sizes="32x32" href="<?=theme_url::assets('tth-logo.png')?>">
     
+	<link rel="stylesheet" href="<?=theme_url::assets('vendor/jquery.auto-complete.css')?>">
 	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.2.01">
 
     <title>TTH - <?=$this->getValue('name')?></title>
@@ -279,9 +297,10 @@
 				?>
 			</ul>
 
+			
 			<form class="form-inline my-2 my-lg-0" action="<?=rex_getUrl('')?>" method="get">
+			<input id="wordlistsearch" class="form-control mr-sm-2" name="wordlistsearch" type="search" placeholder="Wort(teil)" aria-label="Wort">
 			<input type="hidden" id="article_id" name="article_id" value="<?=rex_article::getCurrent()->getId()?>">
-			<input id="wordlistsearch" name="wordlistsearch" class="form-control mr-sm-2" type="search" placeholder="Wort(teil)" aria-label="Wort">
 			<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Suchen</button>
 			</form>
 		</div>
@@ -334,5 +353,22 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script src="<?=theme_url::assets('vendor/jquery.auto-complete.min.js')?>"></script>
+	<script>
+		$(document).ready(function() {
+			$('#wordlistsearch').autoComplete({
+				minChars: 1,
+				delay : 50,
+				source: function(term, suggest){
+					term = term.toLowerCase();
+					var choices = [<?=$completeWordList?>];
+					var matches = [];
+					for (i=0; i<choices.length; i++)
+						if (~choices[i].toLowerCase().indexOf(term)) matches.push(choices[i]);
+					suggest(matches);
+				}
+			});
+		});
+	</script>
   </body>
 </html>
