@@ -1,0 +1,1 @@
+Quellkategorie der Artikel, die aufgelistet werden sollen:

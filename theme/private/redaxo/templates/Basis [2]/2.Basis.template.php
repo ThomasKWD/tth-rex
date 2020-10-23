@@ -343,7 +343,36 @@
 		<h1><?php echo $this->getValue('name')?></h1>
 
 		<?php // ! convention every module must be aware to be inside the main container and should always provide rows and cols
-		?>
+			if ($isBlog):
+				$art = rex_article::getCurrent();
+				// !!! find elegant ay to use rex object
+				// !!! for list of blogs: one query for all users
+				$sql = rex_sql::factory();
+				$query = "SELECT id,name,login FROM rex_user WHERE login = \"" . $art->getValue('createuser') ."\"";
+				$users = $sql->getArray($query);
+				$blogUserName = $users[0]['name'];
+				$blogImgSrc = rex_media_manager::getUrl('blog_author','blogautor_'.strtolower($art->getValue('createuser')).'.jpg');
+				// dump($blogImgSrc);
+
+				setlocale(LC_TIME,'de_DE.utf8', 'de_DE@euro.utf8', 'de_DE.utf8', 'de.utf8','ge.utf8','german.utf8','German.utf8');
+				$blogCreateDate = strftime("%e. %b. %Y", $art->getValue('createdate'));
+				$blogUpdateDate = strftime("%e. %b. %Y", $art->getValue('updatedate') + 40);
+				?>
+				<div class="blog-header">
+					<p>
+						<img src="<?=$blogImgSrc?>">
+						von <?=$blogUserName?>
+					</p>
+					<p class="blog-date">
+						erstellt am <?=$blogCreateDate?>
+						<?php 
+							if ($blogCreateDate !== $blogUpdateDate) {
+								echo ', zuletzt geändert am '. $blogUpdateDate;
+							}
+							?>
+					</p>
+				</div>
+			<?php endif;?>
         REX_ARTICLE[]
 		<?php 
 		 ?>

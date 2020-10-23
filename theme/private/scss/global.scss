@@ -65,6 +65,22 @@
 			}
 		}
 	}
+
+	.blog-header {
+		width: 100%;
+		margin-top: 1em;
+		border-top: thin solid #ddd;
+		padding-top: 1em; 
+
+		.blog-date {
+			font-style: italic;
+			font-size: 90%;
+			width: 100%;
+			text-align: right;
+			margin-top: -4em;
+			margin-bottom: 4em;
+		}
+	}
 }
 
 .header-login {
