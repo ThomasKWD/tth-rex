@@ -345,18 +345,20 @@
 		<?php // ! convention every module must be aware to be inside the main container and should always provide rows and cols
 			if ($isBlog):
 				$art = rex_article::getCurrent();
-				// !!! find elegant ay to use rex object
-				// !!! for list of blogs: one query for all users
 				$sql = rex_sql::factory();
 				$query = "SELECT id,name,login FROM rex_user WHERE login = \"" . $art->getValue('createuser') ."\"";
 				$users = $sql->getArray($query);
-				$blogUserName = $users[0]['name'];
+				$blogUserName = rex_escape($users[0]['name']);
 				$blogImgSrc = rex_media_manager::getUrl('blog_author','blogautor_'.strtolower($art->getValue('createuser')).'.jpg');
 				// dump($blogImgSrc);
 
 				setlocale(LC_TIME,'de_DE.utf8', 'de_DE@euro.utf8', 'de_DE.utf8', 'de.utf8','ge.utf8','german.utf8','German.utf8');
 				$blogCreateDate = strftime("%e. %b. %Y", $art->getValue('createdate'));
 				$blogUpdateDate = strftime("%e. %b. %Y", $art->getValue('updatedate') + 40);
+
+				// !!! markup: use bootstrap media or box content styling for header or at least row/col so that 
+				//             img floats as expected!
+				//             -> also needed for name versus date because of mobile devices
 				?>
 				<div class="blog-header">
 					<p>
@@ -374,8 +376,91 @@
 				</div>
 			<?php endif;?>
         REX_ARTICLE[]
-		<?php 
-		 ?>
+		<?php if ($isBlog): 
+			// !!! use class or fragment for comment list code
+
+			// get all comments
+			// - article_id
+			// - group by 
+			// - make tree after fetch
+			$query = "SELECT * FROM rex_blog_reply WHERE articleID = " . $this->getValue('article_id') ." ORDER BY `createdate` ASC";
+			// always inited HERE
+			$comments = $sql->getArray($query);
+			// dump($comments);
+			
+			if (count($comments)):
+			?>
+			<div class="blog-comments">
+				<h2>Kommentare</h2>
+
+				<!-- bootstrap box? -->
+				<?php
+				$user_sql = rex_sql::factory();
+				foreach ($comments as $reply):
+				?>
+					<div class="comment-entry">
+						<div class="comment-entry-header">
+							<?php
+							// get chosen name
+							$chosenName = trim(rex_escape($reply['name']));
+							if (!strlen($chosenName)) {
+								// get name from ycom user when set
+								if ($reply['ycomCreateUser']) {
+									// !!! is result of user get in redaxo tricks easier (because only 1 row expected?)
+									// Neue rex_sql Instanz
+									$user_sql->setQuery("SELECT name,firstname FROM " . rex::getTable('ycom_user') . " WHERE id = :id",  array(":id" => $reply['ycomCreateUser']));
+									// Übergabe
+									$chosenName = 
+										rex_escape($user_sql->getValue('firstname')) .
+										rex_escape($user_sql->getValue('name'));
+								}
+							}
+							echo $chosenName;
+							// get comment create date 
+							// !!! use updatedate when found!
+							// !!! check if rex_escape does `trim()`!
+							$dateString = rex_escape($reply['createdate']);
+							// ! using sql date format output is more work than just saving timestamp (only better readable in DB)
+							$date = DateTime::createFromFormat('Y-m-d H:i:s', $dateString);
+							if ($date) {
+								$replyCreateDate = $date->format('d.m.Y');
+							}
+							if (!$replyCreateDate) $replyCreateDate = '(unbekanntes Datum)';
+							?>
+							schrieb am <?=$replyCreateDate?>:
+						</div>
+						<?=rex_escape($reply['comment'])?>
+					</div>
+				<?php endforeach; ?>
+			</div>
+
+			<?php endif;?>
+
+			<div class="blog-add-comment">
+			<!--
+				!!!
+				- add hidden box which then explains what anonymous or registered comment means with privacy notes...
+				- also explains tah register is needed if user wants to edit or delete comment
+				- otherwise mail to tth@kuehne-webdienste.de
+				- the box appears on button click
+				- the box must be always there when no JS
+				- use bootstrap form markup rules
+				- nicer: 2 tabs (bootstrap), not appearing until general "kommentieren" clicked
+			-->
+			<?php
+			$check = rex_request('action');
+			// dump($check);
+			?>
+			<!--
+			<form action=<?=rex_getUrl('')?> method="POST">
+			<input id="comment_anonymous" type="submit" name="action" value="Anonym kommentieren"/>
+			<input id="comment_login" type="submit" name="action" value="Anmelden und kommentieren" />
+				< ! -- <button type="submit" id="request_comment" value="2">Anonym kommentieren</button>
+				<button type="submit" value="request_ycom_login">Anmelden und kommentieren</button> - - >
+			</form>
+			-->
+		</div>
+		<?php endif; ?>
     </div>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -383,6 +468,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	<script src="<?=theme_url::assets('vendor/jquery.auto-complete.min.js')?>"></script>
+	<!-- !!! not efficient because template output differs each call while JS code always the same EXCEPT WORDLIST-->
 	<script>
 		$(document).ready(function() {
 			$('#wordlistsearch').autoComplete({
