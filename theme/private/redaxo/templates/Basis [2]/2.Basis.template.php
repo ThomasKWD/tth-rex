@@ -209,7 +209,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 
     <link rel="icon" type="image/png" sizes="32x32" href="<?=theme_url::assets('tth-logo.png')?>">
     
@@ -377,18 +377,19 @@
 			<?php endif;?>
         REX_ARTICLE[]
 		<?php if ($isBlog): 
-			// !!! use class or fragment for comment list code
 
-			// get all comments
-			// - article_id
-			// - group by 
-			// - make tree after fetch
-			$query = "SELECT * FROM rex_blog_reply WHERE articleID = " . $this->getValue('article_id') ." ORDER BY `createdate` ASC";
-			// always inited HERE
-			$comments = $sql->getArray($query);
-			// dump($comments);
+			// !!! use class or fragment for *comment list code*
+			//     - group by comment
+			//     - make tree after fetch
 			
-			if (count($comments)):
+
+			$query = "SELECT * FROM rex_blog_reply WHERE articleID = " . $this->getValue('article_id') ." ORDER BY `createdate` ASC";
+			// $comments = $sql->getArray($query);
+			$sql->setQuery($query);
+
+			// while ($s)$commentRows
+			$comments = array(); // as long as debug
+			if ($sql->hasNext()):
 			?>
 			<div class="blog-comments">
 				<h2>Kommentare</h2>
@@ -396,42 +397,36 @@
 				<!-- bootstrap box? -->
 				<?php
 				$user_sql = rex_sql::factory();
-				foreach ($comments as $reply):
+				// foreach ($comments as $reply):
+				while ($sql->hasNext()):
 				?>
 					<div class="comment-entry">
 						<div class="comment-entry-header">
 							<?php
 							// get chosen name
-							$chosenName = trim(rex_escape($reply['name']));
+							// $chosenName = trim(rex_escape($reply['name']));
+							$chosenName = trim(rex_escape($sql->getValue('name')));
 							if (!strlen($chosenName)) {
 								// get name from ycom user when set
-								if ($reply['ycomCreateUser']) {
+								// if ($reply['ycomCreateUser']) {
+								if ($sql->getValue('ycomCreateUser')) {
 									// !!! is result of user get in redaxo tricks easier (because only 1 row expected?)
 									// Neue rex_sql Instanz
-									$user_sql->setQuery("SELECT name,firstname FROM " . rex::getTable('ycom_user') . " WHERE id = :id",  array(":id" => $reply['ycomCreateUser']));
+									// $user_sql->setQuery("SELECT name,firstname FROM " . rex::getTable('ycom_user') . " WHERE id = :id",  array(":id" => $reply['ycomCreateUser']));
+									$user_sql->setQuery("SELECT name,firstname FROM " . rex::getTable('ycom_user') . " WHERE id = :id",  array(":id" => $sql->getValue('ycomCreateUser')));
 									// Übergabe
 									$chosenName = 
-										rex_escape($user_sql->getValue('firstname')) .
+										rex_escape($user_sql->getValue('firstname')) . ' ' .
 										rex_escape($user_sql->getValue('name'));
 								}
 							}
 							echo $chosenName;
-							// get comment create date 
-							// !!! use updatedate when found!
-							// !!! check if rex_escape does `trim()`!
-							$dateString = rex_escape($reply['createdate']);
-							// ! using sql date format output is more work than just saving timestamp (only better readable in DB)
-							$date = DateTime::createFromFormat('Y-m-d H:i:s', $dateString);
-							if ($date) {
-								$replyCreateDate = $date->format('d.m.Y');
-							}
-							if (!$replyCreateDate) $replyCreateDate = '(unbekanntes Datum)';
 							?>
-							schrieb am <?=$replyCreateDate?>:
+							schrieb am <?=date('d.m.Y', $sql->getDateTimeValue('createdate'))?>:
 						</div>
-						<?=rex_escape($reply['comment'])?>
+						<?=rex_escape($sql->getValue('comment'))?>
 					</div>
-				<?php endforeach; ?>
+				<?php $sql->next(); endwhile; ?>
 			</div>
 
 			<?php endif;?>
@@ -451,22 +446,64 @@
 			$check = rex_request('action');
 			// dump($check);
 			?>
-			<!--
-			<form action=<?=rex_getUrl('')?> method="POST">
-			<input id="comment_anonymous" type="submit" name="action" value="Anonym kommentieren"/>
-			<input id="comment_login" type="submit" name="action" value="Anmelden und kommentieren" />
-				< ! -- <button type="submit" id="request_comment" value="2">Anonym kommentieren</button>
-				<button type="submit" value="request_ycom_login">Anmelden und kommentieren</button> - - >
-			</form>
-			-->
+			<p>
+				<button id="btn-comment" type="button" class="btn btn-outline-success" data-toggle="collapse" data-target="#comment-container" aria-expanded="false" aria-controls="collapseExample">Kommentar hinzufügen</button>
+			</p>
+			<div id="comment-container" class="collapse">
+				<div  class="card">
+					<div class="card-body">
+						<form action=<?=rex_getUrl('')?> method="POST">
+
+							<div class="form-row">
+								<div class="form-group col-md-6">
+								<label for="inputEmail4">Email</label>
+								<input type="email" class="form-control" id="inputEmail4">
+								</div>
+								<div class="form-group col-md-6">
+								<label for="inputPassword4">Password</label>
+								<input type="password" class="form-control" id="inputPassword4">
+								</div>
+							</div>
+
+							<div class="form-group row">
+								<label for="comment-name" class="col-sm-2 col-form-label">Name (beliebig):</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="comment-name">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="comment-name" class="col-sm-2 col-form-label">E-Mail (freiwillig):</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="comment-name">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="comment-body" class="col-sm-2 col-form-label">Text:</label>
+								<div class="col-sm-10">
+									<textarea class="form-control" id="comment-body"></textarea>
+								</div>
+							</div>
+
+							<input id="comment_anonymous" type="submit" name="action" value="Vorschau"/>
+							<!-- <input id="comment_login" type="submit" name="action" value="Anmelden und kommentieren" />	 -->
+						</form>
+					</div>
+				</div>
+				<div calss="row">
+					<div class="col-sm">
+						<p>Arl'uterung</p>
+					</div>
+				</div>
+			</div>
 		</div>
 		<?php endif; ?>
     </div>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
+
 	<script src="<?=theme_url::assets('vendor/jquery.auto-complete.min.js')?>"></script>
 	<!-- !!! not efficient because template output differs each call while JS code always the same EXCEPT WORDLIST-->
 	<script>
