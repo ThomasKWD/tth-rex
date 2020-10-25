@@ -4,6 +4,13 @@
     // in contrast to yrewrite theme does not give trailing slash
     // $assetsUrlBase = theme_url::assets() .'/';
 	// -- also there: theme_url::base()
+
+	if (!function_exists('getPosted')) {
+		function getPosted($name) {
+			return rex_escape(rex_request($name,'string'));
+		}
+	}
+
 	
 	// !!! put into module or class, like callback for sources
 	function convertCallback($request) {
@@ -152,7 +159,7 @@
 	//     you can achieve this by sending ids? read more in autocomplete docs!!!
 
 	// !!! just get action from searchfield *without YForm*
-	$wSearch = rex_request('wordlistsearch', 'string');
+	$wSearch = getPosted('wordlistsearch');
 	if ($wSearch) {
 		$searchPattern = rex_escape($wSearch);
 		if ($searchPattern) {
@@ -342,8 +349,15 @@
 		<?php endif; ?>
 		<h1><?php echo $this->getValue('name')?></h1>
 
-		<?php // ! convention every module must be aware to be inside the main container and should always provide rows and cols
+		<?php 
+		// ! convention every module must be aware to be inside the main container and should always provide rows and cols
 			if ($isBlog):
+				
+				// !!! better compose template like in community demo or other modern redaxo demos
+				//     - header + default content
+				//     - blog stuff (commenting)
+				//     - footer
+
 				$art = rex_article::getCurrent();
 				$sql = rex_sql::factory();
 				$query = "SELECT id,name,login FROM rex_user WHERE login = \"" . $art->getValue('createuser') ."\"";
@@ -450,11 +464,12 @@
 			<?php endif;?>
 
 			<?php
-			if (rex_request('comment-preview', 'string')):
-				$previewName = rex_escape(rex_request('comment-name', 'string'));
-				$previewMail = rex_escape(rex_request('comment-mail', 'string'));
-				$previewBody = rex_escape(rex_request('comment-body', 'string'));
+			if (getPosted('comment_preview')):
+				$previewName = getPosted('comment_name');
+				$previewMail = getPosted('comment_mail');
+				$previewBody = getPosted('comment_body');
 			?>
+			<a id="preview-comment"></a>
 			<h3>Vorschau</h3>
 			<div class="comment-entry">
 				<div class="comment-entry-header">
@@ -464,36 +479,38 @@
 				<?=$previewBody?>
 			</div>
 			
-			<form action=<?=rex_getUrl('')?> method="POST">		
-				<button id="comment-edit" name="comment-edit" type="submit" class="btn btn-success mb-2">Noch einmal bearbeiten</button>
-				<input id="comment-name" name="comment-name" type="hidden" value="<?=$previewName?>">
-				<input id="comment-mail" name="comment-mail" type="hidden" value="<?=$previewMail?>">
-				<?php // important that rex_escape used, esp. for body
-				?>
-				<input id="comment-blog" name="comment-body" type="hidden" value="<?=$previewBody?>">
-				<input id="comment_anonymous_submit" type="submit" name="comment-submit" value="Absenden"  class="btn btn-danger mb-2"/>
+			<form action="<?=rex_getUrl('')?>#new-comment" method="POST">
+				<input id="comment_name" name="comment_name" type="hidden" value="<?=$previewName?>">
+				<input id="comment_mail" name="comment_mail" type="hidden" value="<?=$previewMail?>">
+				<input id="comment_body" name="comment_body" type="hidden" value="<?=$previewBody?>">
+				<div class="form-group form-check">
+					<input type="checkbox" class="form-check-input" id="comment_conditions_read" name="comment_conditions_read" value="read">
+					<label class="form-check-label" for="comment_conditions_read">Bedingungen gelesen und akzeptiert</label>
+				</div>
+				<input id="comment_edit" name="comment_edit" type="submit" class="btn btn-success mb-2" value="Noch einmal bearbeiten"/>
+				<input id="comment_anonymous_submit" type="submit" name="comment_submit" value="Absenden"  class="btn btn-danger mb-2"/>
 				<!-- <input id="comment_login" type="submit" name="action" value="Anmelden und kommentieren" />	 -->
 			</form>
 
 			<?php 
-				// else for: if comment-preview, means when NO PREVIEW
-				elseif (rex_request('comment-submit','string')):
-					// echo 'submit: ';
-					// echo '; name:'.rex_request('comment-name','string');
-					// echo '; mail:'.rex_request('comment-mail','string');
-					// echo '; post:'.rex_request('comment-body','string');
+				// else for: if comment_preview, means when NO PREVIEW
+				elseif (
+					getPosted('comment_submit') &&
+					getPosted('comment_conditions_read') === 'read'
+					):
 
 					$post = rex_yform_manager_dataset::create('rex_blog_reply');
-					// $post->setValue('name',rex_escape(rex_request('comment-name','string')));
+					// $post->setValue('name',rex_escape(rex_request('comment_name','string')));
 					// // !!! mail not yet defined as field
-					// // $post->mail = rex_request('comment-name','string');
-					// $post->setValue('comment',rex_escape(rex_request('comment-body','string')));
+					// // $post->mail = rex_request('comment_name','string');
+					// $post->setValue('comment',rex_escape(rex_request('comment_body','string')));
 					// $post->setValue('ycomCreateUser',0);
 					// $post->setValue('articleID',$this->getValue('article_id'));
 					// $post->setValue('parentReplyID',0);
 					
-					$post->name = rex_escape(rex_request('comment-name','string'));
-					$post->comment = rex_escape(rex_request('comment-body','string'));
+					$post->name = getPosted('comment_name');
+					$post->mail = getPosted('comment_mail');
+					$post->comment = getPosted('comment_body');
 					$post->ycomCreateUser = 0;
 					$post->articleID = $this->getValue('article_id');
 					$post->parentReplyID = 0;
@@ -513,8 +530,33 @@
 						<?php
 					}
 					
-				else: 
-			?>
+				else: // show initial view or re-edit
+					$isReEdit = false;
+					$reEditName = $reEditMail = $reEditBody = '';
+
+					if (getPosted('comment_edit')) {
+						$isReEdit = true;
+						// !!! refactor: put together with vars of preview
+						$reEditName = getPosted('comment_name');
+						$reEditMail = getPosted('comment_mail');
+						$reEditBody = getPosted('comment_body');
+					}
+
+					// ! here settings of all WRONG filled fields
+					// !!! should also be shown at preview already (make sub function)
+					// !!! again refactor: put together with vars of preview
+					if (getPosted('comment_submit')) {
+						if (getPosted('comment_conditions_read') !== 'read') {
+							echo 'SIE MÜSSEN DEN BEDINGUNGEN ZUSTIMMEN.; ';
+						}
+						if (!trim(getPosted('comment_name'))) {
+							echo 'KEIN NAME ANGEGEBEN (kann auch ein Fanatsie-Name sein).';
+						}
+						if (!trim(getPosted('comment_body'))) {
+							echo 'KEIN TEXT EINGEGEBEN.';
+						}
+					}
+				?>
 
 			<div class="blog-add-comment">
 			<!--
@@ -524,38 +566,39 @@
 				- otherwise mail to tth@kuehne-webdienste.de
 				- the box appears on button click
 				- the box must be always there when no JS
-				- use bootstrap form markup rules
 				- nicer: 2 tabs (bootstrap), not appearing until general "kommentieren" clicked
 			-->
-			<div id="comment-container" class="collapse">
+			<a id="new-comment"></a>
+			<div id="comment-container" class="<?php echo $isReEdit ? '' : 'collapse'?>">
 				<div  class="card">
 					<div class="card-body">
 						<h5 class="card-title">Neuer Kommentar</h5>
-						<form action=<?=rex_getUrl('')?> method="POST">
+						<form action="<?=rex_getUrl('')?>#preview-comment" method="POST">
 
 							<div class="form-row">
 								<div class="form-group col-md-6">
-									<label for="comment-name">Name (beliebig):</label>
-									<input type="text" class="form-control" name="comment-name" id="comment-name"/>
+									<label for="comment_name">Name (beliebig):</label>
+									<input type="text" class="form-control" name="comment_name" id="comment_name" value="<?=$reEditName?>"/>
 								</div>
 								<div class="form-group col-md-6">
-									<label for="comment-mail">E-Mail (freiwillig):</label>
-									<input type="mail" class="form-control" id="comment-mail" name="comment-mail">
+									<label for="comment_mail">E-Mail (freiwillig):</label>
+									<input type="mail" class="form-control" id="comment_mail" name="comment_mail" value="<?=$reEditMail?>"/>
 								</div>
 							</div>
 
 							<div class="form-group">
-								<label for="comment-body">Text:</label>
-								<textarea class="form-control" id="comment-body" name="comment-body" rows="5"></textarea>
+								<label for="comment_body">Text:</label>
+								<textarea class="form-control" id="comment_body" name="comment_body" rows="5"><?=$reEditBody?></textarea>
 							</div>
 
-							<input id="comment_anonymous_preview" type="submit" name="comment-preview" value="Vorschau"/>
+							<input id="comment_anonymous_preview" type="submit" name="comment_preview" value="Vorschau"/>
 							<!-- <input id="comment_login" type="submit" name="action" value="Anmelden und kommentieren" />	 -->
 						</form>
 					</div>
 				</div>
 				<p></p>
 				<!-- card has no margin?? -->
+				<!-- !!! must be shown on preview too -->
 				<div class="card">
 					<div class="card-body">
 						<h5 class="card-title">Erläuterung</h5>
@@ -565,12 +608,15 @@
 					</div>
 				</div>
 			</div>
-			<p>
-				<button id="btn-comment" type="button" class="btn btn-outline-success" data-toggle="collapse" data-target="#comment-container" aria-expanded="false" aria-controls="collapseExample">Kommentar hinzufügen</button>
-			</p>
+				
+					<?php if (!$isReEdit): ?>
+					<p>
+						<button id="btn-comment" type="button" class="btn btn-outline-success" data-toggle="collapse" data-target="#comment-container" aria-expanded="false" aria-controls="collapseExample">Kommentar hinzufügen</button>
+					</p>
+					<?php endif; ?>
 
 			<?php 
-				endif; // if (comment-preview)
+				endif; // if (comment_preview)
 			?>
 		</div>
 		<?php endif; ?>
