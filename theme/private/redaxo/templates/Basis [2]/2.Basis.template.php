@@ -484,15 +484,19 @@
 					// echo '; post:'.rex_request('comment-body','string');
 
 					$post = rex_yform_manager_dataset::create('rex_blog_reply');
-					$post->setValue('name',rex_escape(rex_request('comment-name','string')));
-					// !!! mail not yet defined as field
-					// $post->mail = rex_request('comment-name','string');
-					$post->setValue('comment',rex_escape(rex_request('comment-body','string')));
-					$post->setValue('ycomCreateUser',0);
-					$post->setValue('articleID',$this->getValue('article_id'));
-					$post->setValue('parentReplyID',0);
+					// $post->setValue('name',rex_escape(rex_request('comment-name','string')));
+					// // !!! mail not yet defined as field
+					// // $post->mail = rex_request('comment-name','string');
+					// $post->setValue('comment',rex_escape(rex_request('comment-body','string')));
+					// $post->setValue('ycomCreateUser',0);
+					// $post->setValue('articleID',$this->getValue('article_id'));
+					// $post->setValue('parentReplyID',0);
 					
-					dump($post->getMessages());
+					$post->name = rex_escape(rex_request('comment-name','string'));
+					$post->comment = rex_escape(rex_request('comment-body','string'));
+					$post->ycomCreateUser = 0;
+					$post->articleID = $this->getValue('article_id');
+					$post->parentReplyID = 0;
 					
 					if ($post->save()) {
 						?>
@@ -504,9 +508,7 @@
 					} else {
 						?>
 						<div class="alert alert-danger">
-							<?php echo implode('<br>', $post->getMessages()); 
-						dump($post->getMessages());
-							?>
+							<?php echo implode('<br>', $post->getMessages()); ?>
 						</div>
 						<?php
 					}
