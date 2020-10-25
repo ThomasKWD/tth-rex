@@ -378,6 +378,24 @@
         REX_ARTICLE[]
 		<?php if ($isBlog): 
 
+			// echo 'yorm test: ';
+			// $items = rex_yform_manager_table::get('rex_blog_reply')->query()->find();
+			// dump($items);
+			// $testId = 2;
+			// echo 'yorm auto save: (set url param "save" to 1!), for id: '. $testId;
+			// if (rex_request('save','string') !== '') {
+			// 	echo 'perform save... ';
+			// 	$post = rex_yform_manager_dataset::get($testId, 'rex_blog_reply');
+			// 	echo 'name: ' . $post->name;
+			// 	echo ' nothing changed but updatedate!!';
+			// 	// $post->text = '...';
+
+			// 	if ($post->save()) { 
+			// 		echo 'Gespeichert!';
+			// 	} else {
+			// 		echo implode('<br>', $post->getMessages());
+			// 	}
+			// }
 			// !!! use class or fragment for *comment list code*
 			//     - group by comment
 			//     - make tree after fetch
@@ -431,6 +449,71 @@
 
 			<?php endif;?>
 
+			<?php
+			if (rex_request('comment-preview', 'string')):
+				$previewName = rex_escape(rex_request('comment-name', 'string'));
+				$previewMail = rex_escape(rex_request('comment-mail', 'string'));
+				$previewBody = rex_escape(rex_request('comment-body', 'string'));
+			?>
+			<h3>Vorschau</h3>
+			<div class="comment-entry">
+				<div class="comment-entry-header">
+					<?=$previewName?>
+					schrieb am <?=date('d.m.Y')?>:
+				</div>
+				<?=$previewBody?>
+			</div>
+			
+			<form action=<?=rex_getUrl('')?> method="POST">		
+				<button id="comment-edit" name="comment-edit" type="submit" class="btn btn-success mb-2">Noch einmal bearbeiten</button>
+				<input id="comment-name" name="comment-name" type="hidden" value="<?=$previewName?>">
+				<input id="comment-mail" name="comment-mail" type="hidden" value="<?=$previewMail?>">
+				<?php // important that rex_escape used, esp. for body
+				?>
+				<input id="comment-blog" name="comment-body" type="hidden" value="<?=$previewBody?>">
+				<input id="comment_anonymous_submit" type="submit" name="comment-submit" value="Absenden"  class="btn btn-danger mb-2"/>
+				<!-- <input id="comment_login" type="submit" name="action" value="Anmelden und kommentieren" />	 -->
+			</form>
+
+			<?php 
+				// else for: if comment-preview, means when NO PREVIEW
+				elseif (rex_request('comment-submit','string')):
+					// echo 'submit: ';
+					// echo '; name:'.rex_request('comment-name','string');
+					// echo '; mail:'.rex_request('comment-mail','string');
+					// echo '; post:'.rex_request('comment-body','string');
+
+					$post = rex_yform_manager_dataset::create('rex_blog_reply');
+					$post->setValue('name',rex_escape(rex_request('comment-name','string')));
+					// !!! mail not yet defined as field
+					// $post->mail = rex_request('comment-name','string');
+					$post->setValue('comment',rex_escape(rex_request('comment-body','string')));
+					$post->setValue('ycomCreateUser',0);
+					$post->setValue('articleID',$this->getValue('article_id'));
+					$post->setValue('parentReplyID',0);
+					
+					dump($post->getMessages());
+					
+					if ($post->save()) {
+						?>
+						<div class="alert alert-success">
+							Neuer Kommentar wurde gespeichert.
+						</div>
+						<a href="<?=rex_getUrl('')?>" class="btn btn-primary">Weiter</a>
+						<?php
+					} else {
+						?>
+						<div class="alert alert-danger">
+							<?php echo implode('<br>', $post->getMessages()); 
+						dump($post->getMessages());
+							?>
+						</div>
+						<?php
+					}
+					
+				else: 
+			?>
+
 			<div class="blog-add-comment">
 			<!--
 				!!!
@@ -442,59 +525,51 @@
 				- use bootstrap form markup rules
 				- nicer: 2 tabs (bootstrap), not appearing until general "kommentieren" clicked
 			-->
-			<?php
-			$check = rex_request('action');
-			// dump($check);
-			?>
-			<p>
-				<button id="btn-comment" type="button" class="btn btn-outline-success" data-toggle="collapse" data-target="#comment-container" aria-expanded="false" aria-controls="collapseExample">Kommentar hinzufügen</button>
-			</p>
 			<div id="comment-container" class="collapse">
 				<div  class="card">
 					<div class="card-body">
+						<h5 class="card-title">Neuer Kommentar</h5>
 						<form action=<?=rex_getUrl('')?> method="POST">
 
 							<div class="form-row">
 								<div class="form-group col-md-6">
-								<label for="inputEmail4">Email</label>
-								<input type="email" class="form-control" id="inputEmail4">
+									<label for="comment-name">Name (beliebig):</label>
+									<input type="text" class="form-control" name="comment-name" id="comment-name"/>
 								</div>
 								<div class="form-group col-md-6">
-								<label for="inputPassword4">Password</label>
-								<input type="password" class="form-control" id="inputPassword4">
+									<label for="comment-mail">E-Mail (freiwillig):</label>
+									<input type="mail" class="form-control" id="comment-mail" name="comment-mail">
 								</div>
 							</div>
 
-							<div class="form-group row">
-								<label for="comment-name" class="col-sm-2 col-form-label">Name (beliebig):</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control" id="comment-name">
-								</div>
-							</div>
-							<div class="form-group row">
-								<label for="comment-name" class="col-sm-2 col-form-label">E-Mail (freiwillig):</label>
-								<div class="col-sm-10">
-									<input type="text" class="form-control" id="comment-name">
-								</div>
-							</div>
-							<div class="form-group row">
-								<label for="comment-body" class="col-sm-2 col-form-label">Text:</label>
-								<div class="col-sm-10">
-									<textarea class="form-control" id="comment-body"></textarea>
-								</div>
+							<div class="form-group">
+								<label for="comment-body">Text:</label>
+								<textarea class="form-control" id="comment-body" name="comment-body" rows="5"></textarea>
 							</div>
 
-							<input id="comment_anonymous" type="submit" name="action" value="Vorschau"/>
+							<input id="comment_anonymous_preview" type="submit" name="comment-preview" value="Vorschau"/>
 							<!-- <input id="comment_login" type="submit" name="action" value="Anmelden und kommentieren" />	 -->
 						</form>
 					</div>
 				</div>
-				<div calss="row">
-					<div class="col-sm">
-						<p>Arl'uterung</p>
+				<p></p>
+				<!-- card has no margin?? -->
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">Erläuterung</h5>
+						<p>
+							blups di bla
+						</p>
 					</div>
 				</div>
 			</div>
+			<p>
+				<button id="btn-comment" type="button" class="btn btn-outline-success" data-toggle="collapse" data-target="#comment-container" aria-expanded="false" aria-controls="collapseExample">Kommentar hinzufügen</button>
+			</p>
+
+			<?php 
+				endif; // if (comment-preview)
+			?>
 		</div>
 		<?php endif; ?>
     </div>
