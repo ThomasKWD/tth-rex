@@ -319,10 +319,12 @@
 			// ! use later again 
 			if ($login):
 				echo "eingeloggt als: $login";
-			else:
-			?>
-				<a href="./redaxo/">Login</a>
-			<?php endif; ?>
+
+			// ! no else branch => redaxo login invisible
+			// else:
+			// 	<!-- <a href="/redaxo/">Login</a> -->
+			endif;
+		?>
 	</div>
 
 	<div class="container main-container">
@@ -380,8 +382,8 @@
 						von <?=$blogUserName?>
 					</p>
 					<p class="blog-date">
-						erstellt am <?=$blogCreateDate?>
-						<?php 
+						erstellt am <?php 
+							echo $blogCreateDate;
 							if ($blogCreateDate !== $blogUpdateDate) {
 								echo ', zuletzt geändert am '. $blogUpdateDate;
 							}
@@ -390,7 +392,9 @@
 				</div>
 			<?php endif;?>
         REX_ARTICLE[]
-		<?php if ($isBlog): 
+		<?php 
+			// !!! show comment function if admin logged in because not ready yet !!!
+			if ($isBlog && $userLevel === 3): 
 
 			// echo 'yorm test: ';
 			// $items = rex_yform_manager_table::get('rex_blog_reply')->query()->find();
