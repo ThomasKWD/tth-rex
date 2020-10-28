@@ -419,7 +419,7 @@
 			//     - make tree after fetch
 			
 
-			$query = "SELECT * FROM rex_blog_reply WHERE articleID = " . $this->getValue('article_id') ." ORDER BY `createdate` ASC";
+			$query = "SELECT * FROM rex_blog_reply WHERE articleID = REX_ARTICLE_ID ORDER BY `createdate` ASC";
 			// $comments = $sql->getArray($query);
 			$sql->setQuery($query);
 
@@ -516,7 +516,7 @@
 					$post->mail = getPosted('comment_mail');
 					$post->comment = getPosted('comment_body');
 					$post->ycomCreateUser = 0;
-					$post->articleID = $this->getValue('article_id');
+					$post->articleID = 'REX_ARTICLE_ID';
 					$post->parentReplyID = 0;
 					
 					if ($post->save()) {
@@ -563,6 +563,48 @@
 				?>
 
 			<div class="blog-add-comment">
+			<?php 
+			$yform = new rex_yform();
+$yform->setObjectparams('form_name', 'table-rex_blog_reply');
+$yform->setObjectparams('form_action',rex_getUrl('REX_ARTICLE_ID'));
+$yform->setObjectparams('form_ytemplate', 'bootstrap');
+$yform->setObjectparams('form_showformafterupdate', 0);
+$yform->setObjectparams('real_field_names', true);
+
+// $yform->setObjectparams('getdata',1);
+// $yform->setObjectparams('main_where','id=3');
+$yform->setObjectparams('main_table','rex_blog_reply');
+
+$yform->setValueField('text', ['name','Name','','0','','Pflichtfeld aber beliebig.']);
+$yform->setValueField('textarea', ['comment','Antworttext','','0','','Pflichfeld']);
+$yform->setValueField('email', ['mail','Email-Adresse von "anonymem" Nutzer','','0','','Freiwillig, Vorteile siehe in den Erläuterungen.']);
+
+// make it hidden fild works like this:
+$yform->setValueField('hidden', ['articleID','REX_ARTICLE_ID']); // ! value must be string here, else error, important when hard coded id used
+// ! and *NOT* like this:
+// $yform->setHiddenField('articleID','REX_ARTICLE_ID'); // ! is NOT dispatched to DB save but put into form
+
+$yform->setValueField('hidden', ['parentReplyID',0]);
+// $yform->setHiddenField('parentReplyID',123);
+
+// !!! must be set when yco mlogin possible in frontend
+// $yform->setValueField('be_manager_relation', ['ycomCreateUser','Benutzer (yCom)','rex_ycom_user','login, \', \',email','0','1','','1','','','','Es ist geplant, nur den Ersteller ändern zu lassen. (Kein extra "update user"), anonym=0 oder emptystring']);
+
+$yform->setValueField('datestamp', ['updatedate','Änderungsdatum','d.m.Y. H:i:s','0','0','1']);
+$yform->setValueField('datestamp', ['createdate','Erstellungsdatum','d.m.Y H:i:s','0','1','1']);
+$yform->setValueField('ip', ['createIP','IP-Adresse (eigene Routine besser)','0']);
+$yform->setValidateField('empty', ['name','Sie müssen einen Namen eingeben!!']);
+// ! obviously you can define the validate fields here *without* having it selected in the yForm-backend-fields list
+$yform->setValidateField('empty', ['comment','Sie müssen einen Text eingeben!!']);
+
+// $yform->setActionField('tpl2email', ['emailtemplate', 'emaillabel', 'tth@kuehne-webdienste.de']);
+// action|db|tblname|[where(id=2)/main_where]
+$yform->setActionField('db',['rex_blog_reply']);
+$yform->setActionField('html',['Ihr Kommentar wurde gespeichert.']);
+
+// dump ($yform->objparams);
+echo $yform->getForm();
+			?>
 			<!--
 				!!!
 				- add hidden box which then explains what anonymous or registered comment means with privacy notes...
