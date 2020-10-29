@@ -36,15 +36,17 @@ if (is_array($articles) && count($articles) > 0) {
 
 			// Ausgabe erstellen
 			// !!! style not yet cool
-            $artOutput .= '<li class="list-group-item ' . $class . '"><a class="list-group-item-action ' . $class . '" href="' . rex_getUrl($articleId) . '">' . $articleName . '</a></li>' . "\n";
             // $artOutput .= '<a class="list-group-item list-group-item-action ' . $class . '" href="' . rex_getUrl($articleId) . '">' . $articleName . '</a>' . "\n";
+			
+			// tailwind
+            $artOutput .= '<li class="p-0 ' . $class . '"><a class="p-3 block ' . $class . '" href="' . rex_getUrl($articleId) . '">' . $articleName . '</a></li>' . "\n";
         }
     }
 
 	// Ausgabe
 	// !!! verwende bootstrap `list-group`, but don't forget `list-group-item` and `list-group-item-action`
 	//     for the elements
-    // echo '<ul class="catlist">' . $artOutput . '</ul>';
-    echo '<ul class="list-group">' . $artOutput . '</ul>';
+    echo '<ul class="catlist bg-gray-100 rounded-md">' . $artOutput . '</ul>';
+    // echo '<ul class="list-group">' . $artOutput . '</ul>';
     unset($articles);
 }
