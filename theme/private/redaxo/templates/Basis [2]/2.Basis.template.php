@@ -131,11 +131,20 @@
 	///////////////////////////////////////////////////////////////////////////////
 
 	// ! sets 6 as default only if no config found
+	// - will be stored and restored with DB export/import
+	// - can be adjusted in installation (but where communicated to ther admins?)
 	// - cool thing: rex_config is *cached*
+	// !!! make utility function in theme lib
 	$detailsArticleId = rex_config::get('tth', 'article_entity_details');
 	if (!$detailsArticleId) {
 		$detailsArticleId = 6;
 		rex_config::set('tth','article_entity_details',$detailsArticleId);
+	}
+
+	$imprintArticleId = rex_config::get('tth', 'article_imprint');
+	if (!$imprintArticleId) {
+		$imprintArticleId = 19;
+		rex_config::set('tth','article_imprint',$imprintArticleId);
 	}
 
 	// central search form PRE-send
@@ -216,21 +225,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+	<?php // tailwind cannot bring benefit to th styling in this project!
+	// <!-- <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet"> -->
+	?>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 
     <link rel="icon" type="image/png" sizes="32x32" href="<?=theme_url::assets('tth-logo.png')?>">
     
 	<link rel="stylesheet" href="<?=theme_url::assets('vendor/jquery.auto-complete.css')?>">
-	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.2.01">
+	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.3.00">
 
     <title>TTH - <?=$this->getValue('name')?></title>
 
-	<?php // rex var for cookie gedoens:  
-			// R E X _ I W C C[]
-			?>
-
-    <!-- Matomo -->
-<!-- End Matomo -->
   </head>
   <body>
 		<nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -393,8 +399,9 @@
 			<?php endif;?>
         REX_ARTICLE[]
 		<?php 
-			// !!! show comment function if admin logged in because not ready yet !!!
-			if ($isBlog && $userLevel === 3): 
+		// !!! show comment function if admin logged in because not ready yet !!!
+		if ($isBlog && ($userLevel === 3)): 
+			// if ($isBlog): 1
 
 			// echo 'yorm test: ';
 			// $items = rex_yform_manager_table::get('rex_blog_reply')->query()->find();
@@ -594,6 +601,8 @@ $yform->setValueField('datestamp', ['updatedate','Änderungsdatum','d.m.Y. H:i:s
 $yform->setValueField('datestamp', ['createdate','Erstellungsdatum','d.m.Y H:i:s','0','1','1']);
 $yform->setValueField('ip', ['createIP','IP-Adresse (eigene Routine besser)','0']);
 $yform->setValidateField('empty', ['name','Sie müssen einen Namen eingeben!!']);
+$yform->setValueField('mediafile', ['portrait','Avatar','7000','.png,.jpg,.jpeg','','','0','3','Timm','Lade ein Bild von dir hoch']);
+
 // ! obviously you can define the validate fields here *without* having it selected in the yForm-backend-fields list
 $yform->setValidateField('empty', ['comment','Sie müssen einen Text eingeben!!']);
 
@@ -667,6 +676,13 @@ echo $yform->getForm();
 		</div>
 		<?php endif; ?>
     </div>
+
+	<footer class="footer">
+      <div class="container">
+        <span class="footer-item text-muted"><a href="mailto:tth@kuehne-webdienste.de">tth@kuehne-webdienste.de</a></span>
+        <span class="footer-item text-muted"><a href="<?=rex_getUrl($imprintArticleId)?>">Impressum</a></span>
+      </div>
+    </footer>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
