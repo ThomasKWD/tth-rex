@@ -135,6 +135,9 @@
 	// - can be adjusted in installation (but where communicated to ther admins?)
 	// - cool thing: rex_config is *cached*
 	// !!! make utility function in theme lib
+	// !!! make *module* "system settings" which can be used to adjust values (which are put to config on save)
+	// !!! check how or if theme addon can produce backend pages for settings
+	//     !!! easier to use project addon then! 
 	$detailsArticleId = rex_config::get('tth', 'article_entity_details');
 	if (!$detailsArticleId) {
 		$detailsArticleId = 6;

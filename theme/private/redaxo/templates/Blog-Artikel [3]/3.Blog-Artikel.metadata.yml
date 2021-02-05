@@ -5,4 +5,5 @@ attributes:
     modules:
         1: { all: '1' }
     categories:
-        all: '1'
+        0: '13'
+        all: 0

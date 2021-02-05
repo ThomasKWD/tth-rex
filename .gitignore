@@ -13,7 +13,6 @@
 # log files
 *.log
 
-
 assets/
 # as long as theme addon there
 !theme/public/assets/
