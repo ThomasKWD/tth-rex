@@ -10,7 +10,6 @@
 			return rex_escape(rex_request($name,'string'));
 		}
 	}
-
 	
 	// !!! put into module or class, like callback for sources
 	function convertCallback($request) {
@@ -682,7 +681,11 @@ echo $yform->getForm();
 
 	<footer class="footer">
       <div class="container">
-        <span class="footer-item text-muted"><a href="mailto:tth@kuehne-webdienste.de">tth@kuehne-webdienste.de</a></span>
+        <span class="footer-item text-muted"> 
+		<?php 
+			$mailAddress =  rex_config::get('phpmailer', 'from');
+		?>
+		<a href="mailto:<?=$mailAddress?>"><?=$mailAddress?></a></span>
         <span class="footer-item text-muted"><a href="<?=rex_getUrl($imprintArticleId)?>">Impressum</a></span>
       </div>
     </footer>

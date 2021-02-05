@@ -1,9 +1,4 @@
-LICENSE
-=======
-
-
-
-REDAXO
+License
 =======
 
 Folgenden Informationen dürfen beim Einsatz von REDAXO im Impressum oder auf

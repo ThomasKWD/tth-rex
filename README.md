@@ -16,6 +16,14 @@ Das Redaxo benötigt für dieses Projekt folgende Addons: developer, markitup, p
 
 Du solltest erst Redaxo und alle benötigten Addons installieren und dann den Inhalt des Downloads (https://github.com/ThomasKWD/tth-rex/archive/master.zip) oder "Clone" hinein kopieren. 
 
+### Ungelöste Installations-Probleme
+
+Wenn das Projekt in einem auf [friendsofredaxo/demo:base]" basierenden Docker-Container-System läuft, ist nicht klar was mit den Datei-Rechten der von Git ausgecheckten Projektdaten geschieht. Die Installation läuft. der Redaxo-Container kann aber nicht ohne Probleme ins Image zurück gespeichert werden.
+
+Es sollte das "volume" getrennt gesichert werden, dann keine Rechte-Probleme(?).
+
+Für das Zusammenspiel Docker-Git-Repo sollte das Projekt ausschließlich innerhalb des theme bearbeitet werden. Dazu muss phpunit innerhalb des theme Addon laufen. Der Einfachheit halber könnte man das Root des Projektes weiterhin dem Root der Redaxo-Installation gleichsetzen. 
+
 ## Tabellenstruktur
 
 Die meisten Feldnamen wurden geändert, um die Bezeichnungen zu vereinfachen und sie mehr den Konventionen anzupassen (falls später fremde Leute die DB Konvertieren/reparieren müssen). 
