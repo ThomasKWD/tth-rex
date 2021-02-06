@@ -399,11 +399,12 @@
 					</p>
 				</div>
 			<?php endif;?>
+
         REX_ARTICLE[]
 		<a id="comment-success"></a>
 		<?php 
 		// !!! show comment function if admin logged in because not ready yet !!!
-		if ($isBlog && ($userLevel === 3)): 
+		if ($isBlog && ($userLevel >= 2)):
 			// *** ! first init yform THEN show list
 			$yform = new rex_yform();
 			$yform->setObjectparams('form_name', 'table-rex_blog_reply');
@@ -416,9 +417,9 @@
 			// $yform->setObjectparams('main_where','id=3');
 			$yform->setObjectparams('main_table','rex_blog_reply');
 
-			$yform->setValueField('text', ['name','Name','Geben Sie einen Namen ein!','0','','']);
-			$yform->setValueField('textarea', ['comment','Antworttext','Geben Sie einen Kommentar ein!','0','','']);
-			$yform->setValueField('email', ['mail','Email-Adresse von "anonymem" Nutzer','Sie können eine E-Mail-Adresse angeben','0','','Freiwillig, Vorteile siehe in den <a href="#description-text" class="description-link">Erläuterungen</a>.']);
+			$yform->setValueField('text', ['name','Name','','0','','']);
+			$yform->setValueField('textarea', ['comment','Antworttext','','0','','']);
+			// $yform->setValueField('email', ['mail','Email-Adresse von "anonymem" Nutzer','','0','','Freiwillig, Vorteile siehe in den <a href="#description-text" class="description-link">Erläuterungen</a>.']);
 
 			// make it hidden fild works like this:
 			$yform->setValueField('hidden', ['articleID','REX_ARTICLE_ID']); // ! value must be string here, else error, important when hard coded id used
@@ -433,7 +434,7 @@
 
 			$yform->setValueField('datestamp', ['updatedate','Änderungsdatum','d.m.Y. H:i:s','0','0','1']);
 			$yform->setValueField('datestamp', ['createdate','Erstellungsdatum','d.m.Y H:i:s','0','1','1']);
-			// $yform->setValueField('hidden', array("createdate", "Max Muster"));
+			// $yform->setValueField('hidden', array("createdate", 'datesstamp'));
 			// $yform->setValueField('hidden', array("updatedate", "Max Muster"));
 
 			$yform->setValueField('ip', ['createIP','IP-Adresse (eigene Routine besser)','0']);
@@ -449,6 +450,10 @@
 
 			$yform->setObjectparams('submit_btn_label','Kommentar hinzufügen');
 			$yform->setObjectparams('form_action',rex_getUrl('') . '#comment-form');
+
+			
+			$yform->setValueField('checkbox', ['conditions_read','Ich habe die <a class="description-link" href="#description-text">Nutzungsbedingungen und Datenschutzhinweise</a> gelesen','0','0','','','no,yes']); // the no/yes has no effect...
+			$yform->setValidateField('empty', ['conditions_read','Sie müssen bestätigen, dass Sie die Hinweise zur Kenntnis genommen haben.']);
 
 			// ! the dummy parameter in URL causes page reload 
 			//   - needed for form to display again
@@ -496,12 +501,10 @@
 			?>
 			<div class="blog-comments">
 				<h2>Kommentare</h2>
-
-				<!-- bootstrap box? -->
 				<?php
-				$user_sql = rex_sql::factory();
-				// foreach ($comments as $reply):
-				while ($sql->hasNext()):
+					$user_sql = rex_sql::factory();
+					// foreach ($comments as $reply):
+					while ($sql->hasNext()):
 				?>
 					<div class="comment-entry">
 						<div class="comment-entry-header">
@@ -532,106 +535,8 @@
 				<?php $sql->next(); endwhile; ?>
 			</div>
 
-			<?php endif;?>
-
-			<?php
-			if (getPosted('comment_preview')):
-				$previewName = getPosted('comment_name');
-				$previewMail = getPosted('comment_mail');
-				$previewBody = getPosted('comment_body');
-			?>
-			<a id="preview-comment"></a>
-			<h3>Vorschau</h3>
-			<div class="comment-entry">
-				<div class="comment-entry-header">
-					<?=$previewName?>
-					schrieb am <?=date('d.m.Y')?>:
-				</div>
-				<?=$previewBody?>
-			</div>
-			
-			<form action="<?=rex_getUrl('')?>#new-comment" method="POST">
-				<input id="comment_name" name="comment_name" type="hidden" value="<?=$previewName?>">
-				<input id="comment_mail" name="comment_mail" type="hidden" value="<?=$previewMail?>">
-				<input id="comment_body" name="comment_body" type="hidden" value="<?=$previewBody?>">
-				<div class="form-group form-check">
-					<input type="checkbox" class="form-check-input" id="comment_conditions_read" name="comment_conditions_read" value="read">
-					<label class="form-check-label" for="comment_conditions_read">Bedingungen gelesen und akzeptiert</label>
-				</div>
-				<input id="comment_edit" name="comment_edit" type="submit" class="btn btn-success mb-2" value="Noch einmal bearbeiten"/>
-				<input id="comment_anonymous_submit" type="submit" name="comment_submit" value="Absenden"  class="btn btn-danger mb-2"/>
-				<!-- <input id="comment_login" type="submit" name="action" value="Anmelden und kommentieren" />	 -->
-			</form>
-
-			<?php 
-				// else for: if comment_preview, means when NO PREVIEW
-				elseif (
-					getPosted('comment_submit') &&
-					getPosted('comment_conditions_read') === 'read'
-					):
-
-					$post = rex_yform_manager_dataset::create('rex_blog_reply');
-					// $post->setValue('name',rex_escape(rex_request('comment_name','string')));
-					// // !!! mail not yet defined as field
-					// // $post->mail = rex_request('comment_name','string');
-					// $post->setValue('comment',rex_escape(rex_request('comment_body','string')));
-					// $post->setValue('ycomCreateUser',0);
-					// $post->setValue('articleID',$this->getValue('article_id'));
-					// $post->setValue('parentReplyID',0);
-					
-					$post->name = getPosted('comment_name');
-					$post->mail = getPosted('comment_mail');
-					$post->comment = getPosted('comment_body');
-					$post->ycomCreateUser = 0;
-					$post->articleID = 'REX_ARTICLE_ID';
-					$post->parentReplyID = 0;
-					
-					if ($post->save()) {
-						?>
-						<div class="alert alert-success">
-							Neuer Kommentar wurde gespeichert.
-						</div>
-						<a href="<?=rex_getUrl('')?>" class="btn btn-primary">Weiter</a>
-						<?php
-					} else {
-						?>
-						<div class="alert alert-danger">
-							<?php echo implode('<br>', $post->getMessages()); ?>
-						</div>
-						<?php
-					}
-					
-				else: // show initial view or re-edit
-					$isReEdit = false;
-					$reEditName = $reEditMail = $reEditBody = '';
-
-					if (getPosted('comment_edit')) {
-						$isReEdit = true;
-						// !!! refactor: put together with vars of preview
-						$reEditName = getPosted('comment_name');
-						$reEditMail = getPosted('comment_mail');
-						$reEditBody = getPosted('comment_body');
-					}
-
-					// ! here settings of all WRONG filled fields
-					// !!! should also be shown at preview already (make sub function)
-					// !!! again refactor: put together with vars of preview
-					if (getPosted('comment_submit')) {
-						if (getPosted('comment_conditions_read') !== 'read') {
-							echo 'SIE MÜSSEN DEN BEDINGUNGEN ZUSTIMMEN.; ';
-						}
-						if (!trim(getPosted('comment_name'))) {
-							echo 'KEIN NAME ANGEGEBEN (kann auch ein Fanatsie-Name sein).';
-						}
-						if (!trim(getPosted('comment_body'))) {
-							echo 'KEIN TEXT EINGEGEBEN.';
-						}
-					}
-				?>
-
-			<div class="blog-add-comment">
-			<?php // the next line helps jumping down to form again
-			?>
+			<?php endif; // has next
+			?> 
 			<a id="comment-form"></a>
 			
 			<h2>Kommentar hinzufügen</h2>
@@ -642,7 +547,7 @@
 				echo $formHtml;
 			?>
 			<p>&nbsp;</p>
-			<!-- <p><a class="description-link initially-hidden" href="#description-text">Erläuterungen anzeigen</a></p> -->
+			<p><a class="description-link description-link-2 initially-hidden" href="#description-text">Hinweise anzeigen</a></p>
 			<!-- card has no margin?? -->
 			<!-- !!! must be shown on preview too -->
 			<div class="card description-card">
@@ -656,17 +561,8 @@
 			</div>
 		</div>
 				
-					<!-- <?php if (!$isReEdit): ?>
-					<p>
-						<button id="btn-comment" type="button" class="btn btn-outline-success" data-toggle="collapse" data-target="#comment-container" aria-expanded="false" aria-controls="collapseExample">Kommentar hinzufügen</button>
-					</p>
-					<?php endif; ?> -->
-
-			<?php 
-				endif; // if (comment_preview)
-			?>
 		</div>
-		<?php endif; ?>
+		<?php endif; // $isBlog???? ?>
     </div>
 
 	<footer class="footer">
@@ -705,6 +601,7 @@
 				.removeClass('initially-hidden')
 				.click(function() {
 					$('.description-card').show();
+					$('.description-link-2').hide(); // don't want to hide all of them
 					// return false;
 				});
 

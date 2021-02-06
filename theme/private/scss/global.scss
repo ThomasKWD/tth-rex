@@ -4,9 +4,11 @@ html {
   position: relative;
   min-height: 100%;
 }
+
 body {
   margin-bottom: 60px; /* Margin bottom by footer height */
 }
+
 .footer {
   position: absolute;
   bottom: 0;
@@ -54,6 +56,8 @@ body {
 }
 
 .main-container {
+	padding-bottom: 32px;
+
 	a {
 		&:link,
 		&:visited,
@@ -165,11 +169,23 @@ body {
 	// 	}
 	// }
 
+	// is the wrapper div of the form
+	.yform {
+		border: 1px solid #ddd;
+		border-radius: 5px;
+		padding: 1em;
+	}
+
+	// is the form tag
 	.rex-yform {
 		.form-group {
 			&.formdatestamp {
 				display: none;
 			}
+		}
+
+		input,textarea {
+			background-color: #f8f8f8;
 		}
 	}
 }
