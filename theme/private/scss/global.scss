@@ -99,7 +99,7 @@ body {
 
 		img {
 			width: 50px;
-			border-radius: 10px;
+			border-radius: 5px;
 		}
 
 		.blog-date {
@@ -114,7 +114,7 @@ body {
 
 	.comment-entry {
 		border: thin solid #ddd;
-		border-radius: 10px;
+		border-radius: 5px;
 		padding: 1em;
 		margin: 1.5em 0;
 	}
@@ -153,6 +153,8 @@ body {
 				}
 			}
 		}
+
+	
 	}
 
 	// .catlist {
@@ -162,10 +164,23 @@ body {
 	// 		}
 	// 	}
 	// }
+
+	.rex-yform {
+		.form-group {
+			&.formdatestamp {
+				display: none;
+			}
+		}
+	}
 }
 
 .header-login {
 	font-size: 90%;
 	text-align: right;
 	padding: 0 1em;
+}
+
+// it cannot be done without important when has to be usable in any place 
+.initially-hidden {
+	display: none !important;
 }
