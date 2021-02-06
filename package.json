@@ -4,11 +4,12 @@
   "description": "portal for tth",
   "main": "index.js",
   "dependencies": {
-    "cypress": "^4.8.0"
+    "node-sass": "^5.0.0"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "cypress open"
+    "test": "cypress open",
+    "css": "node-sass ./theme/private/scss/ --output-style compressed --watch --output ./theme/public/assets"
   },
   "repository": {
     "type": "git",
