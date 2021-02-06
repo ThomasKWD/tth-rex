@@ -360,7 +360,7 @@
 		<h1><?php echo $this->getValue('name')?></h1>
 
 		<?php 
-		// ! convention every module must be aware to be inside the main container and should always provide rows and cols
+			// ! convention every module must be aware to be inside the main container and should always provide rows and cols
 			if ($isBlog):
 				
 				// !!! better compose template like in community demo or other modern redaxo demos
@@ -400,9 +400,67 @@
 				</div>
 			<?php endif;?>
         REX_ARTICLE[]
+		<a id="comment-success"></a>
 		<?php 
 		// !!! show comment function if admin logged in because not ready yet !!!
 		if ($isBlog && ($userLevel === 3)): 
+			// *** ! first init yform THEN show list
+			$yform = new rex_yform();
+			$yform->setObjectparams('form_name', 'table-rex_blog_reply');
+			$yform->setObjectparams('form_action',rex_getUrl('REX_ARTICLE_ID'));
+			$yform->setObjectparams('form_ytemplate', 'bootstrap');
+			$yform->setObjectparams('form_showformafterupdate', 0);
+			$yform->setObjectparams('real_field_names', true);
+
+			// $yform->setObjectparams('getdata',1);
+			// $yform->setObjectparams('main_where','id=3');
+			$yform->setObjectparams('main_table','rex_blog_reply');
+
+			$yform->setValueField('text', ['name','Name','Geben Sie einen Namen ein!','0','','']);
+			$yform->setValueField('textarea', ['comment','Antworttext','Geben Sie einen Kommentar ein!','0','','']);
+			$yform->setValueField('email', ['mail','Email-Adresse von "anonymem" Nutzer','Sie können eine E-Mail-Adresse angeben','0','','Freiwillig, Vorteile siehe in den <a href="#description-text" class="description-link">Erläuterungen</a>.']);
+
+			// make it hidden fild works like this:
+			$yform->setValueField('hidden', ['articleID','REX_ARTICLE_ID']); // ! value must be string here, else error, important when hard coded id used
+			// ! and *NOT* like this:
+			// $yform->setHiddenField('articleID','REX_ARTICLE_ID'); // ! is NOT dispatched to DB save but put into form
+
+			$yform->setValueField('hidden', ['parentReplyID',0]);
+			// $yform->setHiddenField('parentReplyID',123);
+
+			// !!! must be set when yco mlogin possible in frontend
+			// $yform->setValueField('be_manager_relation', ['ycomCreateUser','Benutzer (yCom)','rex_ycom_user','login, \', \',email','0','1','','1','','','','Es ist geplant, nur den Ersteller ändern zu lassen. (Kein extra "update user"), anonym=0 oder emptystring']);
+
+			$yform->setValueField('datestamp', ['updatedate','Änderungsdatum','d.m.Y. H:i:s','0','0','1']);
+			$yform->setValueField('datestamp', ['createdate','Erstellungsdatum','d.m.Y H:i:s','0','1','1']);
+			// $yform->setValueField('hidden', array("createdate", "Max Muster"));
+			// $yform->setValueField('hidden', array("updatedate", "Max Muster"));
+
+			$yform->setValueField('ip', ['createIP','IP-Adresse (eigene Routine besser)','0']);
+			$yform->setValidateField('empty', ['name','Sie müssen einen Namen eingeben!!']);
+			// $yform->setValueField('mediafile', ['portrait','Avatar','7000','.png,.jpg,.jpeg','','','0','3','Timm','Lade ein Bild von dir hoch']);
+
+			// ! obviously you can define the validate fields here *without* having it selected in the yForm-backend-fields list
+			$yform->setValidateField('empty', ['comment','Sie müssen einen Text eingeben!!']);
+
+			// $yform->setActionField('tpl2email', ['emailtemplate', 'emaillabel', 'tth@kuehne-webdienste.de']);
+			// action|db|tblname|[where(id=2)/main_where]
+			$yform->setActionField('db',['rex_blog_reply']);
+
+			$yform->setObjectparams('submit_btn_label','Kommentar hinzufügen');
+			$yform->setObjectparams('form_action',rex_getUrl('') . '#comment-form');
+
+			// ! the dummy parameter in URL causes page reload 
+			//   - needed for form to display again
+			//   - not invoked when URL just contains same page with jump marker
+			$yform->setActionField('html',['<div class="alert alert-success">Ihr Kommentar wurde gespeichert.<br><a href="'.rex_getUrl('').'?d=1#comment-form">Noch ein Kommentar...</a></div>']);
+			$formHtml = $yform->getForm();
+
+			// !!! make styling via adding classes *template*
+			//     e.g. margin bottom
+
+			// *** end yform init 
+			
 			// if ($isBlog): 1
 
 			// echo 'yorm test: ';
@@ -572,105 +630,37 @@
 				?>
 
 			<div class="blog-add-comment">
-			<?php 
-			$yform = new rex_yform();
-$yform->setObjectparams('form_name', 'table-rex_blog_reply');
-$yform->setObjectparams('form_action',rex_getUrl('REX_ARTICLE_ID'));
-$yform->setObjectparams('form_ytemplate', 'bootstrap');
-$yform->setObjectparams('form_showformafterupdate', 0);
-$yform->setObjectparams('real_field_names', true);
-
-// $yform->setObjectparams('getdata',1);
-// $yform->setObjectparams('main_where','id=3');
-$yform->setObjectparams('main_table','rex_blog_reply');
-
-$yform->setValueField('text', ['name','Name','','0','','Pflichtfeld aber beliebig.']);
-$yform->setValueField('textarea', ['comment','Antworttext','','0','','Pflichfeld']);
-$yform->setValueField('email', ['mail','Email-Adresse von "anonymem" Nutzer','','0','','Freiwillig, Vorteile siehe in den Erläuterungen.']);
-
-// make it hidden fild works like this:
-$yform->setValueField('hidden', ['articleID','REX_ARTICLE_ID']); // ! value must be string here, else error, important when hard coded id used
-// ! and *NOT* like this:
-// $yform->setHiddenField('articleID','REX_ARTICLE_ID'); // ! is NOT dispatched to DB save but put into form
-
-$yform->setValueField('hidden', ['parentReplyID',0]);
-// $yform->setHiddenField('parentReplyID',123);
-
-// !!! must be set when yco mlogin possible in frontend
-// $yform->setValueField('be_manager_relation', ['ycomCreateUser','Benutzer (yCom)','rex_ycom_user','login, \', \',email','0','1','','1','','','','Es ist geplant, nur den Ersteller ändern zu lassen. (Kein extra "update user"), anonym=0 oder emptystring']);
-
-$yform->setValueField('datestamp', ['updatedate','Änderungsdatum','d.m.Y. H:i:s','0','0','1']);
-$yform->setValueField('datestamp', ['createdate','Erstellungsdatum','d.m.Y H:i:s','0','1','1']);
-$yform->setValueField('ip', ['createIP','IP-Adresse (eigene Routine besser)','0']);
-$yform->setValidateField('empty', ['name','Sie müssen einen Namen eingeben!!']);
-$yform->setValueField('mediafile', ['portrait','Avatar','7000','.png,.jpg,.jpeg','','','0','3','Timm','Lade ein Bild von dir hoch']);
-
-// ! obviously you can define the validate fields here *without* having it selected in the yForm-backend-fields list
-$yform->setValidateField('empty', ['comment','Sie müssen einen Text eingeben!!']);
-
-// $yform->setActionField('tpl2email', ['emailtemplate', 'emaillabel', 'tth@kuehne-webdienste.de']);
-// action|db|tblname|[where(id=2)/main_where]
-$yform->setActionField('db',['rex_blog_reply']);
-$yform->setActionField('html',['Ihr Kommentar wurde gespeichert.']);
-
-// dump ($yform->objparams);
-echo $yform->getForm();
+			<?php // the next line helps jumping down to form again
 			?>
-			<!--
-				!!!
-				- add hidden box which then explains what anonymous or registered comment means with privacy notes...
-				- also explains tah register is needed if user wants to edit or delete comment
-				- otherwise mail to tth@kuehne-webdienste.de
-				- the box appears on button click
-				- the box must be always there when no JS
-				- nicer: 2 tabs (bootstrap), not appearing until general "kommentieren" clicked
-			-->
-			<a id="new-comment"></a>
-			<div id="comment-container" class="<?php echo $isReEdit ? '' : 'collapse'?>">
-				<div  class="card">
-					<div class="card-body">
-						<h5 class="card-title">Neuer Kommentar</h5>
-						<form action="<?=rex_getUrl('')?>#preview-comment" method="POST">
+			<a id="comment-form"></a>
+			
+			<h2>Kommentar hinzufügen</h2>
 
-							<div class="form-row">
-								<div class="form-group col-md-6">
-									<label for="comment_name">Name (beliebig):</label>
-									<input type="text" class="form-control" name="comment_name" id="comment_name" value="<?=$reEditName?>"/>
-								</div>
-								<div class="form-group col-md-6">
-									<label for="comment_mail">E-Mail (freiwillig):</label>
-									<input type="mail" class="form-control" id="comment_mail" name="comment_mail" value="<?=$reEditMail?>"/>
-								</div>
-							</div>
-
-							<div class="form-group">
-								<label for="comment_body">Text:</label>
-								<textarea class="form-control" id="comment_body" name="comment_body" rows="5"><?=$reEditBody?></textarea>
-							</div>
-
-							<input id="comment_anonymous_preview" type="submit" name="comment_preview" value="Vorschau"/>
-							<!-- <input id="comment_login" type="submit" name="action" value="Anmelden und kommentieren" />	 -->
-						</form>
-					</div>
-				</div>
-				<p></p>
-				<!-- card has no margin?? -->
-				<!-- !!! must be shown on preview too -->
-				<div class="card">
-					<div class="card-body">
-						<h5 class="card-title">Erläuterung</h5>
-						<p>
-							blups di bla
-						</p>
-					</div>
+			<?php
+				// ! the order of init and output is important to get 
+				//   latest DB changes into list above
+				echo $formHtml;
+			?>
+			<p>&nbsp;</p>
+			<!-- <p><a class="description-link initially-hidden" href="#description-text">Erläuterungen anzeigen</a></p> -->
+			<!-- card has no margin?? -->
+			<!-- !!! must be shown on preview too -->
+			<div class="card description-card">
+				<a id="description-text"></a>
+				<div class="card-body">
+					<h5 class="card-title">Erläuterungen</h5>
+					<p>
+						Ihre IP-Adresse wird gespeichert.
+					</p>
 				</div>
 			</div>
+		</div>
 				
-					<?php if (!$isReEdit): ?>
+					<!-- <?php if (!$isReEdit): ?>
 					<p>
 						<button id="btn-comment" type="button" class="btn btn-outline-success" data-toggle="collapse" data-target="#comment-container" aria-expanded="false" aria-controls="collapseExample">Kommentar hinzufügen</button>
 					</p>
-					<?php endif; ?>
+					<?php endif; ?> -->
 
 			<?php 
 				endif; // if (comment_preview)
@@ -696,7 +686,6 @@ echo $yform->getForm();
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
 
 	<script src="<?=theme_url::assets('vendor/jquery.auto-complete.min.js')?>"></script>
-	<!-- !!! not efficient because template output differs each call while JS code always the same EXCEPT WORDLIST-->
 	<script>
 		$(document).ready(function() {
 			$('#wordlistsearch').autoComplete({
@@ -711,6 +700,15 @@ echo $yform->getForm();
 					suggest(matches);
 				}
 			});
+			
+			$('.description-link')
+				.removeClass('initially-hidden')
+				.click(function() {
+					$('.description-card').show();
+					// return false;
+				});
+
+			$('.description-card').hide();
 		});
 	</script>
   </body>
