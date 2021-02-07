@@ -326,7 +326,7 @@
 		<?php
 			// ! use later again 
 			if ($login):
-				echo "eingeloggt als: $login";
+				echo "im Backend eingeloggt als: $login";
 
 			// ! no else branch => redaxo login invisible
 			// else:
