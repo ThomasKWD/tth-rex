@@ -1,169 +1,213 @@
 <!-- you will need to use bootstrap rows/cols -->
-<div class="row detailed-view">
-	<div class="col">
 <?php
-	$tm = new \kwd\tth\TableManager();
-
-	$id = rex_request('begriff_id','int');
-	if ($id) {
-		$sourcesArticleId = 'REX_LINK[id=1 output=id]';
-		if (!$sourcesArticleId) $sourcesArticleId = 'REX_ARTICLE_ID';
-
-		$tableEntities = 'tth_wortliste';
-		$tableAuthors = 'tth_autoren';
-		$tableStati = 'tth_begriffsstati';
-		$tableLanguage = 'tth_sprachen';
-		$tableRegions = 'tth_regionen';
-		$tableStyles = 'tth_sprachstile';
-
-		$tableSources = 'tth_quellen'; // needed for resolving names in $tableReferences
-		// $tableRelationSources = 'tth_begriff_quellen';
-		$tableReferences = 'tth_quellenangaben';
-		
-		$sql = rex_sql::factory();
-
-		// idea: make combi-query via alias names for other self-relations of tth_wortlise
-		// or maybe using other join commands here
-		$synonymsQuery = "SELECT t1.id,t1.begriff from $tableEntities t1 WHERE t1.benutze=$id";
-		$synonyms = $sql->getArray($synonymsQuery);
-		// references list
-		$query = "SELECT r.id, r.quelle_id, r.seitenzahl, r.bevorzugt, s.kurz "; //s.kurz
-		$query.= "FROM $tableReferences r ";
-		$query.= "JOIN $tableSources s ON r.quelle_id = s.id ";
-		// $query.= "JOIN $tableSources ON $tableSources.id = $tableRelationSources.quelle_id ";
-		$query.= "WHERE r.begriff_id=$id ORDER BY r.id ASC";
-
-		$sourcesArray = $sql->getArray($query);
-		
-		// ! b is first alias for $tableEntities, b2 is the second for benutze
-		$query = "SELECT b.begriff,b.id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.bild,$tableStati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,";
-		$query .= "b2.begriff AS benutze_begriff,CONCAT($tableAuthors.vorname, ' ', $tableAuthors.name) AS autor,";
-		$query .= "$tableLanguage.sprache AS sprache,";
-		$query .= "$tableRegions.region AS region, ";
-		$query .= "$tableStyles.stil AS sprachstil ";
-		$query .= "FROM $tableEntities b ";
-		$query .= "LEFT JOIN $tableAuthors ON b.autor_id = $tableAuthors.id ";
-		$query .= "LEFT JOIN $tableStati ON b.begriffsstatus_id = $tableStati.id ";
-		$query .= "LEFT JOIN $tableLanguage ON b.sprache_id = $tableLanguage.id ";
-		$query .= "LEFT JOIN $tableRegions ON b.region_id = $tableRegions.id ";
-		$query .= "LEFT JOIN $tableStyles ON b.sprachstil_id = $tableStyles.id ";
-		$query .= "LEFT JOIN $tableEntities b2 ON b2.id = b.benutze WHERE b.id=$id";
-		
-		$rows = $sql->getArray($query);
-		if ($rows && count($rows)) {
-			$r = $rows[0];
-			
-			$html = "<h2>${r["begriff"]}</h2>\n";
-
-			$html .= '<table class="table table-responsive">';
-
-			// make header line of table
-			$html .= '<thead><tr><th>Feld</th><th>Inhalt</th></thead>';
-			
-			// $html .= $tm->makeRow('ID', $r['id']);
-			$html .= $tm->makeRow('Definition', $r['definition']);
-			
-			$html .= $tm->makeRow('Sprache', $r['sprache']);
-			$html .= $tm->makeRow('Sprachstil', $r['sprachstil']);
-			$html .= $tm->makeRow('Region', ($r['region']) ? $r['region'] : "");
-			$html .= $tm->makeRow('Begriffcode', $r['code']);
-			$html .= $tm->makeRow('Begriffs-Status',$r['status']);
-			// ! redaxo file list is *comma* separated
-			if ($r['bild']) {
-				// ! separator ',' is determined by redaxo
-				$images = explode(',',$r['bild']);
-				$imgHTML = '';
-				foreach ($images as $img) {
-					$imgHTML .= '<img src="index.php?rex_media_type=tth_horizontal_list&rex_media_file='.$img.'">';
-				}
-				$html .= $tm->makeRow('Bilder',$imgHTML);
-			}
-			
-			$html .= $tm->makeRow(
-				'Grobgliederung',
-				$tm->getInnerRelationLinkList($sql, 'structuring', $id)
-			);
-			
-			// ! first link
-			$html .= $tm->makeRow('Synonym von (Benutze)',$tm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
-			
-			// ! needs 5/6 extra queries because of n:m-self relations
-			$syns = '';
-			foreach($synonyms as $s) {
-				$syns .= $tm->getLink('begriff_id', $s['id'],$s['begriff']).', ';
-			}
-			
-			// !!! use small def from Bootstrap
-			$html .= $tm->makeRow('Deskriptor von (Benutzt für)',$syns.'<br><small>diese sind zusammen mit dem Begriff "'.$r['begriff'].'" selbst die <em>Äquivalenzklasse</em></small>');
-			
-			$html .= $tm->makeRow(
-				'Oberbegriffe',
-				$tm->getInnerRelationLinkList($sql, 'supers', $id)
-			);
-			
-			$html .= $tm->makeRow(
-				'Unterbegriffe',
-				$tm->getInnerRelationLinkList($sql, 'subs', $id)
-			);
-			
-			$html .= $tm->makeRow(
-				'Äquivalente Begriffe',
-				$tm->getInnerRelationLinkList($sql, 'equivalents', $id)
-			);
-			
-			$html .= $tm->makeRow(
-				'Verwandte Begriffe',
-				$tm->getInnerRelationLinkList($sql, 'relatives', $id)
-			);
-
-			if ($r['quelle_seite']) $html .= $tm->makeRow('Seite in Quelle',$r['quelle_seite']);
-			
-			// $html .= $tm->makeRow('Quellen',$tm->makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
-
-			$html .= $tm->makeRow('Scoped Notes',$r['notes']);
-			$html .= $tm->makeRow('Kategorie',$tm->checkTruthyWord($r['kategorie']));
-			$html .= $tm->makeRow('Veröffentlichen?',$tm->checkTruthyWord($r['veroeffentlichen']));
-			$html .= $tm->makeRow('Noch bearbeiten',$tm->checkTruthyWord($r['bearbeiten']));
-	
-			$authorText = '';
-			// ! the `if` is important because the SQL may still returen the first entry of tth_autoren for some reason when autor_id=''  ! whole data set not returned when no author; need 0 clause in inner join
-			if ($r['autor']) { // is a generated value; and is NULL when not set
-				$authorText .= $r['autor'];
-				// !!! provide link for GND (see code in details of "Quelle")
-				if (trim($r['gnd'])) $authorText .= ' (GND: '.$r['gnd'].')';
-			}
-			$html .= $tm->makeRow('Autor',$authorText);
-
-			echo $html.'</table>';
-			
-			// dump($rows[0]);
-			// begin new table for Sources-Entries:
-			$html = '<table class="table table-responsive">';
-			// make header line of table
-			$html .= "<thead><tr><th>#</th><th>Quelle</th><th>Seitenzahl</th><th>Bevorzugt?</th></thead>\n";
-			$i = 1;
-			foreach($sourcesArray as $s) {
-				$html .= "<tr>\n";
-				$html .= "<td>$i</td> ";
-				$html .= "<td>".$tm->getLink('quelle_id',$s['quelle_id'], '<div class="author-name">'.$s['kurz'].'</div>', $sourcesArticleId)."</td> ";
-				// check for any truthy value
-				$html .= "<td>".($s['seitenzahl'] ? $s['seitenzahl'] : '')."</td> ";
-				// check for any truthy value
-				$html .= "<td>".($s['bevorzugt'] ? 'bevorzugt' : '')."</td> ";
-				// $html .= "<td>${s['bevorzugt']}</td> ";
-				$html .= "</tr>\n";
-				$i++;
-			}
-			echo $html.'</table>';
-		} 
-		else {
-			echo rex_view::warning('Eintrag für ID = '.$id.' nicht gefunden.');
-		}
+	if (rex::isBackend()) {
+		// !!! make general function for "backend-page link"
+		?>
+		<p>Ergebnisse nur im Frontend.</p>
+		<p>Bei fehlender ID des Begriffs wird eine Warnung ausgegeben.
+		Idee: Weiterleitung zur Übersicht definieren, wenn keine ID gefunden.</p>
+		<p>Artikel für Quellen: <strong>REX_LINK[id=1 output=name]</strong> (ID: REX_LINK[id=1 output=id])</p>
+		<p>Artikel für Schlagwörter:  <strong>REX_LINK[id=2 output=name]</strong> (ID: REX_LINK[id=2 output=id])</p>
+		<?php
 	}
 	else {
-		// !!! make text editable in module input
-		echo rex_view::warning('Eine Detailansicht benötigt die ID als GET-Parameter "begriff_id". Beginne am besten mit der alphabetischen Übersicht!');
-	}
-?>
+		?>
+		<div class="row detailed-view">
+		<div class="col">
+		<?php
+
+		$tm = new \kwd\tth\TableManager();
+		
+		$id = rex_request('begriff_id','int');
+		if ($id) {
+			$sourcesArticleId = 'REX_LINK[id=1 output=id]';
+			$tagsArticleId = 'REX_LINK[id=2 output=id]';
+			if (!$sourcesArticleId) $sourcesArticleId = 'REX_ARTICLE_ID';
+			
+			$tableEntities = 'tth_wortliste';
+			$tableAuthors = 'tth_autoren';
+			$tableStati = 'tth_begriffsstati';
+			$tableLanguage = 'tth_sprachen';
+			$tableRegions = 'tth_regionen';
+			$tableStyles = 'tth_sprachstile';
+			$tableTags = 'tth_tags';
+			
+			$tableSources = 'tth_quellen'; // needed for resolving names in $tableReferences
+			// $tableRelationSources = 'tth_begriff_quellen';
+			$tableReferences = 'tth_quellenangaben';
+			$tableRelationTags = 'tth_begriff_tags';
+			
+			$sql = rex_sql::factory();
+			// !!! test relations with yform functions, so that no own queries needed
+			
+			// ! synonyms found can not be generated by $tm->getInnerRelationLinkList() because we want to find
+			//   all enities which point to the current one
+			$synonymsQuery = "SELECT t1.id,t1.begriff from $tableEntities t1 WHERE t1.benutze=$id";
+			$synonyms = $sql->getArray($synonymsQuery);
+			
+			// references list
+			$query = "SELECT r.id, r.quelle_id, r.seitenzahl, r.bevorzugt, s.kurz "; //s.kurz
+			$query.= "FROM $tableReferences r ";
+			$query.= "JOIN $tableSources s ON r.quelle_id = s.id ";
+			// $query.= "JOIN $tableSources ON $tableSources.id = $tableRelationSources.quelle_id ";
+			$query.= "WHERE r.begriff_id=$id ORDER BY r.id ASC";
+			$sourcesArray = $sql->getArray($query);
+			
+			// tags
+			// !!! could make "getOuterRelation in table manager
+			$tagsQuery = "SELECT r.tag_id, r.begriff_id, s.name ";
+			$tagsQuery.= "FROM $tableRelationTags r ";
+			$tagsQuery.= "JOIN $tableTags s ON r.tag_id = s.id ";
+			$tagsQuery.= "WHERE r.begriff_id=$id ORDER BY s.name ASC";
+			$tags = $sql->getArray($tagsQuery);
+			
+			// ! b is first alias for $tableEntities, b2 is the second for benutze
+			$query = "SELECT b.begriff,b.id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.bild,$tableStati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,";
+			$query .= "b2.begriff AS benutze_begriff,CONCAT($tableAuthors.vorname, ' ', $tableAuthors.name) AS autor,";
+			$query .= "$tableLanguage.sprache AS sprache,";
+			$query .= "$tableRegions.region AS region, ";
+			$query .= "$tableStyles.stil AS sprachstil ";
+			$query .= "FROM $tableEntities b ";
+			$query .= "LEFT JOIN $tableAuthors ON b.autor_id = $tableAuthors.id ";
+			$query .= "LEFT JOIN $tableStati ON b.begriffsstatus_id = $tableStati.id ";
+			$query .= "LEFT JOIN $tableLanguage ON b.sprache_id = $tableLanguage.id ";
+			$query .= "LEFT JOIN $tableRegions ON b.region_id = $tableRegions.id ";
+			$query .= "LEFT JOIN $tableStyles ON b.sprachstil_id = $tableStyles.id ";
+			$query .= "LEFT JOIN $tableEntities b2 ON b2.id = b.benutze WHERE b.id=$id";
+			
+			$rows = $sql->getArray($query);
+			if ($rows && count($rows)) {
+				$r = $rows[0];
+				
+				$html = "<h2>${r["begriff"]}</h2>\n";
+				
+				$html .= '<table class="table table-responsive">';
+				
+				// make header line of table
+				// $html .= '<thead><tr><th>Feld</th><th>Inhalt</th></thead>';
+				
+				// $html .= $tm->makeRow('ID', $r['id']);
+				$html .= $tm->makeRow('Definition', $r['definition']);
+				
+				$html .= $tm->makeRow('Sprache', $r['sprache']);
+				$html .= $tm->makeRow('Sprachstil', $r['sprachstil']);
+				$html .= $tm->makeRow('Region', ($r['region']) ? $r['region'] : "");
+				$html .= $tm->makeRow('Begriffcode', $r['code']);
+				$html .= $tm->makeRow('Begriffs-Status',$r['status']);
+				// ! redaxo file list is *comma* separated
+				if ($r['bild']) {
+					// ! separator ',' is determined by redaxo
+					$images = explode(',',$r['bild']);
+					$imgHTML = '';
+					foreach ($images as $img) {
+						$imgHTML .= '<img src="index.php?rex_media_type=tth_horizontal_list&rex_media_file='.$img.'">';
+					}
+					$html .= $tm->makeRow('Bilder',$imgHTML);
+				}
+				
+				$html .= $tm->makeRow(
+					'Grobgliederung',
+					$tm->getInnerRelationLinkList($sql, 'structuring', $id)
+				);
+				
+				// !!! need method for this code synonyms + tags
+				$tagList = '';
+				foreach($tags as $s) {
+					$tagList .= $tm->getLink('tag_id', $s['tag_id'],$s['name'], $tagsArticleId).', ';
+				}
+				// !!! use small def from Bootstrap
+				$html .= $tm->makeRow('Schlagwörter',$tagList.'<br><small></small>');
+				
+				
+				// ! first link
+				$html .= $tm->makeRow('Synonym von (Benutze)',$tm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
+				
+				$syns = '';
+				foreach($synonyms as $s) {
+					$syns .= $tm->getLink('begriff_id', $s['id'],$s['begriff']).', ';
+				}
+				
+				// !!! use small def from Bootstrap
+				$html .= $tm->makeRow('Deskriptor von (Benutzt für)',$syns.'<br><small>diese sind zusammen mit dem Begriff "'.$r['begriff'].'" selbst die <em>Äquivalenzklasse</em></small>');
+				
+				// tags
+				// $html .= $tm->makeRow(
+					// 	'Schlagwörter',
+					// 	// !!! wrong: is not *inner* relation
+					// 	$tm->getInnerRelationLinkList($sql, 'tags', $id)
+					// );
+					
+					$html .= $tm->makeRow(
+						'Oberbegriffe',
+						$tm->getInnerRelationLinkList($sql, 'supers', $id)
+					);
+					
+					$html .= $tm->makeRow(
+						'Unterbegriffe',
+						$tm->getInnerRelationLinkList($sql, 'subs', $id)
+					);
+					
+					$html .= $tm->makeRow(
+						'Äquivalente Begriffe',
+						$tm->getInnerRelationLinkList($sql, 'equivalents', $id)
+					);
+					
+					$html .= $tm->makeRow(
+						'Verwandte Begriffe',
+						$tm->getInnerRelationLinkList($sql, 'relatives', $id)
+					);
+					
+					if ($r['quelle_seite']) $html .= $tm->makeRow('Seite in Quelle',$r['quelle_seite']);
+					
+					// $html .= $tm->makeRow('Quellen',$tm->makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
+					
+					$html .= $tm->makeRow('Scoped Notes',$r['notes']);
+					$html .= $tm->makeRow('Kategorie',$tm->checkTruthyWord($r['kategorie']));
+					$html .= $tm->makeRow('Veröffentlichen?',$tm->checkTruthyWord($r['veroeffentlichen']));
+					$html .= $tm->makeRow('Noch bearbeiten',$tm->checkTruthyWord($r['bearbeiten']));
+					
+					$authorText = '';
+					// ! the `if` is important because the SQL may still returen the first entry of tth_autoren for some reason when autor_id=''  ! whole data set not returned when no author; need 0 clause in inner join
+					if ($r['autor']) { // is a generated value; and is NULL when not set
+						$authorText .= $r['autor'];
+						// !!! provide link for GND (see code in details of "Quelle")
+						if (trim($r['gnd'])) $authorText .= ' (GND: '.$r['gnd'].')';
+					}
+					$html .= $tm->makeRow('Autor',$authorText);
+					
+					echo $html.'</table>';
+					
+					// dump($rows[0]);
+					// begin new table for Sources-Entries:
+						$html = '<table class="table table-responsive">';
+						// make header line of table
+						$html .= "<thead><tr><th>#</th><th>Quelle</th><th>Seitenzahl</th><th>Bevorzugt?</th></thead>\n";
+						$i = 1;
+						foreach($sourcesArray as $s) {
+							$html .= "<tr>\n";
+							$html .= "<td>$i</td> ";
+							$html .= "<td>".$tm->getLink('quelle_id',$s['quelle_id'], '<div class="author-name">'.$s['kurz'].'</div>', $sourcesArticleId)."</td> ";
+							// check for any truthy value
+							$html .= "<td>".($s['seitenzahl'] ? $s['seitenzahl'] : '')."</td> ";
+							// check for any truthy value
+							$html .= "<td>".($s['bevorzugt'] ? 'bevorzugt' : '')."</td> ";
+							// $html .= "<td>${s['bevorzugt']}</td> ";
+							$html .= "</tr>\n";
+							$i++;
+						}
+						echo $html.'</table>';
+					} 
+					else {
+						echo rex_view::warning('Eintrag für ID = '.$id.' nicht gefunden.');
+					}
+				}
+				else {
+					// !!! make text editable in module input
+					echo rex_view::warning('Eine Detailansicht benötigt die ID als GET-Parameter "begriff_id". Beginne am besten mit der alphabetischen Übersicht!');
+				}
+				?>
 	</div>
 </div>
+				<?php
+			}
+			?>

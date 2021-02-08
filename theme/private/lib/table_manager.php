@@ -11,6 +11,8 @@ namespace kwd\tth;
 class TableManager {
 	const TABLE_PREFIX = 'tth_';
 
+	// !!! how can $tableNames and $tableIdFields be generated??
+
 	protected $tableNames = array(
 		'entities' => self::TABLE_PREFIX . 'wortliste',
 		'sources' => self::TABLE_PREFIX . 'quellen',
@@ -26,6 +28,7 @@ class TableManager {
 		'entity_supers' => self::TABLE_PREFIX .'begriff_oberbegriffe',
 		'entity_subs' => self::TABLE_PREFIX .'begriff_unterbegriffe',
 		'entity_equivalents' => self::TABLE_PREFIX .'begriff_aequivalente',
+		'entity_tags' => self::TABLE_PREFIX .'begriff_tags',
 		'references' => self::TABLE_PREFIX .'quellenangaben',
 		'references_fields' => self::TABLE_PREFIX .'quellenangaben_felder',
 		'tablenames' => self::TABLE_PREFIX .'tabellennamen'
@@ -39,6 +42,7 @@ class TableManager {
 		'subs' => 'unterbegriff_id',
 		'relatives' => 'verwandter_id',
 		'equivalents' => 'aequivalent_id',
+		'tags' => 'tag_id'
 	);
 
 	protected $tableFields = array(
