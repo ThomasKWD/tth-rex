@@ -1,18 +1,21 @@
-# Technischer Thesaurus Holzbau (TTH)
+# Thesaurus Traditioneller Holzbau (TTH)
 
 Ein Projekt, initiiert von [Timm Miersch](mailto:timm.miersch@googlemail.com).
+
+Demo: https://www.thesaurus-traditioneller-holzbau.net/
 
 Dies ist eine [MySQL](https://de.wikipedia.org/wiki/MySQL)-Umsetzung der ursprünglichen MS-Access-Datenbank. Sie ist eingebettet in eine [Redaxo](https://www.redaxo.org)-Installation mit YForm. Sie erlaubt eine flexible Online-Bearbeitung der Daten. Außerdem ist eine benutzerfreundliche Abfrage und Präsentation von Daten der DB ohne Login möglich.
 
 Das vorliegende System ist als Entwurf einer unabhängigen, redaktionellen Datenbank zu verstehen.
 
-Ziel ist später die Anbindung an offizielle Museumsdatenbanken und -Standards. Eventuell sollen die Daten in das Format eines [MediaWiki](https://mediawiki.org) konvertiert werden.
+Ziel ist später die Anbindung an die wissenschaftliche Datenbasis, welche in "xtree.digicult.de" verwaltet wird.
+
 
 ## Installation
 
 Das Repository stellt das Basis-Verzeichnis einer lauffähigen [Redaxo 5.10.x](https://redaxo.org/download/core/) Installation dar (Apache, MySQL, PHP entsprechend Erfordernissen von Redaxo benötigt).
 
-Das Redaxo benötigt für dieses Projekt folgende Addons: developer, markitup, phpmailer, theme, YForm
+Das Redaxo benötigt für dieses Projekt folgende Addons: developer, markitup, phpmailer, theme, YForm, YCom, xoutputfilter (optional)
 
 Du solltest erst Redaxo und alle benötigten Addons installieren und dann den Inhalt des Downloads (https://github.com/ThomasKWD/tth-rex/archive/master.zip) oder "Clone" hinein kopieren. 
 
@@ -115,5 +118,3 @@ Konvertieren einzelne n:m-Tabelle
 
 ~~Inhalte aller n:m-Tabellen (Ansicht der Haupt-Tabellen gibt es ja im Backend)~~
 braucht man eigentlich nicht, ist ja nur für Admins und die können in phpMyAdmin schauen oder die Tabellen in YForm auf sichtbar stellen.
-
-## Wiki-Anbindung
