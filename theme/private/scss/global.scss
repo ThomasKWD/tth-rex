@@ -58,6 +58,10 @@ body {
 .main-container {
 	padding-bottom: 32px;
 
+	h1 {
+		margin-bottom: 48px;
+	}
+
 	a {
 		&:link,
 		&:visited,
