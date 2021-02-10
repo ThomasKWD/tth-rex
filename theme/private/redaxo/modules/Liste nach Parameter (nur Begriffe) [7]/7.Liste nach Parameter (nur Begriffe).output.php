@@ -31,12 +31,25 @@ if ($search) {
 	}
 }
 else {
+	// !!! do rex_escape
+	// !!! make in function/class? request id, name of field for name, table name, headline, target page id
 	$lang = rex_request('sprache_id');
 	$region = rex_request('region_id');
 	$style = rex_request('sprachstil_id');
 	$source = rex_request('quelle_id');
+	$status = rex_request('begriffsstatus_id');
 
-	if ($lang || 0 === $lang || '0' === $lang) {
+	if ($status || 0 === $status || '0' === $status) {
+		$sql = rex_sql::factory();
+		// !!! make sanitize by convert id to int here!
+		$statusArray = $sql->getArray("SELECT `status` from tth_begriffsstati WHERE id=$status");
+		if (count($statusArray)) $statusName = $statusArray[0]['status'];
+		else $statusName = 'nicht gesetzt';
+		?>
+		<p><strong>Begriffe nach Status "<?=$statusName?>":</strong> <?=$tm->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE begriffsstatus_id=$status"), 'begriff_id', 'begriff',  'REX_LINK[id=1 output=id]')?></p>
+		<?php
+	}
+	else if ($lang || 0 === $lang || '0' === $lang) {
 		$sql = rex_sql::factory();
 		// !!! need select of language again to gain name (or pass it in URL!)
 		// !!! more verbose: check if null result
@@ -115,6 +128,12 @@ else {
 		array_push($styles, array( 'id' => 0, 'stil' => 'nicht gesetzt'));
 		?>
 		<p><strong>Sprachstil:</strong> <?=$tm->makeLinkList($styles, 'sprachstil_id', 'stil')?></p>
+		<?php
+
+		$stati = $sql->getArray("SELECT id,`status` FROM tth_begriffsstati WHERE 1 ORDER BY id ASC");
+		array_push($stati, array( 'id' => 0, 'status' => 'nicht gesetzt'));
+		?>
+		<p><strong>Begriffsstatus:</strong> <?=$tm->makeLinkList($stati, 'begriffsstatus_id', 'status')?></p>
 		<?php
 
 		$quellen = $sql->getArray("SELECT id,kurz FROM tth_quellen WHERE 1");
