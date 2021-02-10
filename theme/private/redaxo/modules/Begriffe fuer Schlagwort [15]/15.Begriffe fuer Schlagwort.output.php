@@ -63,7 +63,7 @@
             echo "<p>Keine Begriffe mit \"$tag\" gefunden.";
         }
 
-        echo "<h3>Begriffe, bei denen \"Kategorie\" gesetzt ist</h3>";
+        echo "<p>Begriffe, bei denen \"Kategorie\" gesetzt ist</p>";
         $katEntitiesQuery = "SELECT id, begriff FROM $tableEntities WHERE kategorie = 'TRUE'";
         $kats = $sql->getArray($katEntitiesQuery);
         echo '<p>'.$tm->makeLinkList($kats, 'begriff_id', 'begriff',"REX_LINK[id=1 output=id]").'</p>';

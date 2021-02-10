@@ -109,6 +109,11 @@
 					'Grobgliederung',
 					$tm->getInnerRelationLinkList($sql, 'structuring', $id)
 				);
+				$html .= $tm->makeRow(
+					'Begriffe, bei denen Grobgliederung auf diesen Begriff verweist',
+					$tm->getInnerReverseRelationLinkList($sql, 'structuring', $id)
+				);
+				
 				
 				// !!! need method for this code synonyms + tags
 				$tagList = '';
@@ -141,12 +146,22 @@
 						'Oberbegriffe',
 						$tm->getInnerRelationLinkList($sql, 'supers', $id)
 					);
+					// ! must be unterbegriffe reverse to show generated oberbegriffe
+					$html .= $tm->makeRow(
+						'',
+						$tm->getInnerReverseRelationLinkList($sql, 'subs', $id)
+					);
 					
 					$html .= $tm->makeRow(
 						'Unterbegriffe',
 						$tm->getInnerRelationLinkList($sql, 'subs', $id)
 					);
-					
+					// ! must be oberbegriffe reverse to show generated unterbegriffe
+					$html .= $tm->makeRow(
+						'',
+						$tm->getInnerReverseRelationLinkList($sql, 'supers', $id)
+					);
+						
 					$html .= $tm->makeRow(
 						'Äquivalente Begriffe',
 						$tm->getInnerRelationLinkList($sql, 'equivalents', $id)

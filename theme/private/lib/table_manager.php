@@ -68,7 +68,23 @@ class TableManager {
 		$query.= "WHERE e1.id=$id ";
 		return $query;
 	}
-	
+
+	/**
+	 * make a SQL query from known tablenames and a certain inner relation of entities and an id.
+	 * 		
+	 * in this case we handle it differently:
+	 * - get all from entities (tth_wortliste) which point to current ($id) by its entity field (begriff_id)
+	 */
+	function buildInnerReverseRelationQuery($relationType, $id) {
+		$query = "SELECT e2.id, e2.{$this->tableFields['entity']} ";
+		$query.= "FROM {$this->tableNames['entities']} e1 ";
+		// ! next line gives SQL exception on wrong value in $relationType
+		$query.= "JOIN {$this->tableNames['entity_'.$relationType]} g1 ON e1.id = g1.{$this->tableIdFields[$relationType]} ";
+		$query.= "JOIN {$this->tableNames['entities']} e2 ON e2.id = g1.{$this->tableIdFields['entity']} ";
+		$query.= "WHERE e1.id=$id ";
+		return $query;
+	}
+
 	/**
 	 * check a boolean field expressed by a word (string) as provided by YForm or Access
 	 * 
@@ -101,6 +117,20 @@ class TableManager {
 		);
 	}
 
+	
+	/** queries rows from SQL and produced markup for link list
+	 *  
+	 * This is a helper for DRYing code
+	 * @param sql object of type rex_sql needing method `getArray`
+	 */
+	public function getInnerReverseRelationLinkList(&$sql, $type, $id) {		
+		return $this->makeLinkList(
+			$sql->getArray($this->buildInnerReverseRelationQuery($type, $id)),
+			'begriff_id',
+			'begriff'
+		);
+	}
+
 	/** generates <a> markup for given parameters.
 	 *  
 	 * uses *predefined* `rex_getUrl` stub
@@ -120,6 +150,7 @@ class TableManager {
 	function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
 		$str = '';
 		$length = count($array);
+		echo " ($length) ";
 		for($i = 0; $i < $length; $i++) {
 			$s = $array[$i];
 			$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ($i < $length - 1 ? ', ' : '');
