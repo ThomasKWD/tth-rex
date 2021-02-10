@@ -48,19 +48,24 @@
         // !!! inner join of outer relation (just like in `DetailAnsicht`)
         //     should go into tablemanager!!
         // !!! could make "getOuterRelation in table manager
-        $entitiesQuery = "SELECT r.tag_id, r.begriff_id, e.begriff ";
+        $entitiesQuery = "SELECT r.tag_id, r.begriff_id, e.begriff, e.id "; // e.id for output below in makeLinkList
         $entitiesQuery.= "FROM $tableRelationTags r ";
         $entitiesQuery.= "JOIN $tableEntities e ON r.begriff_id = e.id ";
         $entitiesQuery.= "WHERE r.tag_id=$id ORDER BY e.begriff ASC";
         $entities = $sql->getArray($entitiesQuery);
         // dump($entities);
         if (count($entities)) {
+            // dump($entities);
             echo "<h3>Begriffe, die \"$tag\" enthalten</h3>";
-            echo '<p>'.$tm->makeLinkList($entities, 'begriff_id', 'begriff').'</p>';
+            echo '<p>'.$tm->makeLinkList($entities, 'begriff_id', 'begriff',"REX_LINK[id=1 output=id]").'</p>';
         }
         else {
             echo "<p>Keine Begriffe mit \"$tag\" gefunden.";
         }
-    }
 
+        echo "<h3>Begriffe, bei denen \"Kategorie\" gesetzt ist</h3>";
+        $katEntitiesQuery = "SELECT id, begriff FROM $tableEntities WHERE kategorie = 'TRUE'";
+        $kats = $sql->getArray($katEntitiesQuery);
+        echo '<p>'.$tm->makeLinkList($kats, 'begriff_id', 'begriff',"REX_LINK[id=1 output=id]").'</p>';
+    }
   ?>
