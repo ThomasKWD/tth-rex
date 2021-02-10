@@ -3,6 +3,12 @@
 // - set params ins module instead for start view
 // - control output by params from url
 
+if (!function_exists('printFilteredLinks')) {
+	function printFilteredLinks(&$sql,&$tm, $table,$idName,$fieldName) {
+		echo $tm->getFilteredEntities($sql, $table, $idName, $fieldName,rex_escape(rex_request($idName)), 'REX_LINK[id=1 output=id]');
+	}
+}
+
 $detailsArticleId = 'REX_LINK[id=1 output=id]';
 
 $tm = new \kwd\tth\TableManager();
@@ -33,45 +39,20 @@ if ($search) {
 else {
 	// !!! do rex_escape
 	// !!! make in function/class? request id, name of field for name, table name, headline, target page id
-	$lang = rex_request('sprache_id');
-	$region = rex_request('region_id');
-	$style = rex_request('sprachstil_id');
+	// $lang = rex_request('sprache_id');
+	// $region = rex_request('region_id');
+	// $style = rex_request('sprachstil_id');
 	$source = rex_request('quelle_id');
-	$status = rex_request('begriffsstatus_id');
+	// $status = rex_request('begriffsstatus_id');
 
-	if ($status || 0 === $status || '0' === $status) {
-		$sql = rex_sql::factory();
-		// !!! make sanitize by convert id to int here!
-		$statusArray = $sql->getArray("SELECT `status` from tth_begriffsstati WHERE id=$status");
-		if (count($statusArray)) $statusName = $statusArray[0]['status'];
-		else $statusName = 'nicht gesetzt';
-		?>
-		<p><strong>Begriffe nach Status "<?=$statusName?>":</strong> <?=$tm->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE begriffsstatus_id=$status"), 'begriff_id', 'begriff',  'REX_LINK[id=1 output=id]')?></p>
-		<?php
-	}
-	else if ($lang || 0 === $lang || '0' === $lang) {
-		$sql = rex_sql::factory();
-		// !!! need select of language again to gain name (or pass it in URL!)
-		// !!! more verbose: check if null result
-		?>
-		<p><strong>Begriffe nach Sprache <?=$lang?>:</strong> <?=$tm->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprache_id=$lang"), 'begriff_id', 'begriff',  'REX_LINK[id=1 output=id]')?></p>
-		<?php
-	}
-	else if ($region || 0 === $region || '0' === $region) {
-		$sql = rex_sql::factory();
-		// !!! need select of region again to gain name (or pass it in URL!)
-		// !!! more verbose: check if null result
-		?>
-		<p><strong>Begriffe nach Region <?=$region?>:</strong> <?=$tm->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE region_id=$region"), 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
-		<?php	
-	}
-	else if ($style || 0 === $style || '0' === $style) {
-		$sql = rex_sql::factory();
-		?>
-		<p><strong>Begriffe nach Sprachstil <?=$style?>:</strong> <?=$tm->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE sprachstil_id=$style"), 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
-		<?php	
-	}
-	else if ($source || 0 === $source || '0' === $source) {
+	$sql = rex_sql::factory();
+
+	printFilteredLinks($sql, $tm, 'tth_sprachen','sprache_id', 'sprache');
+	printFilteredLinks($sql, $tm, 'tth_begriffsstati', 'begriffsstatus_id', 'status');
+	printFilteredLinks($sql, $tm, 'tth_regionen', 'region_id', 'region');
+	printFilteredLinks($sql, $tm, 'tth_sprachstile', 'sprachstil_id', 'stil');
+
+	if ($source || 0 === $source || '0' === $source) {
 		$sql = rex_sql::factory();
 
 		// !!! you'll need to find another way for "not set"
@@ -106,42 +87,43 @@ else {
 		?><p><strong>Begriffe nach Quelle (<?=($source ? 'ID='.$source : 'nicht gesetzt')?>, <?=count($rows)?> Einträge):</strong> <?=$tm->makeLinkList($rows, 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
 		<?php	
 	}
-	else {
-		// !!! output only depending on param in module input because sometimes not wanted
-		$sql = rex_sql::factory();
+	
+	echo '<hr>';
 
-		// !!! make functions for the array selects
-		$languages = $sql->getArray("SELECT id,sprache FROM tth_sprachen WHERE 1");
-		// id = 0 automatically causes SQL to find unset entries
-		array_push($languages, array( 'id' => 0, 'sprache' => 'nicht gesetzt'));
-		?>
-		<p><strong>Sprache:</strong> <?=$tm->makeLinkList($languages, 'sprache_id', 'sprache')?></p>
-		<?php
+	// !!! output only depending on param in module input because sometimes not wanted
+	$sql = rex_sql::factory();
 
-		$regions = $sql->getArray("SELECT id,region FROM tth_regionen WHERE 1");
-		array_push($regions, array( 'id' => 0, 'region' => 'nicht gesetzt'));
-		?>
-		<p><strong>Region:</strong> <?=$tm->makeLinkList($regions, 'region_id', 'region')?></p>
-		<?php
+	// !!! make functions for the array selects
+	$languages = $sql->getArray("SELECT id,sprache FROM tth_sprachen WHERE 1");
+	// id = 0 automatically causes SQL to find unset entries
+	array_push($languages, array( 'id' => 0, 'sprache' => 'nicht gesetzt'));
+	?>
+	<p><strong>Sprache:</strong> <?=$tm->makeLinkList($languages, 'sprache_id', 'sprache')?></p>
+	<?php
 
-		$styles = $sql->getArray("SELECT id,stil FROM tth_sprachstile WHERE 1");
-		array_push($styles, array( 'id' => 0, 'stil' => 'nicht gesetzt'));
-		?>
-		<p><strong>Sprachstil:</strong> <?=$tm->makeLinkList($styles, 'sprachstil_id', 'stil')?></p>
-		<?php
+	$regions = $sql->getArray("SELECT id,region FROM tth_regionen WHERE 1");
+	array_push($regions, array( 'id' => 0, 'region' => 'nicht gesetzt'));
+	?>
+	<p><strong>Region:</strong> <?=$tm->makeLinkList($regions, 'region_id', 'region')?></p>
+	<?php
 
-		$stati = $sql->getArray("SELECT id,`status` FROM tth_begriffsstati WHERE 1 ORDER BY id ASC");
-		array_push($stati, array( 'id' => 0, 'status' => 'nicht gesetzt'));
-		?>
-		<p><strong>Begriffsstatus:</strong> <?=$tm->makeLinkList($stati, 'begriffsstatus_id', 'status')?></p>
-		<?php
+	$styles = $sql->getArray("SELECT id,stil FROM tth_sprachstile WHERE 1");
+	array_push($styles, array( 'id' => 0, 'stil' => 'nicht gesetzt'));
+	?>
+	<p><strong>Sprachstil:</strong> <?=$tm->makeLinkList($styles, 'sprachstil_id', 'stil')?></p>
+	<?php
 
-		$quellen = $sql->getArray("SELECT id,kurz FROM tth_quellen WHERE 1");
-		// ! you'll need to find another way for "not set"
-		array_push($quellen, array( 'id' => 0, 'kurz' => 'nicht gesetzt'));
-		?>
-		<p><strong>Quelle:</strong> <?=$tm->makeLinkList($quellen, 'quelle_id', 'kurz')?></p>
-		<?php
-	}
+	$stati = $sql->getArray("SELECT id,`status` FROM tth_begriffsstati WHERE 1 ORDER BY id ASC");
+	array_push($stati, array( 'id' => 0, 'status' => 'nicht gesetzt'));
+	?>
+	<p><strong>Begriffsstatus:</strong> <?=$tm->makeLinkList($stati, 'begriffsstatus_id', 'status')?></p>
+	<?php
+
+	$quellen = $sql->getArray("SELECT id,kurz FROM tth_quellen WHERE 1");
+	// ! you'll need to find another way for "not set"
+	array_push($quellen, array( 'id' => 0, 'kurz' => 'nicht gesetzt'));
+	?>
+	<p><strong>Quelle:</strong> <?=$tm->makeLinkList($quellen, 'quelle_id', 'kurz')?></p>
+	<?php
 }
 ?>

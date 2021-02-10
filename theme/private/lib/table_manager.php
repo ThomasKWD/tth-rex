@@ -150,7 +150,6 @@ class TableManager {
 	function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
 		$str = '';
 		$length = count($array);
-		echo " ($length) ";
 		for($i = 0; $i < $length; $i++) {
 			$s = $array[$i];
 			$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ($i < $length - 1 ? ', ' : '');
@@ -169,5 +168,34 @@ class TableManager {
 	 * - checks if each is exactly *once* in array!
 	 */
 	public function verifyTableNames() {
+	}
+
+	/**
+	 * returns all entities which are related to another 1:n table
+	 * 
+	 * e.g. language, region
+	 * 
+	 * @param sql reference to rex_sql object
+	 * @param table name of table
+	 * @param idField name of field for referenced id in tth_wortliste
+	 * @param nameField name of field for readable name of referenced table
+	 * @param id selected id to filter for, 0 allowed  
+	 */
+	public function getFilteredEntities(&$sql, $table, $idField, $nameField, $id, $articleId)
+	{
+		if ($id || 0 === $id || '0' === $id) {
+			$id = intval($id);
+			$nameArray = $sql->getArray("SELECT `$nameField` from $table WHERE id=$id");
+			if (count($nameArray)) $name = $nameArray[0][$nameField];
+			else $name = 'nicht gesetzt';
+			
+			$html = $this->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE $idField=$id"), 'begriff_id', 'begriff',  $articleId)
+			;
+
+			if (!$html) $html = "(Keine Einträge gefunden.)";
+			
+			return "<p><strong>Begriffe nach \"$name\":</strong> $html </p>";
+		}
+		return '';
 	}
 }
