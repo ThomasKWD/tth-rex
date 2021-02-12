@@ -35,7 +35,7 @@
     if ($tagsArray && count($tagsArray)) {
         echo '<p>' . $tm->makeLinkList($tagsArray, 'tag_id', 'name') .'</p>';
     }
-    
+
     if (rex_request('tag_id')) {
         $id = rex_escape(rex_request('tag_id','string'));
         // for($i=0; $<count($))
@@ -63,7 +63,7 @@
             echo "<p>Keine Begriffe mit \"$tag\" gefunden.";
         }
 
-        echo "<p>Begriffe, bei denen \"Kategorie\" gesetzt ist</p>";
+        echo "<hr><p>Begriffe, bei denen \"Kategorie\" gesetzt ist</p>";
         $katEntitiesQuery = "SELECT id, begriff FROM $tableEntities WHERE kategorie = 'TRUE'";
         $kats = $sql->getArray($katEntitiesQuery);
         echo '<p>'.$tm->makeLinkList($kats, 'begriff_id', 'begriff',"REX_LINK[id=1 output=id]").'</p>';

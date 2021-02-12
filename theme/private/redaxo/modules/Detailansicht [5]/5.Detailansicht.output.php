@@ -62,7 +62,7 @@
 			$tags = $sql->getArray($tagsQuery);
 			
 			// ! b is first alias for $tableEntities, b2 is the second for benutze
-			$query = "SELECT b.begriff,b.id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.bild,$tableStati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,";
+			$query = "SELECT b.begriff,b.id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.bild,b.begriffsstatus_id,$tableStati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,";
 			$query .= "b2.begriff AS benutze_begriff,CONCAT($tableAuthors.vorname, ' ', $tableAuthors.name) AS autor,";
 			$query .= "$tableLanguage.sprache AS sprache,";
 			$query .= "$tableRegions.region AS region, ";
@@ -77,10 +77,15 @@
 			
 			$rows = $sql->getArray($query);
 			if ($rows && count($rows)) {
-				$r = $rows[0];
+				$r = $rows[0]; // because selected by ID, there can only be 1 row
 				
 				$html = "<h2>${r["begriff"]}</h2>\n";
 				
+				// !!! type check!
+				if ($r['begriffsstatus_id'] == 8) {
+					echo rex_view::warning('Dies ist eine "Facette". Es ist somit ein Oberbegriff der höchsten Hierarchieebene und kann nicht als normale Entität behandelt werden.');
+				}
+
 				$html .= '<table class="table table-responsive">';
 				
 				// make header line of table
@@ -146,7 +151,7 @@
 						'Oberbegriffe',
 						$tm->getInnerRelationLinkList($sql, 'supers', $id)
 					);
-					// ! must be unterbegriffe reverse to show generated oberbegriffe
+					// ! must be "unterbegriffe" reverse to show generated "oberbegriffe"
 					$html .= $tm->makeRow(
 						'',
 						$tm->getInnerReverseRelationLinkList($sql, 'subs', $id)
@@ -156,7 +161,7 @@
 						'Unterbegriffe',
 						$tm->getInnerRelationLinkList($sql, 'subs', $id)
 					);
-					// ! must be oberbegriffe reverse to show generated unterbegriffe
+					// ! must be "oberbegriffe" reverse to show generated "unterbegriffe"
 					$html .= $tm->makeRow(
 						'',
 						$tm->getInnerReverseRelationLinkList($sql, 'supers', $id)
@@ -216,9 +221,10 @@
 						echo rex_view::warning('Eintrag für ID = '.$id.' nicht gefunden.');
 					}
 				}
-				else {
+				// !!! check: remove this if when hierarchy is always on other page 
+				else if (!rex_request('facette_id')) {
 					// !!! make text editable in module input
-					echo rex_view::warning('Eine Detailansicht benötigt die ID als GET-Parameter "begriff_id". Beginne am besten mit der alphabetischen Übersicht!');
+					echo rex_view::warning('Kein Begriff ausgewählt.');
 				}
 				?>
 	</div>
