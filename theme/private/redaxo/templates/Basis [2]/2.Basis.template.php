@@ -5,11 +5,11 @@
     // $assetsUrlBase = theme_url::assets() .'/';
 	// -- also there: theme_url::base()
 
-	if (!function_exists('getPosted')) {
-		function getPosted($name) {
-			return rex_escape(rex_request($name,'string'));
-		}
-	}
+	// if (!function_exists('getPosted')) {
+	// 	function getPosted($name) {
+	// 		return rex_escape(rex_request($name,'string'));
+	// 	}
+	// }
 	
 	// !!! put into module or class, like callback for sources
 	function convertCallback($request) {
@@ -168,10 +168,10 @@
 
 	// !!! go directly to details
 	//     you can achieve this by sending ids? read more in autocomplete docs!!!
-
-	// !!! just get action from searchfield *without YForm*
-	$wSearch = getPosted('wordlistsearch');
-	if ($wSearch) {
+	// !!! just get action from searchfield *without YForm*	
+	$wSearch = rex_escape(rex_request('wordlistsearch','string'));
+	// *** disabled because testing code in module
+	if ($wSearch && 0) {
 		$searchPattern = rex_escape($wSearch);
 		if ($searchPattern) {
 
@@ -313,9 +313,8 @@
 			</ul>
 
 			
-			<form class="form-inline my-2 my-lg-0" action="<?=rex_getUrl('')?>" method="get">
+			<form name="searchForm" class="form-inline my-2 my-lg-0" action="<?=rex_getUrl($detailsArticleId)?>" method="get">
 			<input id="wordlistsearch" class="form-control mr-sm-2" name="wordlistsearch" type="search" placeholder="Wort(teil)" aria-label="Wort">
-			<input type="hidden" id="article_id" name="article_id" value="<?=rex_article::getCurrent()->getId()?>">
 			<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Suchen</button>
 			</form>
 		</div>
@@ -350,7 +349,7 @@
 
 		<?php 
 		// think about redirecting to a certain search page
-		if ($wSearch):
+		if ($wSearch && 0):
 		?>
 		<div class="jumbotron">
 			<h3><?php echo $searchResultList ? '' : '<strong>Keine</strong> '?>Ergebnisse für "<?=$wSearch?>"</h3>
@@ -586,7 +585,7 @@
 		$(document).ready(function() {
 			$('#wordlistsearch').autoComplete({
 				minChars: 1,
-				delay : 50,
+				delay : 100,
 				source: function(term, suggest){
 					term = term.toLowerCase();
 					var choices = [<?=$completeWordList?>];
@@ -594,9 +593,13 @@
 					for (i=0; i<choices.length; i++)
 						if (~choices[i].toLowerCase().indexOf(term)) matches.push(choices[i]);
 					suggest(matches);
+				},
+				onSelect: function(event) {
+					// !!! check if compat issues, then use document.getElementById('searchForm').submit();
+					document.searchForm.submit();
 				}
 			});
-			
+
 			$('.description-link')
 				.removeClass('initially-hidden')
 				.click(function() {

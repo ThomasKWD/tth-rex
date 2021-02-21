@@ -36,14 +36,8 @@
         }
 
         // works:
-            // $allOberbegriffe = $sql->getArray("SELECT begriff_id, oberbegriff_id FROM tth_begriff_oberbegriffe");
-            // $allUnterBegriffe = $sql->getArray("SELECT begriff_id, unterbegriff_id FROM tth_begriff_unterbegriffe");
-
-            // !!! plans:
-        //     - only use oberbegriffe, 
-        //     - join the relations by auto-reverse-finding + removing redundants
-        //     - 
-        //       ! get all "begriffe" where either oberbegriffe or unterbegriffe set (possible to have 2 joins??)
+        // $allOberbegriffe = $sql->getArray("SELECT begriff_id, oberbegriff_id FROM tth_begriff_oberbegriffe");
+        // $allUnterBegriffe = $sql->getArray("SELECT begriff_id, unterbegriff_id FROM tth_begriff_unterbegriffe");
 
         // for compare first find all where nothing set! MUST use OUTER join, wonder why works? see: https://www.xaprb.com/blog/2005/09/23/how-to-write-a-sql-exclusion-join/
         // ! problem: lots of root parents because oberbegriffe *very often* not defined
@@ -56,6 +50,7 @@
         $warnText .= '<p>Die 2. Zahl ist weniger aussagekräftig, da es mehr Unterbegriff-Beziehungen gibt, die bereits durch Oberbegriff-Beziehungen indirekt ausgedrückt sind.</p>';
         // dump($allRootParents);
         echo rex_view::warning($warnText);
+        
     }
     else {
         echo "<b>Facetten</b> ($num):<br>";
