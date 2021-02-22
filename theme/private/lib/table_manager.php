@@ -189,7 +189,7 @@ class TableManager {
 			if (count($nameArray)) $name = $nameArray[0][$nameField];
 			else $name = 'nicht gesetzt';
 			
-			$html = $this->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE $idField=$id"), 'begriff_id', 'begriff',  $articleId)
+			$html = $this->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE $idField=$id ORDER BY begriff ASC"), 'begriff_id', 'begriff',  $articleId)
 			;
 
 			if (!$html) $html = "(Keine Einträge gefunden.)";

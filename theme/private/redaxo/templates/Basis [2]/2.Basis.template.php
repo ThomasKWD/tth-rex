@@ -235,7 +235,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="<?=theme_url::assets('tth-logo.png')?>">
     
 	<link rel="stylesheet" href="<?=theme_url::assets('vendor/jquery.auto-complete.css')?>">
-	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.3.00">
+	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.3.01">
 
     <title>TTH - <?=$this->getValue('name')?></title>
 

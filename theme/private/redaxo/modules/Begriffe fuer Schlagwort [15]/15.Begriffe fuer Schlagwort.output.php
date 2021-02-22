@@ -64,7 +64,7 @@
         }
 
         echo "<hr><p>Begriffe, bei denen \"Kategorie\" gesetzt ist</p>";
-        $katEntitiesQuery = "SELECT id, begriff FROM $tableEntities WHERE kategorie = 'TRUE'";
+        $katEntitiesQuery = "SELECT id, begriff FROM $tableEntities WHERE kategorie = 'TRUE' ORDER BY begriff ASC";
         $kats = $sql->getArray($katEntitiesQuery);
         echo '<p>'.$tm->makeLinkList($kats, 'begriff_id', 'begriff',"REX_LINK[id=1 output=id]").'</p>';
     }

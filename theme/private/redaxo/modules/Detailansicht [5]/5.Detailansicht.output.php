@@ -4,13 +4,15 @@
 		// !!! make general function for "backend-page link"
 		?>
 		<p>Ergebnisse nur im Frontend.</p>
-		<p>Bei fehlender ID des Begriffs wird eine Warnung ausgegeben.
-		Idee: Weiterleitung zur Übersicht definieren, wenn keine ID gefunden.</p>
+		<p>Bei fehlender ID des Begriffs wird eine Warnung ausgegeben.</p>
+		<p>Die Ziel-Seite der globalen Suche sollte dieses Modul enthalten. Da bei Suchmuster eine Auswahlliste erzeugt wird, wenn das Suchmuster auf mehrere Begriffe passt.</p>
 		<p>Artikel für Quellen: <strong>REX_LINK[id=1 output=name]</strong> (ID: REX_LINK[id=1 output=id])</p>
 		<p>Artikel für Schlagwörter:  <strong>REX_LINK[id=2 output=name]</strong> (ID: REX_LINK[id=2 output=id])</p>
 		<?php
 	}
 	else {
+		define("DETAIL_VIEW", "detail");
+
 		?>
 		<div class="row detailed-view">
 		<div class="col">
@@ -71,7 +73,7 @@
 			// $tableRelationSources = 'tth_begriff_quellen';
 			$tableReferences = 'tth_quellenangaben';
 			$tableRelationTags = 'tth_begriff_tags';
-			
+
 			// $sql = rex_sql::factory();
 			// !!! test relations with yform functions, so that no own queries needed
 			
@@ -113,128 +115,182 @@
 			$rows = $sql->getArray($query);
 			if ($rows && count($rows)) {
 				$r = $rows[0]; // because selected by ID, there can only be 1 row
+					
+				$detailView = rex_escape(rex_request('view','string'));
+				if (DETAIL_VIEW === $detailView) {
 				
-				$html = "<h2>${r["begriff"]}</h2>\n";
-				
-				// !!! type check!
-				if ($r['begriffsstatus_id'] == 8) {
-					echo rex_view::warning('Dies ist eine "Facette". Es ist somit ein Oberbegriff der höchsten Hierarchieebene und kann nicht als normale Entität behandelt werden.');
-				}
+					$html = "<h2>${r["begriff"]}</h2>\n";
+					
+					// !!! type check!
+					if ($r['begriffsstatus_id'] == 8) {
+						echo rex_view::warning('Dies ist eine "Facette". Es ist somit ein Oberbegriff der höchsten Hierarchieebene und kann nicht als normale Entität behandelt werden.');
+					}
 
-				$html .= '<table class="table table-responsive">';
-				
-				// make header line of table
-				// $html .= '<thead><tr><th>Feld</th><th>Inhalt</th></thead>';
-				
-				// $html .= $tm->makeRow('ID', $r['id']);
-				$html .= $tm->makeRow('Definition', $r['definition']);
-				
-				$html .= $tm->makeRow('Sprache', $r['sprache']);
-				$html .= $tm->makeRow('Sprachstil', $r['sprachstil']);
-				$html .= $tm->makeRow('Region', ($r['region']) ? $r['region'] : "");
-				$html .= $tm->makeRow('Begriffcode', $r['code']);
-				$html .= $tm->makeRow('Begriffs-Status',$r['status']);
-				// ! redaxo file list is *comma* separated
-				if ($r['bild']) {
-					// ! separator ',' is determined by redaxo
-					$images = explode(',',$r['bild']);
-					$imgHTML = '';
-					foreach ($images as $img) {
-						$imgHTML .= '<img src="index.php?rex_media_type=tth_horizontal_list&rex_media_file='.$img.'">';
+					$html .= '<table class="table table-responsive">';
+					
+					// make header line of table
+					// $html .= '<thead><tr><th>Feld</th><th>Inhalt</th></thead>';
+					
+					// $html .= $tm->makeRow('ID', $r['id']);
+					$html .= $tm->makeRow('Definition', $r['definition']);
+					
+					$html .= $tm->makeRow('Sprache', $r['sprache']);
+					$html .= $tm->makeRow('Sprachstil', $r['sprachstil']);
+					$html .= $tm->makeRow('Region', ($r['region']) ? $r['region'] : "");
+					$html .= $tm->makeRow('Begriffcode', $r['code']);
+					$html .= $tm->makeRow('Begriffs-Status',$r['status']);
+					// ! redaxo file list is *comma* separated
+					if ($r['bild']) {
+						// ! separator ',' is determined by redaxo
+						$images = explode(',',$r['bild']);
+						$imgHTML = '';
+						foreach ($images as $img) {
+							$imgHTML .= '<img src="index.php?rex_media_type=tth_horizontal_list&rex_media_file='.$img.'">';
+						}
+						$html .= $tm->makeRow('Bilder',$imgHTML);
 					}
-					$html .= $tm->makeRow('Bilder',$imgHTML);
-				}
-				
-				$html .= $tm->makeRow(
-					'Grobgliederung',
-					$tm->getInnerRelationLinkList($sql, 'structuring', $id)
-				);
-				$html .= $tm->makeRow(
-					'Begriffe, bei denen Grobgliederung auf diesen Begriff verweist',
-					$tm->getInnerReverseRelationLinkList($sql, 'structuring', $id)
-				);
-				
-				
-				// !!! need method for this code synonyms + tags
-				$tagList = '';
-				foreach($tags as $s) {
-					$tagList .= $tm->getLink('tag_id', $s['tag_id'],$s['name'], $tagsArticleId).', ';
-				}
-				// !!! use small def from Bootstrap
-				$html .= $tm->makeRow('Schlagwörter',$tagList.'<br><small></small>');
-				
-				
-				// ! first link
-				$html .= $tm->makeRow('Synonym von (Benutze)',$tm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
-				
-				$syns = '';
-				foreach($synonyms as $s) {
-					$syns .= $tm->getLink('begriff_id', $s['id'],$s['begriff']).', ';
-				}
-				
-				// !!! use small def from Bootstrap
-				$html .= $tm->makeRow('Deskriptor von (Benutzt für)',$syns.'<br><small>diese sind zusammen mit dem Begriff "'.$r['begriff'].'" selbst die <em>Äquivalenzklasse</em></small>');
-				
-				// tags
-				// $html .= $tm->makeRow(
-					// 	'Schlagwörter',
-					// 	// !!! wrong: is not *inner* relation
-					// 	$tm->getInnerRelationLinkList($sql, 'tags', $id)
-					// );
 					
 					$html .= $tm->makeRow(
-						'Oberbegriffe',
-						$tm->getInnerRelationLinkList($sql, 'supers', $id)
+						'Grobgliederung',
+						$tm->getInnerRelationLinkList($sql, 'structuring', $id)
 					);
-					// ! must be "unterbegriffe" reverse to show generated "oberbegriffe"
 					$html .= $tm->makeRow(
-						'',
-						$tm->getInnerReverseRelationLinkList($sql, 'subs', $id)
+						'Begriffe, bei denen Grobgliederung auf diesen Begriff verweist',
+						$tm->getInnerReverseRelationLinkList($sql, 'structuring', $id)
 					);
 					
-					$html .= $tm->makeRow(
-						'Unterbegriffe',
-						$tm->getInnerRelationLinkList($sql, 'subs', $id)
-					);
-					// ! must be "oberbegriffe" reverse to show generated "unterbegriffe"
-					$html .= $tm->makeRow(
-						'',
-						$tm->getInnerReverseRelationLinkList($sql, 'supers', $id)
-					);
+					
+					// !!! need method for this code synonyms + tags
+					$tagList = '';
+					foreach($tags as $s) {
+						$tagList .= $tm->getLink('tag_id', $s['tag_id'],$s['name'], $tagsArticleId).', ';
+					}
+					// !!! use small def from Bootstrap
+					$html .= $tm->makeRow('Schlagwörter',$tagList.'<br><small></small>');
+					
+					
+					// ! first link
+					$html .= $tm->makeRow('Synonym von (Benutze)',$tm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
+					
+					$syns = '';
+					foreach($synonyms as $s) {
+						$syns .= $tm->getLink('begriff_id', $s['id'],$s['begriff']).', ';
+					}
+					
+					// !!! use small def from Bootstrap
+					$html .= $tm->makeRow('Deskriptor von (Benutzt für)',$syns.'<br><small>diese sind zusammen mit dem Begriff "'.$r['begriff'].'" selbst die <em>Äquivalenzklasse</em></small>');
+					
+					// tags
+					// $html .= $tm->makeRow(
+						// 	'Schlagwörter',
+						// 	// !!! wrong: is not *inner* relation
+						// 	$tm->getInnerRelationLinkList($sql, 'tags', $id)
+						// );
 						
-					$html .= $tm->makeRow(
-						'Äquivalente Begriffe',
-						$tm->getInnerRelationLinkList($sql, 'equivalents', $id)
-					);
-					
-					$html .= $tm->makeRow(
-						'Verwandte Begriffe',
-						$tm->getInnerRelationLinkList($sql, 'relatives', $id)
-					);
-					
-					if ($r['quelle_seite']) $html .= $tm->makeRow('Seite in Quelle',$r['quelle_seite']);
-					
-					// $html .= $tm->makeRow('Quellen',$tm->makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
-					
-					$html .= $tm->makeRow('Scoped Notes',$r['notes']);
-					$html .= $tm->makeRow('Kategorie',$tm->checkTruthyWord($r['kategorie']));
-					$html .= $tm->makeRow('Veröffentlichen?',$tm->checkTruthyWord($r['veroeffentlichen']));
-					$html .= $tm->makeRow('Noch bearbeiten',$tm->checkTruthyWord($r['bearbeiten']));
-					
-					$authorText = '';
-					// ! the `if` is important because the SQL may still returen the first entry of tth_autoren for some reason when autor_id=''  ! whole data set not returned when no author; need 0 clause in inner join
-					if ($r['autor']) { // is a generated value; and is NULL when not set
-						$authorText .= $r['autor'];
-						// !!! provide link for GND (see code in details of "Quelle")
-						if (trim($r['gnd'])) $authorText .= ' (GND: '.$r['gnd'].')';
+						$html .= $tm->makeRow(
+							'Oberbegriffe',
+							$tm->getInnerRelationLinkList($sql, 'supers', $id)
+						);
+						// ! must be "unterbegriffe" reverse to show generated "oberbegriffe"
+						$html .= $tm->makeRow(
+							'',
+							$tm->getInnerReverseRelationLinkList($sql, 'subs', $id)
+						);
+						
+						$html .= $tm->makeRow(
+							'Unterbegriffe',
+							$tm->getInnerRelationLinkList($sql, 'subs', $id)
+						);
+						// ! must be "oberbegriffe" reverse to show generated "unterbegriffe"
+						$html .= $tm->makeRow(
+							'',
+							$tm->getInnerReverseRelationLinkList($sql, 'supers', $id)
+						);
+							
+						$html .= $tm->makeRow(
+							'Äquivalente Begriffe',
+							$tm->getInnerRelationLinkList($sql, 'equivalents', $id)
+						);
+						
+						$html .= $tm->makeRow(
+							'Verwandte Begriffe',
+							$tm->getInnerRelationLinkList($sql, 'relatives', $id)
+						);
+						
+						if ($r['quelle_seite']) $html .= $tm->makeRow('Seite in Quelle',$r['quelle_seite']);
+						
+						// $html .= $tm->makeRow('Quellen',$tm->makeLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
+						
+						$html .= $tm->makeRow('Scoped Notes',$r['notes']);
+						$html .= $tm->makeRow('Kategorie',$tm->checkTruthyWord($r['kategorie']));
+						$html .= $tm->makeRow('Veröffentlichen?',$tm->checkTruthyWord($r['veroeffentlichen']));
+						$html .= $tm->makeRow('Noch bearbeiten',$tm->checkTruthyWord($r['bearbeiten']));
+						
+						$authorText = '';
+						// ! the `if` is important because the SQL may still returen the first entry of tth_autoren for some reason when autor_id=''  ! whole data set not returned when no author; need 0 clause in inner join
+						if ($r['autor']) { // is a generated value; and is NULL when not set
+							$authorText .= $r['autor'];
+							// !!! provide link for GND (see code in details of "Quelle")
+							if (trim($r['gnd'])) $authorText .= ' (GND: '.$r['gnd'].')';
+						}
+						$html .= $tm->makeRow('Autor',$authorText);
+						$html .= '</table>';
+						echo $html;
 					}
-					$html .= $tm->makeRow('Autor',$authorText);
-					
-					echo $html.'</table>';
-					
+					else {
+						$html = '<table class="table table-responsive">';
+
+						
+
+						// row 1
+						$html .= '<tr>';
+						$html .= '<td>Facette: ?</td>';
+						$html .= '<td>';
+						$html .= $tm->getInnerRelationLinkList($sql, 'supers', $id);
+						// ! must be "unterbegriffe" reverse to show generated "oberbegriffe"
+						$html .= '<br>'.$tm->getInnerReverseRelationLinkList($sql, 'subs', $id);
+						$html .= '</td>';
+						$html .= '<td></td>';
+						$html .= '</tr>';
+
+						// row 2
+						$html .= '<tr>';
+						$html .= '<td>Deskriptor:<br>Synonyme<br>:';
+						$html .= $tm->getInnerRelationLinkList($sql, 'equivalents', $id);
+						// !!! cool would be 'br' only when needed -> make sub function for all reverse addition
+						$html .= '<br>'.$tm->getInnerReverseRelationLinkList($sql, 'equivalents', $id);
+						$html .'</td>';
+						$html .= '<td class="entity-center"><h2>'.$r["begriff"].'</h2>';
+						$html .= '<p id="entity-definition" class="entity-definition">'.$r['definition'].'</p></td>';
+						$html .= '<td>Verwandte<br>';
+						$html .= $tm->getInnerRelationLinkList($sql, 'relatives', $id);
+						$html .= '<br>'.$tm->getInnerReverseRelationLinkList($sql, 'relatives', $id);
+						$html .= '</td>';
+						$html .= '</tr>';
+
+						// row 3
+						$html .= '<tr>';
+						$html .= '<td></td>';
+						$html .= '<td>';
+						$html .= $tm->getInnerRelationLinkList($sql, 'subs', $id);
+						// ! must be "unterbegriffe" reverse to show generated "oberbegriffe"
+						$html .= '<br>'.$tm->getInnerReverseRelationLinkList($sql, 'supers', $id);
+						$html .= '</td>';
+						$html .= '<td></td>';
+						$html .= '</tr>';
+
+						$html .= '</table>';
+						echo $html;
+
+						$detailUrl = rex_getUrl('','', array ('begriff_id' => $id, 'view' => 'detail'));
+						?>
+						<p><a href="<?=$detailUrl?>">Details und Zusatzinformationen anzeigen.</a></p>
+						<?php
+					}
+						
 					// dump($rows[0]);
 					// begin new table for Sources-Entries:
-						$html = '<table class="table table-responsive">';
+						$html = '<hr><table class="table table-responsive">';
 						// make header line of table
 						$html .= "<thead><tr><th>#</th><th>Quelle</th><th>Seitenzahl</th><th>Bevorzugt?</th></thead>\n";
 						$i = 1;
@@ -259,7 +315,6 @@
 
 				// !!! check: remove this if when hierarchy is always on other page 
 				else if (!rex_request('facette_id')) {
-
 					if ($wSearch) {
 						echo '<div class="card"><div class="card-body"><h5 class="card-title">'.($searchResultList ? '' : '<strong>Keine</strong> ').'Ergebnisse für "'.$wSearch.'":</h5><p>'.$searchResultList.'</p></div></div>';
 					}
