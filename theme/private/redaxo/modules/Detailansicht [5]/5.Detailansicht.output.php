@@ -307,10 +307,13 @@
 							$i++;
 						}
 						echo $html.'</table>';
-					} 
+					
+						rex_config::set('tth','current_entity',$r['begriff']);
+					}
 					else {
 						echo rex_view::warning('Eintrag für ID = '.$id.' nicht gefunden.');
 					}
+
 				}
 
 				// !!! check: remove this if when hierarchy is always on other page 

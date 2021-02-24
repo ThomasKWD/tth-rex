@@ -221,6 +221,22 @@
 		$userLevel = 1;
 	}
 
+	function my_title_filter($ep) {
+        // den aktuellen Inhalt auslesen
+        $subject = $ep->getSubject();
+		// // find "entity marker" (first match)
+		if (preg_match('{{{.*?}}}',$subject, $matches)) {
+			dump($matches);
+		}
+
+		// not modifier 'U' but always '?' for ungreedy!
+		return preg_replace('#<title>.*?</title>#iu','<title>tante</title>',$subject);
+	}
+
+	// FILTER
+	// - currently title for entities
+	rex_extension::register('OUTPUT_FILTER', 'my_title_filter', rex_extension::NORMAL);    
+
 	?><!doctype html>
 <html lang="en">
   <head>
@@ -237,7 +253,7 @@
 	<link rel="stylesheet" href="<?=theme_url::assets('vendor/jquery.auto-complete.css')?>">
 	<link rel="stylesheet" href="<?=theme_url::assets('global.css')?>?v=1.3.01">
 
-    <title>TTH - <?=$this->getValue('name')?></title>
+    <title><?=$this->getValue('name')?> - TTH</title>
 
   </head>
   <body>
@@ -397,7 +413,7 @@
 							?>
 					</p>
 				</div>
-			<?php endif;?>
+			<?php endif ?>
 
         REX_ARTICLE[]
 		<a id="comment-success"></a>
