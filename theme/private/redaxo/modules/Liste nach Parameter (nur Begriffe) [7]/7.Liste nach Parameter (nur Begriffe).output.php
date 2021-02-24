@@ -3,9 +3,26 @@
 // - set params ins module instead for start view
 // - control output by params from url
 
+if (!function_exists('printCard')) {
+	function printCard($html) {
+		if (trim($html)) {
+			$heading = substr($html, 0, strpos($html, ':'));
+			$list = substr($html, strpos($html, ':')+1);
+			// count entries because not returned by table_manager:
+			$count = substr_count($list, '<a ');
+			?>
+			<div class="card">
+				<div class="card-header"><?=$heading?> (<?=$count?>):</div>
+				<div class="card-body"><?=$list?></div>
+			</div>
+			<?php
+		}
+	}
+}
+
 if (!function_exists('printFilteredLinks')) {
 	function printFilteredLinks(&$sql,&$tm, $table,$idName,$fieldName) {
-		echo $tm->getFilteredEntities($sql, $table, $idName, $fieldName,rex_escape(rex_request($idName)), 'REX_LINK[id=1 output=id]');
+		return $tm->getFilteredEntities($sql, $table, $idName, $fieldName,rex_escape(rex_request($idName)), 'REX_LINK[id=1 output=id]');
 	}
 }
 
@@ -13,6 +30,7 @@ $detailsArticleId = 'REX_LINK[id=1 output=id]';
 
 $tm = new \kwd\tth\TableManager();
 
+// !!! check why search form evaluation HERE
 // !!! probably you should use PHP classes/methods to evaluate it(?)
 $search = rex_request('FORM');
 if ($search) {
@@ -47,10 +65,10 @@ else {
 
 	$sql = rex_sql::factory();
 
-	printFilteredLinks($sql, $tm, 'tth_sprachen','sprache_id', 'sprache');
-	printFilteredLinks($sql, $tm, 'tth_begriffsstati', 'begriffsstatus_id', 'status');
-	printFilteredLinks($sql, $tm, 'tth_regionen', 'region_id', 'region');
-	printFilteredLinks($sql, $tm, 'tth_sprachstile', 'sprachstil_id', 'stil');
+	printCard(printFilteredLinks($sql, $tm, 'tth_sprachen','sprache_id', 'sprache'));
+	printCard(printFilteredLinks($sql, $tm, 'tth_begriffsstati', 'begriffsstatus_id', 'status'));
+	printCard(printFilteredLinks($sql, $tm, 'tth_regionen', 'region_id', 'region'));
+	printCard(printFilteredLinks($sql, $tm, 'tth_sprachstile', 'sprachstil_id', 'stil'));
 
 	if ($source || 0 === $source || '0' === $source) {
 		$sql = rex_sql::factory();
