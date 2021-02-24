@@ -225,12 +225,15 @@
         // den aktuellen Inhalt auslesen
         $subject = $ep->getSubject();
 		// // find "entity marker" (first match)
-		if (preg_match('{{{.*?}}}',$subject, $matches)) {
-			dump($matches);
+		if (preg_match('#{{{(.*?)}}}#u',$subject, $matches)) {
+			// dump($matches);
 		}
 
-		// not modifier 'U' but always '?' for ungreedy!
-		return preg_replace('#<title>.*?</title>#iu','<title>tante</title>',$subject);
+		if (isset( $matches[1]) && $matches[1]) {
+			// not modifier 'U' but always '?' for ungreedy!
+			return preg_replace('#<title>.*?</title>#iu','<title>'.$matches[1].' - TTH</title>',$subject);
+		}
+		else return $subject;
 	}
 
 	// FILTER

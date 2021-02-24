@@ -308,7 +308,9 @@
 						}
 						echo $html.'</table>';
 					
-						rex_config::set('tth','current_entity',$r['begriff']);
+						// write a string with begriff
+						echo '{{{'.$r['begriff'].'}}}';
+						// rex_config::set('tth','current_entity',$r['begriff']);
 					}
 					else {
 						echo rex_view::warning('Eintrag für ID = '.$id.' nicht gefunden.');
