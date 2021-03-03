@@ -5,6 +5,7 @@ attributes:
     modules:
         1: { all: '1' }
     categories:
+        all: '1'
         0: '1'
         1: '4'
         2: '5'
@@ -18,4 +19,3 @@ attributes:
         10: '10'
         11: '12'
         12: '19'
-        all: 0

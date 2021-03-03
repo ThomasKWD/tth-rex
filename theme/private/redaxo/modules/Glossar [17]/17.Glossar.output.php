@@ -5,7 +5,7 @@
 ?>
 
 <table class="table table-responsive">
-    <?
+    <?php
     foreach($entries as $e):
     ?>
     <tr>
