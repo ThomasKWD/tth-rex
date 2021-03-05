@@ -51,7 +51,8 @@
 						$searchResultList = 'found exactly one begriff: '.$rows[0]['begriff'];
 					}
 					$tm = new \kwd\tth\TableManager();
-					$searchResultList = $tm->makeLinkList($rows, 'begriff_id', 'begriff', $detailsArticleId);
+					// $searchResultList = $tm->makeLinkList($rows, 'begriff_id', 'begriff', $detailsArticleId);
+					$searchResultList = $tm->makeLinkList($rows, 'begriff_id', 'begriff', '');
 				}
 			}
 		}
