@@ -1,7 +1,5 @@
-<h2>Hierarchie</h2>
-
 <?php
-    // !!! i    ea for table-names: search in config, when not found load from db
+    // !!! for table-names: search in config, when not found load from db
     //     Katze, die sich in den Schwanz beißt
 
     $sql = rex_sql::factory();
@@ -51,10 +49,18 @@
         // dump($allRootParents);
         echo rex_view::warning($warnText);
         
+		// tree prepare:
+		// - get next root oberbegriff
+		//   - get all oberbegriffe + indirect oberbegriffe
+		//   - get all 
+		// !!! - better idea: make TOOL to convert all unterbegriffe in oberbegriffe and then only use oberbegriffe + indirect oberbegriffe, because
+		//   check is easier 
+		//   also it is easier to find out which are "root" begriffe or "orphaned" begriffe
+		//   also it would be easier to find out wrong "facette" cross references
+		//   
     }
     else {
         echo "<b>Facetten</b> ($num):<br>";
-        echo $tm->makeLinkList($facetArray, 'facette_id','begriff');  
-    
+        echo $tm->makeLinkList($facetArray, 'facette_id','begriff');
     }
 ?>
