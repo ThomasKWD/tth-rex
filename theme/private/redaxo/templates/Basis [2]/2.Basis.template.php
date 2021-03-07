@@ -233,7 +233,8 @@
 			// not modifier 'U' but always '?' for ungreedy!
 			return preg_replace('#<title>.*?</title>#iu','<title>'.$matches[1].' - TTH</title>',$subject);
 		}
-		else return $subject;
+
+		return $subject;
 	}
 
 	// FILTER

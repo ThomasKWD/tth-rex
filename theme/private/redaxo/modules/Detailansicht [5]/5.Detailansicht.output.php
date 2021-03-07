@@ -116,7 +116,17 @@
 			$rows = $sql->getArray($query);
 			if ($rows && count($rows)) {
 				$r = $rows[0]; // because selected by ID, there can only be 1 row
-					
+
+				// stuff needed for Details AND grid view:
+
+				// !!! need method for this code synonyms + tags
+				//     (code DRY)
+				$tagList = '';
+				foreach($tags as $s) {
+					$tagList .= $tm->getLink('tag_id', $s['tag_id'],$s['name'], $tagsArticleId.', ');
+				}
+				$tagList = rtrim($tagList,',');
+				
 				$detailView = rex_escape(rex_request('view','string'));
 				if (DETAIL_VIEW === $detailView) {
 				
@@ -161,11 +171,6 @@
 					);
 					
 					
-					// !!! need method for this code synonyms + tags
-					$tagList = '';
-					foreach($tags as $s) {
-						$tagList .= $tm->getLink('tag_id', $s['tag_id'],$s['name'], $tagsArticleId).', ';
-					}
 					// !!! use small def from Bootstrap
 					$html .= $tm->makeRow('Schlagwörter',$tagList.'<br><small></small>');
 					
@@ -263,7 +268,7 @@
 						$html .'</td>';
 						$html .= '<td class="entity-center"><h2>'.$r["begriff"].'</h2>';
 						$html .= '<p id="entity-definition" class="entity-definition">'.$r['definition'].'</p></td>';
-						$html .= '<td>Verwandte<br>';
+						$html .= '<td>Verwandte:<br>';
 						$html .= $tm->getInnerRelationLinkList($sql, 'relatives', $id);
 						$html .= '<br>'.$tm->getInnerReverseRelationLinkList($sql, 'relatives', $id);
 						$html .= '</td>';
@@ -277,7 +282,9 @@
 						// ! must be "unterbegriffe" reverse to show generated "oberbegriffe"
 						$html .= '<br>'.$tm->getInnerReverseRelationLinkList($sql, 'supers', $id);
 						$html .= '</td>';
-						$html .= '<td></td>';
+						$html .= '<td>Schlagwörter:<br>';
+						$html .= $tagList;
+						$html .= '</td>';
 						$html .= '</tr>';
 
 						$html .= '</table>';
