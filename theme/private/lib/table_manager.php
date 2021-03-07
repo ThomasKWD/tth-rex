@@ -3,8 +3,15 @@
 //  - build queries
 //  - manage outputs
 //  - manage names
-//  - DON'T use redaxo classes like rex_sql directly 
+//  - DON'T use redaxo classes like rex_sql directly (pass or wrap)
 //  - OR pass the needed classes/methods/information from Redaxo as reference
+//  - *cache* DB output, esp. for detailed view and hierarchy because ALL entities (id, name) need to be read anyway
+
+// !!! only module related code
+//     - no formatting, no views
+//     - formatting must go to viewmodel/view functions
+//     - which are direct data, which are formatted data (viewmodel)?? 
+
 
 namespace kwd\tth;
 
@@ -34,7 +41,6 @@ class TableManager {
 		'tablenames' => self::TABLE_PREFIX .'tabellennamen'
 	);
 
-
 	protected $tableIdFields = array(
 		'entity' => 'begriff_id',
 		'structuring' => 'grobgliederung_id',
@@ -50,9 +56,12 @@ class TableManager {
 		'entity' => 'begriff'
 	);
 
-	function __construct() {
+	protected $sqlObject = null;
+
+	function __construct(&$sql) {
 		// check why i need to re-configure prefix and table names
 		// initTableNames()
+		$this->sqlObject = $sql; // does this pass reference?
 	}
 
 	/**
@@ -106,37 +115,16 @@ class TableManager {
 
 	/** queries rows from SQL and produced markup for link list
 	 *  
-	 * This is a helper for DRYing code
-	 * @param sql object of type rex_sql needing method `getArray`
 	 */
-	public function getInnerRelationLinkList(&$sql, $type, $id) {		
-		return $this->makeLinkList(
-			$sql->getArray($this->buildInnerRelationQuery($type, $id)),
-			'begriff_id',
-			'begriff'
-		);
+	public function getInnerRelations($type, $id) {
+		return $this->sqlObject->getArray($this->buildInnerRelationQuery($type, $id));
 	}
 
-	
 	/** queries rows from SQL and produced markup for link list
 	 *  
-	 * This is a helper for DRYing code
-	 * @param sql object of type rex_sql needing method `getArray`
 	 */
-	public function getInnerReverseRelationLinkList(&$sql, $type, $id) {		
-		return $this->makeLinkList(
-			$sql->getArray($this->buildInnerReverseRelationQuery($type, $id)),
-			'begriff_id',
-			'begriff'
-		);
-	}
-
-	/** generates <a> markup for given parameters.
-	 *  
-	 * uses *predefined* `rex_getUrl` stub
-	 */
-	public function getLink($idName, $id, $desc, $article_id = '') {
-		return '<a href="'.rex_getUrl($article_id, '', array($idName => $id)).'">'.$desc.'</a>';
+	public function getInnerReverseRelations($type, $id) {
+		return $this->sqlObject->getArray($this->buildInnerReverseRelationQuery($type, $id));
 	}
 
 	public function getTableNames() {
@@ -147,23 +135,7 @@ class TableManager {
 		return self::TABLE_PREFIX;
 	}
 
-	function makeLinkList($array, $linkUrlId, $linkName, $articleId = '') {
-		$str = '';
-		$length = count($array);
-		for($i = 0; $i < $length; $i++) {
-			$s = $array[$i];
-			$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ($i < $length - 1 ? ', ' : '');
-		}
-		return $str;
-	}
 	
-	/**
-	 * generate simple "key-value-table row"
-	 */
-	function makeRow($key, $value) {
-		return '<tr><td>'.$key.'</td><td>'.$value."</td></tr>\n";
-	}
-
 	/** reads table names from DB and checks if set variables are ok
 	 * - checks if each is exactly *once* in array!
 	 */
