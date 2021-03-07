@@ -211,9 +211,10 @@
 
 	echo $html;
 
-	dump(count($paths));
+	// dump(count($paths));
 	// !!! multiple path are a problem of multiple oberbegriffe per entity
-
+	//     - and not of paths algo
+	
 	// ! check $paths for multiple entries
 	// $checkPaths = array();
 	// $cleanedPaths = array();
@@ -235,10 +236,10 @@
 		if ($e['id'] == 651) return true;
 		return false;
 	}
-	
+
 	// test filter:
 	$filterPaths = array_filter($paths, 'filter_tthBegriff');
-	dump($filterPaths);
+	// dump($filterPaths);
 
 	// calculate path when begriff_id given:
 	$currentId = rex_escape(rex_request('begriff_id'));
