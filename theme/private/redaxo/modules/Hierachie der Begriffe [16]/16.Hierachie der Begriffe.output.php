@@ -4,6 +4,12 @@
 	// !!!a really cool idea would be to get only "neutral" arrays from tablemanager
 	// !!!so MVC is kept: no model related code in "module"
 
+	if (!function_exists('addNewPathElement')) {
+		function addNewPathElement($id, $path, &$paths) {
+			$paths[] = array( 'id' => $id, 'path' => $path);
+		}
+	}
+	
 	if(!function_exists('tth_foundInUnterbegriffe')) {
 		function tth_foundInUnterbegriffe($id, &$subs) {
 			// ! don't use foreach due to return in loop
@@ -42,7 +48,9 @@
 
 	// would be cleaner to return array!
 	if (!function_exists('tth_getSubs')) {
-		function tth_getSubs($id, &$supers, &$subs, &$entities, $detailsId, $iteration) {
+		function tth_getSubs($id, &$supers, &$subs, &$entities, &$paths, $path, $detailsId, $iteration) {
+			$ret = '';
+
 			// !!! make max. possible depth *editable*
 			if ($iteration > 10) {
 				return 'Fehler: Zirkuläre Beziehung';
@@ -65,6 +73,17 @@
 				}
 			}
 
+			// store path
+			// !!! problem: multiple set of entries - only because multiple "oberbegriffe" or inherent problem?
+			if ($path) {
+				$path .= ',' . $id;
+				// we set only those who have path > 1
+				addNewPathElement($id, $path, $paths);
+			}
+			else {
+				$path = strval($id);
+			}
+
 			if (count($children)) {
 				$checkArray = array();
 				$cleanedChildren = array();
@@ -75,7 +94,8 @@
 					}
 				}
 				uasort($cleanedChildren,'sortEntities');
-				$ret = '<ol>';
+				
+				$ret .= '<ul>';
 				foreach($cleanedChildren as $key => $child) {
 					if ($child['id'] == $id) {
 						$ret .= 'Fehler: Selbstbezug';
@@ -85,20 +105,26 @@
 						
 						// ! recursion
 						// !!! we must count iterations for break if circular dependency!!!
-						$ret .= tth_getSubs($child['id'], $supers, $subs, $entities, $detailsId, $iteration);
+						$ret .= tth_getSubs($child['id'], $supers, $subs, $entities, $paths, $path, $detailsId, $iteration);
 					}
 				}
 				
-				$ret .= '</ol>';
-				return ($ret);
+				$ret .= '</ul>';
 			}
 
-			return '';
+			return $ret;
 		}
 	}
 
 	$detailsArticleId = 'REX_LINK[id=1 output=id]';
 	if (!$detailsArticleId) $detailsArticleId = rex_article::getSiteStartArticle()->getId();
+
+	if (rex::isBackend()) {
+		// !!! make general function for "backend-page link"
+		?>
+		<p>Ziel-Artikel für Detailansicht: <strong>REX_LINK[id=1 output=name]</strong> (ID REX_LINK[id=1 output=id])</p>
+		<?php
+	}
 
     $sql = rex_sql::factory();
 
@@ -163,13 +189,14 @@
 	$alleBegriffe = $sql->getArray("SELECT id, begriff FROM tth_wortliste WHERE 1");
 	$oberbegriffe = $sql->getArray("SELECT * FROM tth_begriff_oberbegriffe WHERE 1 ORDER BY begriff_id");
 	$unterbegriffe = $sql->getArray("SELECT * FROM tth_begriff_unterbegriffe WHERE 1 ORDER BY begriff_id");
-		
+	$paths = array();
+
 	// dump(count($allRootParents));
-	$html = '<ol>';
+	$html = '<ul>';
 	foreach($allRootParents as $parent) {
 		// - remove those which have been detected to be a unterbegriff of something
 		if (!tth_foundInUnterbegriffe($parent['id'], $unterbegriffe)) {
-			$subs = tth_getSubs($parent['id'], $oberbegriffe, $unterbegriffe, $alleBegriffe, $detailsArticleId, 0);
+			$subs = tth_getSubs($parent['id'], $oberbegriffe, $unterbegriffe, $alleBegriffe, $paths, '', $detailsArticleId, 0);
 			if ($subs) {
 				$html .= '<li><a href="'.rex_getUrl($detailsArticleId, '', array ('begriff_id' => $parent['id'])).'">'.$parent['begriff'];
 				// $html .= ' (in unterbegriffen gefunden)';
@@ -180,6 +207,42 @@
 		}
 
 	}
-	$html .= '</ol>';
+	$html .= '</ul>';
+
 	echo $html;
+
+	dump(count($paths));
+	// !!! multiple path are a problem of multiple oberbegriffe per entity
+
+	// ! check $paths for multiple entries
+	// $checkPaths = array();
+	// $cleanedPaths = array();
+	// foreach($paths as $p) {
+	// 	if (false === array_search($p['id'], $checkPaths)) {
+	// 		$checkPaths[] = $p['id'];
+	// 		$cleanedPaths[] = $p;
+	// 	}
+	// 	else {
+	// 		// echo "found multiple entry: ".$p['id']."<br>";
+	// 	}
+	// }
+	// dump(count($cleanedPaths));
+	// $searchEntity = 651;
+	// !!! can only be written inside class??
+	// !!! or simply make filter function for your own
+	function filter_tthBegriff($e) {
+		// global $searchEntity;
+		if ($e['id'] == 651) return true;
+		return false;
+	}
+	
+	// test filter:
+	$filterPaths = array_filter($paths, 'filter_tthBegriff');
+	dump($filterPaths);
+
+	// calculate path when begriff_id given:
+	$currentId = rex_escape(rex_request('begriff_id'));
+	if ($currentId) {
+		echo "akt Begriff: $currentId";
+	}
 ?>
