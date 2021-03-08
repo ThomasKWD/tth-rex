@@ -1,18 +1,20 @@
 <?php
-// !!! maybe need 3rd party (viewmodel) which brings model and view together and is called by MODULE code
+// !!! maybe need 3rd class (viewmodel) which brings model and view together and is called by MODULE code
 
 namespace kwd\tth;
-
-// !!! check if the closure in method working, else make own array_filter!!!
 
 class ViewFormatter {
     protected $model = null;
     protected $getUrlFunction = null;
 
-	function __construct($model, $getUrlFunction) {
-        $this->model = $model;
+	function __construct($sqlObject, $getUrlFunction) {
+		$this->model = new TableManager($sqlObject);
         $this->getUrlFunction = $getUrlFunction;
     }
+
+	public function &getTableManagerInstance() {
+		return $this->model;
+	}
 
     public function getUrl($articleId, $cLang, $params) {
         if (is_callable($this->getUrlFunction)) {
@@ -32,9 +34,9 @@ class ViewFormatter {
 	public function getLinkList($array, $linkUrlId, $linkName, $articleId = '') {
 		$str = '';
 		foreach($array as $s) {
-			$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ',';
+			$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ', ';
 		}
-		return trim($str,',');
+		return trim($str,', ');
 	}
     
     /**

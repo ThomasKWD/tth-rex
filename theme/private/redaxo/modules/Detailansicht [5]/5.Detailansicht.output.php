@@ -18,9 +18,9 @@
 		<div class="col">
 		<?php
 
-		$sql = rex_sql::factory();
-		$tm = new \kwd\tth\TableManager($sql);
-		$vm = new \kwd\tth\ViewFormatter($tm, rex_getUrl); // seems to work without ''
+		// !!! how pack in function? not possible
+		if (!isset($sql)) $sql = rex_sql::factory();
+		if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, rex_getUrl); 
 
 		$id = 0;
 		// first check search results,
@@ -53,7 +53,6 @@
 						$id = $rows[0]['id'];
 						$searchResultList = 'found exactly one begriff: '.$rows[0]['begriff'];
 					}
-					// $searchResultList = $tm->getLinkList($rows, 'begriff_id', 'begriff', $detailsArticleId);
 					$searchResultList = $vm->getLinkList($rows, 'begriff_id', 'begriff', '');
 				}
 			}
@@ -165,32 +164,23 @@
 					// !!! how make view DONT know model?
 					$html .= $vm->getRow(
 						'Grobgliederung',
-						$vm->getLinkList($tm->getInnerRelations('structuring', $id),
-							'begriff_id',
-							'begriff',
-							'' // article_id
-						)
+						$vm->getRelationLinkList('structuring', $id)
 					);
 
 					$html .= $vm->getRow(
 						'Begriffe, bei denen Grobgliederung auf diesen Begriff verweist',
-						$tm->getInnerReverseRelationLinkList($sql, 'structuring', $id)
+						$vm->getReverseRelationLinkList('structuring', $id)
 					);
-											
-						// !!! use small def from Bootstrap
-						$html .= $vm->getRow('Schlagwörter',$tagList.'<br><small></small>');
-						
-						// ! first link
-						$html .= $vm->getRow('Synonym von (Benutze)',$tm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
-						
-						$syns = '';
-						foreach($synonyms as $s) {
-							$syns .= $vm->getLink('begriff_id', $s['id'],$s['begriff']).', ';
-						}
+										
+					// !!! use small def from Bootstrap
+					$html .= $vm->getRow('Schlagwörter',$tagList.'<br><small></small>');
+					
+					// ! first link
+					$html .= $vm->getRow('Synonym von (Benutze)',$vm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']).'<br><small>dies ist der Desriptor und damit Name der <em>Äquivalenzklasse</em></small>');
 						
 						// !!! use small def from Bootstrap
+						$syns = $vm->getLinkList($synonyms, 'begriff_id', 'begriff');
 						$html .= $vm->getRow('Deskriptor von (Benutzt für)',$syns.'<br><small>diese sind zusammen mit dem Begriff "'.$r['begriff'].'" selbst die <em>Äquivalenzklasse</em></small>');
-						
 						
 						// !!! rule: 'supers' produces {{supers}} or ###supers### which then can be turned to Oberbegriffe in sprog
 						// !!! view should not know about begriff_id, begriff 
@@ -220,18 +210,17 @@
 							
 						$html .= $vm->getRow(
 							'Äquivalente Begriffe',
-							$tm->getInnerRelations('equivalents', $id)
+							$vm->getRelationLinkList('equivalents', $id)
 						);
 						
 						$html .= $vm->getRow(
 							'Verwandte Begriffe',
-							$tm->getInnerRelations('relatives', $id)
+							$vm->getRelationLinkList('relatives', $id)
 						);
 						
 						if ($r['quelle_seite']) $html .= $vm->getRow('Seite in Quelle',$r['quelle_seite']);
 						
-						// $html .= $vm->getRow('Quellen',$tm->getLinkList($sourcesArray, 'quelle_id', 'kurz', $sourcesArticleId));
-						
+						$tm = $vm->getTableManagerInstance();
 						$html .= $vm->getRow('Scoped Notes',$r['notes']);
 						$html .= $vm->getRow('Kategorie',$tm->checkTruthyWord($r['kategorie']));
 						$html .= $vm->getRow('Veröffentlichen?',$tm->checkTruthyWord($r['veroeffentlichen']));
@@ -250,8 +239,6 @@
 					}
 					else {
 						$html = '<table class="table table-responsive">';
-
-						
 
 						// row 1
 						$html .= '<tr>';

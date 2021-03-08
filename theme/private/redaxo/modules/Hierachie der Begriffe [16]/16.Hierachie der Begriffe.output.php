@@ -1,8 +1,6 @@
 <?php
-	// !!! important: add id link for details page (in input)
+	// !!! all functions into model/viewmodel classes
 
-	// !!!a really cool idea would be to get only "neutral" arrays from tablemanager
-	// !!!so MVC is kept: no model related code in "module"
 
 	if (!function_exists('addNewPathElement')) {
 		function addNewPathElement($id, $path, &$paths) {
@@ -126,14 +124,15 @@
 		<?php
 	}
 
-    $sql = rex_sql::factory();
+	// !!! how pack in function? not possible
+    if (!isset($sql)) $sql = rex_sql::factory();
+	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, rex_getUrl); 
 
     // !!! how to store facet id in DB as value, maybe we need a "config table"
     $facetArray = $sql->getArray("SELECT id, begriff FROM tth_wortliste WHERE begriffsstatus_id = 8");
     $num = count($facetArray);
     if (!$num) $num = 0; // in case $facetArray === false;
 
-    $tm = new \kwd\tth\TableManager();
     // !!! since *all* entities follow the hierarchy we could load ALL entities,
     //     and all oberbegriffe/unterbegriffe relations to have it 
     $facetId = rex_escape(rex_request('facette_id', 'integer'));
@@ -152,7 +151,7 @@
 
         if (count($allOberbegriffeDirectly)) {
             echo "Begriffe für Facette (direkte Nachfahren) \"<strong>$facetName</strong>\":<br>";
-            echo $tm->makeLinkList($allOberbegriffeDirectly,'begriff_id', 'begriff', $detailsArticleId);
+            echo $vm->getLinkList($allOberbegriffeDirectly,'begriff_id', 'begriff', $detailsArticleId);
         }
         else {
             echo "Keine direkten Nachfahren für Facette \"<strong>$facetName</strong>\".";
@@ -161,7 +160,7 @@
     }
     else {
         echo "<b>Facetten</b> ($num):<br>";
-        echo $tm->makeLinkList($facetArray, 'facette_id','begriff');
+        echo $vm->getLinkList($facetArray, 'facette_id','begriff');
     }
 
 	?>
@@ -231,10 +230,12 @@
 	// $searchEntity = 651;
 	// !!! can only be written inside class??
 	// !!! or simply make filter function for your own
-	function filter_tthBegriff($e) {
-		// global $searchEntity;
-		if ($e['id'] == 651) return true;
-		return false;
+	if (!function_exists('filter_tthBegriffe')) {
+		function filter_tthBegriff($e) {
+			// global $searchEntity;
+			if ($e['id'] == 651) return true;
+			return false;
+		}
 	}
 
 	// test filter:

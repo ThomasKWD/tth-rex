@@ -1,9 +1,13 @@
 <?php
-	$tm = new \kwd\tth\TableManager();
 
 $quelleId = rex_request('quelle_id','int'); // the param 'int' should prevent from dangerous inputs
 // is_numeric is enough sanitize if we just need an id
 if ($quelleId && is_numeric($quelleId)) {
+
+	// !!! how pack in function? not possible
+	if (!isset($sql)) $sql = rex_sql::factory();
+	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, rex_getUrl); 
+
 	echo 'Zeige Quelle id '.$quelleId;
 	$sql = rex_sql::factory();
 	// $rows = $sql->getArray("SELECT q.*,a.* FROM tth_quellen q LEFT JOIN tth_autoren a ON a.id = q.autor_id WHERE q.id = $quelleId");
@@ -25,10 +29,10 @@ if ($quelleId && is_numeric($quelleId)) {
 		<table class="table table-responsive">
 		<?php
 		$html = '';
-		$html .= $tm->makeRow('Titel',$r['titel']);
-		$html .= $tm->makeRow('Jahr',$r['jahr']);
-		$html .= $tm->makeRow('ISBN',$r['isbn']);
-		$html .= $tm->makeRow('Kurzform',$r['kurz']);
+		$html .= $vm->getRow('Titel',$r['titel']);
+		$html .= $vm->getRow('Jahr',$r['jahr']);
+		$html .= $vm->getRow('ISBN',$r['isbn']);
+		$html .= $vm->getRow('Kurzform',$r['kurz']);
 		// !!! make link to details for author table (or general link to table with all authors, still not many)
 		$authorsHtml = '';
 		foreach($authors as $a) {
@@ -39,7 +43,7 @@ if ($quelleId && is_numeric($quelleId)) {
 			}
 			$authorsHtml .= ", ";
 		}
-		$html .= $tm->makeRow('Autoren',$authorsHtml.'<small>alte Autor-IDs zum Abgleich: '.$r['autor_id'].'</small>');
+		$html .= $vm->getRow('Autoren',$authorsHtml.'<small>alte Autor-IDs zum Abgleich: '.$r['autor_id'].'</small>');
 
 		echo $html;
 		?>
