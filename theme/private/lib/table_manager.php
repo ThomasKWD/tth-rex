@@ -19,7 +19,7 @@ class TableManager {
 	const TABLE_PREFIX = 'tth_';
 
 	// !!! how can $tableNames and $tableIdFields be generated??
-
+	// !!! could be generated in construct by reading DB or at least composed from strings
 	protected $tableNames = array(
 		'entities' => self::TABLE_PREFIX . 'wortliste',
 		'sources' => self::TABLE_PREFIX . 'quellen',
@@ -30,6 +30,7 @@ class TableManager {
 		'entitystates' => self::TABLE_PREFIX .'begriffsstati',
 		'languagestyles' => self::TABLE_PREFIX .'sprachstile',
 		'metaentities' => self::TABLE_PREFIX .'metabegriffe',
+		'tags' => self::TABLE_PREFIX .'tags',
 		'entity_relatives' => self::TABLE_PREFIX .'begriff_verwandte',
 		'entity_structuring' => self::TABLE_PREFIX .'begriff_grobgliederung',
 		'entity_supers' => self::TABLE_PREFIX .'begriff_oberbegriffe',
@@ -98,6 +99,11 @@ class TableManager {
 				'table' => $this->tableNames['sources'],
 				'id' => 'id', // invalid/obsolete, because must be put to entities n:m via tth_quellenangaben
 				'name' => 'kurz' // only for easy listing/sorting
+			],
+			'tags' => [
+				'table' => $this->tableNames['tags'],
+				'id' => 'id', // invalid/obsolete, because must be put to entities n:m via tth_begriff_tags
+				'name' => 'name' // only for easy listing/sorting
 			]
 		);
 	}
@@ -137,8 +143,13 @@ class TableManager {
 	 */
 	public function getOuterRelationTableData($subject) {
 		$outerTable = $this->getOuterRelationTableInfo($subject);
-		$query = "SELECT * FROM ${outerTable['table']} WHERE 1 ORDER BY ${outerTable['name']} ASC";
-		return $this->sqlObject->getArray($query);
+		if (count($outerTable)) {
+
+			$query = "SELECT * FROM ${outerTable['table']} WHERE 1 ORDER BY ${outerTable['name']} ASC";
+			return $this->sqlObject->getArray($query);
+		}
+
+		return [];
 	}
 
 	public function getEntitiesForOuterRelation($subject, $id) {

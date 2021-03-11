@@ -18,22 +18,29 @@
             return false;
         }
     }
+    
+    if (!isset($sql)) $sql = rex_sql::factory();
+    if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
 
-    // !!! provide centralized name string base!
-    $tagsTable = 'tth_tags';
-    $tagsRelationTable = 'tth_begriff_tags';
+    // !!! put into tm/vm
 
-    $sql = rex_sql::factory();
+    $tm = $vm->getTableManagerInstance();
+    $tagsArray = $tm->getOuterRelationTableData('tags');
 
-    $listQuery = "SELECT id, name FROM $tagsTable ORDER BY name ASC";
-    $tagsArray = $sql->getArray($listQuery);
+    // // !!! provide centralized name string base!
+    // $tagsTable = 'tth_tags';
+    // $tagsRelationTable = 'tth_begriff_tags';
 
-    // makes clickable List:
-    $tm = new \kwd\tth\TableManager();
+
+    // $listQuery = "SELECT id, name FROM $tagsTable ORDER BY name ASC";
+    // $tagsArray = $sql->getArray($listQuery);
+
+    // // makes clickable List:
+    // $tm = new \kwd\tth\TableManager();
     $tag = 'Schlagwort';
 
     if ($tagsArray && count($tagsArray)) {
-        echo '<p>' . $tm->makeLinkList($tagsArray, 'tag_id', 'name') .'</p>';
+        echo '<p>' . $vm->getLinkList($tagsArray, 'tag_id', 'name') .'</p>';
     }
 
     if (rex_request('tag_id')) {
@@ -57,7 +64,7 @@
         if (count($entities)) {
             // dump($entities);
             echo "<h3>Begriffe, die \"$tag\" enthalten</h3>";
-            echo '<p>'.$tm->makeLinkList($entities, 'begriff_id', 'begriff',"REX_LINK[id=1 output=id]").'</p>';
+            echo '<p>'.$vm->getLinkList($entities, 'begriff_id', 'begriff',"REX_LINK[id=1 output=id]").'</p>';
         }
         else {
             echo "<p>Keine Begriffe mit \"$tag\" gefunden.";
@@ -66,6 +73,6 @@
         echo "<hr><p>Begriffe, bei denen \"Kategorie\" gesetzt ist</p>";
         $katEntitiesQuery = "SELECT id, begriff FROM $tableEntities WHERE kategorie = 'TRUE' ORDER BY begriff ASC";
         $kats = $sql->getArray($katEntitiesQuery);
-        echo '<p>'.$tm->makeLinkList($kats, 'begriff_id', 'begriff',"REX_LINK[id=1 output=id]").'</p>';
+        echo '<p>'.$vm->getLinkList($kats, 'begriff_id', 'begriff',"REX_LINK[id=1 output=id]").'</p>';
     }
   ?>
