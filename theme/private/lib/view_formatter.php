@@ -43,9 +43,9 @@ class ViewFormatter {
      * !!! how read field names from model
      * !!! how check model valid object 
      */
-    public function getRelationLinkList($type, $id) {
+    public function getRelationLinkList($type, $id, $articleId = '') {
         // 
-        return $this->getLinkList($this->model->getInnerRelations($type, $id), 'begriff_id', 'begriff');
+        return $this->getEntityLinkList($this->model->getInnerRelations($type, $id), $articleId);
     }
   
     /**
@@ -53,10 +53,32 @@ class ViewFormatter {
      * !!! how read field names from model
      * !!! how check model valid object 
      */
-    public function getReverseRelationLinkList($type, $id) {
-        // 
-        return $this->getLinkList($this->model->getInnerReverseRelations($type, $id), 'begriff_id', 'begriff');
+    public function getReverseRelationLinkList($type, $id, $articleId = '') {
+        return $this->getEntityLinkList($this->model->getInnerReverseRelations($type, $id), $articleId);
     }
+
+	/**
+	 * returns link list for entities
+	 * 
+	 * ! `begriff_id` here is a view convention for url params in this project (for internal links)
+	 *   it can be defined different from actual field name in DB
+	 * 
+	 * ! `begriff` on the other hand is an actual DB field returned by queries
+	 * 
+	 */
+	public function getEntityLinkList($data, $articleId = '') {
+		return $this->getLinkList($data, 'begriff_id', 'begriff', $articleId);
+	}
+	
+	/**
+	 * returns link list for entities queried by value in entities (1:n)
+	 */
+	public function getEntityLinkListByFieldValue($subject, $value, $articleId = '') {
+		return $this->getEntityLinkList(
+			$this->model->getEntitiesByField($subject, $value),
+			$articleId
+		);
+	}
 
 	/**
 	 * generate simple "key-value-table row"
@@ -91,7 +113,7 @@ class ViewFormatter {
 			$name = $this->model->getOuterRelationName($table, $id);
 			if(!$name) $name = 'nicht gesetzt';
 
-			$html = $this->getLinkList($this->model->getEntitiesForOuterRelation($table, $id), 'begriff_id', 'begriff',  $articleId);
+			$html = $this->getEntityLinkList($this->model->getEntitiesForOuterRelation($table, $id), $articleId);
 			;
 			
 			if (!$html) $html = "(Keine Einträge gefunden.)";
@@ -100,6 +122,15 @@ class ViewFormatter {
 		}
 
 		return '';
+	}
+
+	/**
+	 * returns a list with all entities which satisfy an outer relation
+	 * 
+	 * e.g. all entities for a certain tag_id
+	 */
+	public function getEntityLinkListForOuterRelation($subject, $outerId, $articleId = '') {
+		return $this->getEntityLinkList($this->model->getEntitiesForOuterRelation($subject, $outerId), $articleId);
 	}
 
 	/**

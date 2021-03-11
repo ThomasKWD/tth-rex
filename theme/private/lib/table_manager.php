@@ -49,7 +49,8 @@ class TableManager {
 		'subs' => 'unterbegriff_id',
 		'relatives' => 'verwandter_id',
 		'equivalents' => 'aequivalent_id',
-		'tags' => 'tag_id'
+		'tags' => 'tag_id',
+		'is_category' => 'kategorie'
 	);
 
 	protected $tableFields = array(
@@ -102,8 +103,9 @@ class TableManager {
 			],
 			'tags' => [
 				'table' => $this->tableNames['tags'],
-				'id' => 'id', // invalid/obsolete, because must be put to entities n:m via tth_begriff_tags
-				'name' => 'name' // only for easy listing/sorting
+				'id' => 'tag_id', // used for query for n:m relation table (tth_begriff_tags)
+				'name' => 'name', // only for easy listing/sorting
+				'relationTable' => $this->tableNames['entity_tags']
 			]
 		);
 	}
@@ -152,10 +154,26 @@ class TableManager {
 		return [];
 	}
 
+	/**
+	 * returns entities which match the id pointer of a field or entries in a relation table
+	 * 
+	 * - decides on existence of relation table in info whether simple relation (tth_wortliste contains id)
+	 *   OR n:m relation (relation table required)
+	 */
 	public function getEntitiesForOuterRelation($subject, $id) {
 		$outerTable = $this->getOuterRelationTableInfo($subject);
 		if (count($outerTable)) {
-			$query = "SELECT id, begriff FROM ".$this->tableNames['entities']." WHERE ${outerTable['id']} = :idForSubject ORDER BY begriff ASC";
+			if (array_key_exists('relationTable',$outerTable)) {
+				$query = "SELECT r.tag_id, r.begriff_id, e.begriff, e.id ";
+				 // e.id for output getLinkList
+				$query.= "FROM ".$outerTable['relationTable']." r ";
+				$query.= "JOIN ".$this->tableNames['entities']." e ON r.begriff_id = e.id ";
+				$query.= "WHERE r.".$outerTable['id']."=:idForSubject ORDER BY e.begriff ASC";
+			}
+			else {
+				$query = "SELECT id, begriff FROM ".$this->tableNames['entities']." WHERE ${outerTable['id']} = :idForSubject ORDER BY begriff ASC";
+			}
+			
 			return $this->sqlObject->getArray($query,['idForSubject' => $id]);
 		}
 
@@ -241,31 +259,15 @@ class TableManager {
 	}
 
 	/**
-	 * returns all entities which are related to another 1:n table
-	 * 
-	 * e.g. language, region
-	 * 
-	 * @param sql reference to rex_sql object
-	 * @param table name of table
-	 * @param idField name of field for referenced id in tth_wortliste
-	 * @param nameField name of field for readable name of referenced table
-	 * @param id selected id to filter for, 0 allowed  
+	 * filter entities by a certain 1:n field of tth_wortliste
 	 */
-	public function getFilteredEntities(&$sql, $table, $idField, $nameField, $id, $articleId)
-	{
-		if ($id || 0 === $id || '0' === $id) {
-			$id = intval($id);
-			$nameArray = $sql->getArray("SELECT `$nameField` from $table WHERE id=$id");
-			if (count($nameArray)) $name = $nameArray[0][$nameField];
-			else $name = 'nicht gesetzt';
-			
-			$html = $this->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE $idField=$id ORDER BY begriff ASC"), 'begriff_id', 'begriff',  $articleId)
-			;
-
-			if (!$html) $html = "(Keine Einträge gefunden.)";
-			
-			return "<p><strong>Begriffe nach \"$name\"</strong>: $html </p>";
+	public function getEntitiesByField($subject, $value) {
+		$field = $this->tableIdFields[$subject];
+		if (isset($field)) {
+			$query = "SELECT id, begriff FROM ".$this->tableNames['entities']." WHERE kategorie = :value ORDER BY begriff ASC";
+			return $this->sqlObject->getArray($query, ['value' => $value]);
 		}
-		return '';
+
+		return [];
 	}
 }
