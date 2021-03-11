@@ -13,11 +13,12 @@
 	<h4><?=$e['wort']?></h4>
 	<p>
 	<?php
+		// ! different to implementation used at definition
 		if (!rex_addon::get('markitup')->isAvailable()) {
-			echo $r['beschreibung'];
+			echo $e['beschreibung'];
 		}
 		else {
-			// !!! prevent html tags
+			// !
 			$firstStage = str_replace("\n",'<br>',markitup::parseOutput ('markdown', htmlspecialchars($e['beschreibung'])));
 			echo str_replace('<br><','<',$firstStage);
 		}

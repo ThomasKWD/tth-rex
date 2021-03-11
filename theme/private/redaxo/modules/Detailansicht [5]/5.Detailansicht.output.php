@@ -142,9 +142,11 @@
 					// make header line of table
 					// $html .= '<thead><tr><th>Feld</th><th>Inhalt</th></thead>';
 					
+					// !!! show when logged in
 					// $html .= $vm->getRow('ID', $r['id']);
-					$html .= $vm->getRow('Definition', $r['definition']);
-					
+
+					$html .= $vm->getRow('Definition', $vm->getMarkDownText('markitup::parseOutput',rex_addon::get('markitup'), $r['definition']));
+			
 					$html .= $vm->getRow('Sprache', $r['sprache']);
 					$html .= $vm->getRow('Sprachstil', $r['sprachstil']);
 					$html .= $vm->getRow('Region', ($r['region']) ? $r['region'] : "");
@@ -265,7 +267,11 @@
 						$html .= '<br>'.$vm->getReverseRelationLinkList('equivalents', $id);
 						$html .'</td>';
 						$html .= '<td class="entity-center"><h2>'.$r["begriff"].'</h2>';
-						$html .= '<p id="entity-definition" class="entity-definition">'.$r['definition'].'</p></td>';
+
+						$html .= $vm->getMarkDownText('markitup::parseOutput',rex_addon::get('markitup'), $r['definition']);
+						
+						$html .= '</td>';
+
 						$html .= '<td>Verwandte:<br>';
 						$html .= $vm->getRelationLinkList('relatives', $id);
 						$html .= '<br>'.$vm->getReverseRelationLinkList('relatives', $id);

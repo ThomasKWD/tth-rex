@@ -96,4 +96,32 @@ class ViewFormatter {
 		// return '';
 	}
 
+	/**
+	 * returns markdown parsed string
+	 * 
+	 * Depends on Redaxo objects
+	 * But all objects are passed and can easily be stubbed.
+	 * 
+	 */
+	public function getMarkDownText($parseFunction, &$addonObject, $text)
+	{
+		// !!! make surrounding p when none inside
+		$parsedHtml = '';
+
+		if ($addonObject->isAvailable()) {
+			// ! prevents html tags - in contrast to original Markdown specification
+			$parsedHtml = 
+				str_replace(
+					"\n",
+					'<br>',
+					call_user_func($parseFunction, 'markdown', htmlspecialchars($text))
+					// markitup::parseOutput ('markdown', htmlspecialchars($r['definition']))
+				);
+		}
+		else {
+			$parsedHtml = $text;
+		}
+
+		return $parsedHtml;
+	}
 }
