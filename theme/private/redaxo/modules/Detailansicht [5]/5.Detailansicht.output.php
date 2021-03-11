@@ -21,19 +21,16 @@
 		// !!! how pack in function? not possible
 		if (!isset($sql)) $sql = rex_sql::factory();
 		if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
-
+		$searchResultList = '';
 		$id = 0;
+
 		// first check search results,
 		// maybe an $id can be derived (only one word found)
 		$wSearch = rex_escape(rex_request('wordlistsearch','string'));
 		if ($wSearch) {
 			$searchPattern = rex_escape($wSearch);
 			if ($searchPattern) {
-				// ! change pattern to always have PART of word when no *
-				if (false === strpos($searchPattern,'*')) {
-					$searchPattern = '*'.$searchPattern.'*';
-				}
-				
+				// !!! Problem wenn Anf[hrungsyeichen in search]
 				$searchPattern = 
 					str_replace("'","",
 					str_replace("`","",
@@ -42,12 +39,24 @@
 					str_replace(';','',
 					$searchPattern
 				)))));
+				// $searchPattern = $sql->escape($searchPattern);
+				// ! change pattern to always have PART of word when no *
+				if (false === strpos($searchPattern,'*')) {
+					// search for word as is 
+					// !!! add SQL injection protection
+					$query = "SELECT id, begriff from tth_wortliste WHERE begriff = :wordsearch";
+					$singleEntities = $sql->getArray($query, ['wordsearch' => $searchPattern]);
+					if (1 === count($singleEntities)) {
+						$id = $singleEntities[0]['id'];
+					}
+					else {
+						$searchPattern = '*'.$searchPattern.'*';
+					}
+				}
 
-				$query = "SELECT id,begriff from tth_wortliste WHERE begriff LIKE ".str_replace('*','%',$sql->escape($searchPattern));
+				$query = "SELECT id,begriff from tth_wortliste WHERE begriff LIKE :wordsearch";
+				$rows = $sql->getArray($query, ['wordsearch' => str_replace('*','%',$searchPattern)]);
 				
-				$rows = $sql->getArray($query);
-				
-				$searchResultList = '';
 				if (count($rows)) {
 					if(count($rows) === 1) {
 						$id = $rows[0]['id'];
