@@ -56,12 +56,77 @@ class TableManager {
 		'entity' => 'begriff'
 	);
 
+	// combines: tableName, idField, readableNameField(for output)
+	// of tables with 1:n relations to $tableNames['entities']
+	protected $outerRelations = [];
+
 	protected $sqlObject = null;
 
 	function __construct(&$sql) {
 		// check why i need to re-configure prefix and table names
 		// initTableNames()
 		$this->sqlObject = $sql; // does this pass reference?
+
+		// !!! how write on init or more automated? maybe more consistent naming
+		$this->outerRelations = array(
+			'languages' => [
+				'table' => $this->tableNames['languages'],
+				'id' => 'sprache_id', // id used in $tableNames['entities']
+				'name' => 'sprache', // name field used in tableNames['languages']
+			],
+			'languagestyles' => [
+				'table' => $this->tableNames['languagestyles'],
+				'id' => 'sprachstil_id', // id used in $tableNames['entities']
+				'name' => 'stil', 
+			],
+			'regions' => [
+				'table' => $this->tableNames['regions'],
+				'id' => 'region_id', // id used in $tableNames['entities']
+				'name' => 'region', 
+			],
+			'states' => [
+				'table' => $this->tableNames['entitystates'],
+				'id' => 'begriffsstatus_id', // id used in $tableNames['entities']
+				'name' => 'status', 
+			]
+		);
+	}
+
+	public function getOuterRelationTableInfo($subject) {
+		if (array_key_exists($subject, $this->outerRelations)) {
+			return $this->outerRelations[$subject];
+		}
+
+		return [];
+	}
+
+	/**
+	 * returns only name of outer relation table defined by id
+	 * 
+	 * @param subject key of my internal naming of data tables or inner relations (see above in this class)
+	 * @param id entry in outer relation table, e.g. id of a language in the table of languages
+	 */
+	public function getOuterRelationName($subject, $id) {
+		$outerTable = $this->getOuterRelationTableInfo($subject);
+		if (count($outerTable)) {
+			$query = "SELECT ${outerTable['name']} from ${outerTable['table']} WHERE id = :subjectId";
+			$nameArray = $this->sqlObject->getArray($query, ['subjectId'=>$id]);
+			if (count($nameArray)) {
+				return $nameArray[0][$outerTable['name']];
+			}
+		}
+
+		return '';
+	}
+
+	public function getEntitiesForOuterRelation($subject, $id) {
+		$outerTable = $this->getOuterRelationTableInfo($subject);
+		if (count($outerTable)) {
+			$query = "SELECT id, begriff FROM ".$this->tableNames['entities']." WHERE ${outerTable['id']} = :idForSubject ORDER BY begriff ASC";
+			return $this->sqlObject->getArray($query,['idForSubject' => $id]);
+		}
+
+		return [];
 	}
 
 	/**

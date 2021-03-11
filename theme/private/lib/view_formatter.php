@@ -73,27 +73,33 @@ class ViewFormatter {
 	 * e.g. language, region
 	 * 
 	 * @param sql reference to rex_sql object
+	 * 
+	 * // !!! these 3 must be read!!!
+	 * 
 	 * @param table name of table
 	 * @param idField name of field for referenced id in tth_wortliste
 	 * @param nameField name of field for readable name of referenced table
-	 * @param id selected id to filter for, 0 allowed  
+	 * 
+	 * @param id selected id to filter for, 0 allowed, e.g. of 1 language when demanding language table  
+	 * @param articleId destination article for link
 	 */
-	public function getFilteredEntities(&$sql, $table, $idField, $nameField, $id, $articleId)
+	public function getFilteredLinks($table, $id, $articleId = '')
 	{
-		// if ($id || 0 === $id || '0' === $id) {
-		// 	$id = intval($id);
-		// 	$nameArray = $sql->getArray("SELECT `$nameField` from $table WHERE id=$id");
-		// 	if (count($nameArray)) $name = $nameArray[0][$nameField];
-		// 	else $name = 'nicht gesetzt';
-			
-		// 	$html = $this->makeLinkList($sql->getArray("SELECT id,begriff FROM tth_wortliste WHERE $idField=$id ORDER BY begriff ASC"), 'begriff_id', 'begriff',  $articleId)
-		// 	;
+		if ($id || 0 === $id || '0' === $id) {
+			$id = intval($id);
 
-		// 	if (!$html) $html = "(Keine Einträge gefunden.)";
+			$name = $this->model->getOuterRelationName($table, $id);
+			if(!$name) $name = 'nicht gesetzt';
+
+			$html = $this->getLinkList($this->model->getEntitiesForOuterRelation($table, $id), 'begriff_id', 'begriff',  $articleId);
+			;
 			
-		// 	return "<p><strong>Begriffe nach \"$name\"</strong>: $html </p>";
-		// }
-		// return '';
+			if (!$html) $html = "(Keine Einträge gefunden.)";
+			
+			return "<p><strong>Begriffe nach \"$name\"</strong>: $html </p>";
+		}
+
+		return '';
 	}
 
 	/**

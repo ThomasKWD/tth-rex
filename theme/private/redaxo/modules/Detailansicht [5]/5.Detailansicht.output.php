@@ -20,7 +20,7 @@
 
 		// !!! how pack in function? not possible
 		if (!isset($sql)) $sql = rex_sql::factory();
-		if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, rex_getUrl); 
+		if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
 
 		$id = 0;
 		// first check search results,
