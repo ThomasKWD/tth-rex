@@ -1,6 +1,7 @@
 <?php
-    $sql = rex_sql::factory();
-    $query = "SELECT * from tth_glossar WHERE 1 ORDER BY wort ASC";
+	if (!isset($sql)) $sql = rex_sql::factory();
+
+	$query = "SELECT * from tth_glossar WHERE 1 ORDER BY wort ASC";
     $entries = $sql->getArray($query);
 ?>
 

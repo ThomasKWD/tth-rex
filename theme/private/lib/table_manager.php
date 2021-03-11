@@ -68,7 +68,12 @@ class TableManager {
 		$this->sqlObject = $sql; // does this pass reference?
 
 		// !!! how write on init or more automated? maybe more consistent naming
-		$this->outerRelations = array(
+		$this->outerRelations = array(			
+			'authors' => [
+				'table' => $this->tableNames['authors'],
+				'id' => 'autor_id', // used in ttq_quellen, tth_quellenangaben, not in tth_wortlise
+				'name' => 'name', 
+			],
 			'languages' => [
 				'table' => $this->tableNames['languages'],
 				'id' => 'sprache_id', // id used in $tableNames['entities']
@@ -88,6 +93,11 @@ class TableManager {
 				'table' => $this->tableNames['entitystates'],
 				'id' => 'begriffsstatus_id', // id used in $tableNames['entities']
 				'name' => 'status', 
+			],
+			'sources' => [
+				'table' => $this->tableNames['sources'],
+				'id' => 'id', // invalid/obsolete, because must be put to entities n:m via tth_quellenangaben
+				'name' => 'kurz' // only for easy listing/sorting
 			]
 		);
 	}
@@ -117,6 +127,18 @@ class TableManager {
 		}
 
 		return '';
+	}
+
+	/**
+	 * get all data from a "outer relation table"
+	 * 
+	 * These are tables which define own things which can be bound to entities (of tth_wortliste)
+	 * by any relation (1:n, n:m)
+	 */
+	public function getOuterRelationTableData($subject) {
+		$outerTable = $this->getOuterRelationTableInfo($subject);
+		$query = "SELECT * FROM ${outerTable['table']} WHERE 1 ORDER BY ${outerTable['name']} ASC";
+		return $this->sqlObject->getArray($query);
 	}
 
 	public function getEntitiesForOuterRelation($subject, $id) {

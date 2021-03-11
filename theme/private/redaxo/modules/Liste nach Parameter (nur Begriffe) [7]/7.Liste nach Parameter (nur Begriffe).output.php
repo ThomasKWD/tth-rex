@@ -25,8 +25,9 @@ if (!function_exists('printCardWithList')) {
 
 $detailsArticleId = 'REX_LINK[id=1 output=id]';
 
-$sql = rex_sql::factory();
-$vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl');
+if (!isset($sql)) $sql = rex_sql::factory();
+if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
+
 
 // !!! check why search form evaluation HERE
 // !!! probably you should use PHP classes/methods to evaluate it(?)
