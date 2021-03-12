@@ -108,9 +108,7 @@ class ViewFormatter {
 	public function getFilteredLinks($table, $id, $articleId = '')
 	{
 		if ($id || 0 === $id || '0' === $id) {
-
-			$data = [];
-			
+			$data = [];			
 			$name = $this->model->getOuterRelationName($table, $id);
 			
 			if (!$name) {
@@ -129,7 +127,8 @@ class ViewFormatter {
 					$name = 'nicht gesetzt';
 				}
 			}
-			else {
+
+			if (!count($data)) {
 				$data = $this->model->getEntitiesForOuterRelation($table, intval($id));
 			}
 			
