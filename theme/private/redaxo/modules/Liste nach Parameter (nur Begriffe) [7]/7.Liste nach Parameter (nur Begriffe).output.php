@@ -6,10 +6,10 @@
 if (!function_exists('printCardWithList')) {
 		// printCard($vm->getFilteredLinks('languages', rex_vewescape(rex_request('sprache_id')), 'REX_LINK[id=1 output=id]'));
 
-	function printCardWithList(&$view, $subject, $idName) {
+	function printCardWithList(&$view, $subject, $idName, $displayedFilter = 'Suchwort') {
 		$html = $view->getFilteredLinks($subject, rex_escape(rex_request($idName)), 'REX_LINK[id=1 output=id]');
 		if (trim($html)) {
-			$heading = substr($html, 0, strpos($html, ':'));
+			$heading = sprintf(substr($html, 0, strpos($html, ':')), $displayedFilter); 
 			$list = substr($html, strpos($html, ':')+1);
 			// count entries because not returned by getFilteredLinks
 			$count = substr_count($list, '<a ');
@@ -31,12 +31,17 @@ if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl');
 	$source = rex_request('quelle_id');
 
 	// ! we don't read "id names" from tableManager because can also be different from DB (convention of MODULE code)
-	printCardWithList($vm, 'languages', 'sprache_id');
-	printCardWithList($vm, 'languagestyles', 'sprachstil_id');
-	printCardWithList($vm, 'regions', 'region_id');
-	printCardWithList($vm, 'states', 'begriffsstatus_id');
-	printCardWithList($vm, 'edit', 'edit_value'); 
-	printCardWithList($vm, 'is_category', 'category_value'); 
+	printCardWithList($vm, 'languages', 'sprache_id', 'Sprache'); // could get easier with SPROG + i18n
+	printCardWithList($vm, 'languagestyles', 'sprachstil_id', 'Sprachstil');
+	printCardWithList($vm, 'regions', 'region_id', 'Region'); 
+	printCardWithList($vm, 'states', 'begriffsstatus_id', 'Begriffsstatus');
+	printCardWithList($vm, 'edit', 'edit_value', 'Noch bearbeiten'); 
+	printCardWithList($vm, 'is_category', 'category_value', 'Kategorie'); 
+
+	
+	$quellen = $sql->getArray("SELECT id,kurz FROM tth_quellen WHERE 1");
+	// ! you'll need to find another way for "not set"
+	array_push($quellen, array( 'id' => 0, 'kurz' => 'nicht gesetzt'));
 
 	if ($source || 0 === $source || '0' === $source) {
 		// !!! you'll need to find another way for "not set"
@@ -66,9 +71,14 @@ if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl');
 		}
 			
 		$rows = $sql->getArray($query);
-		
+		$sourceName = '??';
+		foreach ($quellen as $q) {
+			if ($source == $q['id']) {
+				$sourceName = $q['kurz'];
+			}
+		}
 		// !!! again: provide texts by input value or by SPROG replacement
-		?><p><strong>Begriffe nach Quelle (<?=($source ? 'ID='.$source : 'nicht gesetzt')?>, <?=count($rows)?> Einträge):</strong> <?=$vm->getLinkList($rows, 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
+		?><p><strong>Begriffe nach Quelle "<?=$sourceName?>"</strong> (<?=count($rows)?> Einträge):</strong> <?=$vm->getLinkList($rows, 'begriff_id', 'begriff', 'REX_LINK[id=1 output=id]')?></p>
 		<?php	
 	}
 	
@@ -135,12 +145,6 @@ if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl');
 	];
 	?>
 	<p><strong>Kategorie:</strong> <?=$vm->getLinkList($isCat, 'category_value', 'is_category')?></p>
-	<?php
-
-	$quellen = $sql->getArray("SELECT id,kurz FROM tth_quellen WHERE 1");
-	// ! you'll need to find another way for "not set"
-	array_push($quellen, array( 'id' => 0, 'kurz' => 'nicht gesetzt'));
-	?>
 	<p><strong>Quelle:</strong> <?=$vm->getLinkList($quellen, 'quelle_id', 'kurz')?></p>
 	<?php
 

@@ -137,7 +137,7 @@ class ViewFormatter {
 			
 			if (!$html) $html = "(Keine Einträge gefunden.)";
 			
-			return "<p><strong>Begriffe nach \"$name\"</strong>: $html </p>";
+			return '<p><strong>Begriffe in "%s" nach "'.$name.'"</strong>: '.$html.' </p>';
 		}
 
 		return '';

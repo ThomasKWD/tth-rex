@@ -229,6 +229,7 @@
 				$html .= $vm->getMarkDownText('markitup::parseOutput',rex_addon::get('markitup'), $r['definition']);
 				$html .= '<hr>';
 
+				// !!! $html .= 'Sprache: '.$vm->getFilterCrossLink($r['sprache'], 'sprache_id', $r['sprache_id']).', ';
 				$html .= 'Sprache: <a href="'.rex_getUrl($filterArticleId,'',['sprache_id'=>$r['sprache_id']]).'">'.$r['sprache'].'</a>, ';
 				$html .= 'Sprachstil: <a href="'.rex_getUrl($filterArticleId,'',['sprachstil_id'=>$r['sprachstil_id']]).'">'.$r['sprachstil'].'</a>, ';
 				$html .= 'Sprachregion: <a href="'.rex_getUrl($filterArticleId,'',['region_id'=>$r['region_id']]).'">'.$r['region'].'</a>';
@@ -265,8 +266,6 @@
 				$html .= '</table>';
 				echo $html;
 
-				$detailUrl = rex_getUrl('','', array ('begriff_id' => $id, 'view' => 'detail'));
-			
 				// !!! type check!
 				if ($r['begriffsstatus_id'] == $facetteId) {
 					echo rex_view::warning('Dies ist eine "Facette". Es ist somit ein Oberbegriff der höchsten Hierarchieebene und kann nicht als normale Entität behandelt werden.');
@@ -315,9 +314,10 @@
 				// if ($r['quelle_seite']) $html .= $vm->getRow('Seite in Quelle',$r['quelle_seite']);
 				
 				$html .= $vm->getRow('Scoped Notes',$r['notes']);
-				$html .= $vm->getRow('Kategorie',$tm->checkTruthyWord($r['kategorie']));
+				$html .= $vm->getRow('Kategorie', '<a href="'.rex_getUrl($filterArticleId,'',['category_value'=>$r['kategorie']]).'">'.$tm->checkTruthyWord($r['kategorie']).'</a>');
+				// ;
 				$html .= $vm->getRow('Veröffentlichen?',$tm->checkTruthyWord($r['veroeffentlichen']));
-				$html .= $vm->getRow('Noch bearbeiten',$tm->checkTruthyWord($r['bearbeiten']));
+				$html .= $vm->getRow('Noch bearbeiten','<a href="'.rex_getUrl($filterArticleId,'',['edit_value'=>$r['bearbeiten']]).'">'.$tm->checkTruthyWord($r['bearbeiten']).'</a>');
 				
 				$authorText = '';
 				// ! the `if` is important because the SQL may still returen the first entry of tth_autoren for some reason when autor_id=''  ! whole data set not returned when no author; need 0 clause in inner join
