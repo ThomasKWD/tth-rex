@@ -17,6 +17,8 @@ namespace kwd\tth;
 
 class TableManager {
 	const TABLE_PREFIX = 'tth_';
+	const DESCRIPTOR_ID = 2; // !!! logic to read it from DB, maybe we need an extra config table
+	const FACETTE_ID = 8; // !!! logic to read it from DB, maybe we need an extra config table
 
 	// !!! how can $tableNames and $tableIdFields be generated??
 	// !!! could be generated in construct by reading DB or at least composed from strings
@@ -109,6 +111,26 @@ class TableManager {
 			]
 		);
 	}
+
+	/**
+	 * Produces id which must be present in table tth_begriffsstati and is currently used for "facettes"
+	 * 
+	 * @return int id 
+	 */
+	public function getFacetteId() {
+		return (self::FACETTE_ID);
+	}
+
+	/**
+	 * Produces id which must be present in table tth_begriffsstati and is currently used for "Descriptors"
+	 * 
+	 * @return int id 
+	 */
+	public function getDescriptorId() {
+		return (self::DESCRIPTOR_ID);
+	}
+
+	
 
 	public function getOuterRelationTableInfo($subject) {
 		if (array_key_exists($subject, $this->outerRelations)) {

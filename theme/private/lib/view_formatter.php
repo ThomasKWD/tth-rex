@@ -16,7 +16,7 @@ class ViewFormatter {
 		return $this->model;
 	}
 
-    public function getUrl($articleId, $cLang, $params) {
+    public function getUrl($articleId, $cLang = '', $params = []) {
         if (is_callable($this->getUrlFunction)) {
             return call_user_func($this->getUrlFunction, $articleId, $cLang, $params); 
         }
@@ -160,5 +160,15 @@ class ViewFormatter {
 		}
 
 		return $parsedHtml;
+	}
+
+	/**
+	 * generates link to glossarPage
+	 * 
+	 * !!! idea: set article Ids in this class 
+	 */
+	public function getGlossarLink($anchor, $articleId = '') {
+		// $descriptorLink = '  <a href="'.rex_getUrl($glossarArticleId).'#deskriptor">(?)</a>';
+		return ('<a href="'. $this->getUrl($articleId) .'#'.$anchor.'">(?)</a>');
 	}
 }
