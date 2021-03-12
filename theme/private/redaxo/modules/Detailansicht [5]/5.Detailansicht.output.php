@@ -175,6 +175,7 @@
 					$html .= 'Facette: [facette_id]';
 					
 				}
+
 				// ! depending on anchor correctly set in DB  (glossar entry)
 				// !!! should read all anchors from DB 
 				$html .= '  <a href="'.rex_getUrl($glossarArticleId).'#facette">(?)</a></td>';
@@ -194,36 +195,48 @@
 				// row 2
 				$html .= '<tr>';
 				$html .= '<td>';
-				// ! we must check $r['benutze'] because benutze==0 also produces link
-				$benutzeBegriff = '';
-				if ($r['benutze']) $benutzeBegriff = trim($vm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']));
 				
-				$descriptorLink = '  <a href="'.rex_getUrl($glossarArticleId).'#deskriptor">(?)</a>';
-
-				if ($r['begriffsstatus_id'] == $descriptorId) {
-					$html .= '<strong>Deskriptor!</strong>'.$descriptorLink.'<br>';
-					if ($benutzeBegriff) {
-						$html .= '<em>Fehler: Deskriptor verweist auf Deskriptor.<br>';
+				// !!! list facettes when current is facette
+				if ($r['begriffsstatus_id'] == $facetteId) {
+					$facettes = str_replace('a>, ','a><br>',$vm->getEntityLinkListByFieldValue('state',$facetteId));
+					if ($facettes) {
+						$html .= 'Facetten:<br>'.$facettes;
 					}
 				}
 				else {
-					$html .= 'Deskriptor:'.$descriptorLink.'<br>';
-					if (!trim($benutzeBegriff)) {
-						$html .= '(nicht gesetzt!)';
+					// ! we must check $r['benutze'] because benutze==0 also produces link
+					$benutzeBegriff = '';
+					if ($r['benutze']) $benutzeBegriff = trim($vm->getLink('begriff_id', $r['benutze'], $r['benutze_begriff']));
+					
+					$descriptorLink = '  <a href="'.rex_getUrl($glossarArticleId).'#deskriptor">(?)</a>';
+					
+					if ($r['begriffsstatus_id'] == $descriptorId) {
+						
+						$html .= '<strong>Deskriptor!</strong>'.$descriptorLink.'<br>';
+						if ($benutzeBegriff) {
+							$html .= '<em>Fehler: Deskriptor verweist auf Deskriptor.<br>';
+						}
 					}
+					else {
+						$html .= 'Deskriptor:'.$descriptorLink.'<br>';
+						if (!trim($benutzeBegriff)) {
+							$html .= '(nicht gesetzt!)';
+						}
+					}
+					
+					// ! depending on anchor correctly set in DB  (glossar entry)
+					// !!! should read all anchors from DB 
+					
+					$html .= $benutzeBegriff.'<br>'; // ! always
+					
+					// !!! make $vm->setGlossarArticleId()
+					$html .= 'Äquivalenzklasse: (manuell) '.$vm->getGlossarLink('aequivalenzklasse',$glossarArticleId).'<br>';
+					
+					$html .= $vm->getLinkList($synonyms, 'begriff_id', 'begriff');
 				}
-
-				// ! depending on anchor correctly set in DB  (glossar entry)
-				// !!! should read all anchors from DB 
-
-				$html .= $benutzeBegriff.'<br>'; // ! always
-				
-				// !!! make $vm->setGlossarArticleId()
-				$html .= 'Äquivalenzklasse: (manuell) '.$vm->getGlossarLink('aequivalenzklasse',$glossarArticleId).'<br>';
-
-				$html .= $vm->getLinkList($synonyms, 'begriff_id', 'begriff');
-
+					
 				$html .'</td>';
+
 				$html .= '<td class="entity-center"><h2>'.$r["begriff"].'</h2>';
 
 				$html .= $vm->getMarkDownText('markitup::parseOutput',rex_addon::get('markitup'), $r['definition']);

@@ -51,6 +51,7 @@ class TableManager {
 		'subs' => 'unterbegriff_id',
 		'relatives' => 'verwandter_id',
 		'equivalents' => 'aequivalent_id',
+		'state' => 'begriffsstatus_id',//  state singular because 1:n
 		'tags' => 'tag_id',
 	);
 	
@@ -96,7 +97,7 @@ class TableManager {
 			],
 			'states' => [
 				'table' => $this->tableNames['entitystates'],
-				'id' => 'begriffsstatus_id', // id used in $tableNames['entities']
+				'id' => 'begriffsstatus_id', //$this->getTableIdField['state'], // !!! access like this also the others...
 				'name' => 'status', 
 			],
 			'sources' => [
