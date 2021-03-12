@@ -28,31 +28,6 @@ $detailsArticleId = 'REX_LINK[id=1 output=id]';
 if (!isset($sql)) $sql = rex_sql::factory();
 if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
 
-
-// !!! check why search form evaluation HERE
-// !!! probably you should use PHP classes/methods to evaluate it(?)
-$search = rex_request('FORM');
-if ($search) {
-	$searchPattern = $search['formular'][0];
-	if ($searchPattern) {
-
-		?><p>Suchmuster: <strong><?=$searchPattern?></strong>
-		<?php		
-		// !!! sanitize (e.g. only letters, underscore, space and *)
-
-		// ! change pattern to always have PART of word when no *
-		if (false === strpos($searchPattern,'*')) {
-			$searchPattern = '*'.$searchPattern.'*';
-		}
-		
-		// !!! set article id by module param
-		$query = "SELECT id,begriff from tth_wortliste WHERE begriff LIKE '".str_replace('*','%',$searchPattern)."'";
-		?>
-		<div class="link-list"><?=$vm->getLinkList($sql->getArray($query), 'begriff_id', 'begriff', $detailsArticleId);?></div>
-		<?php
-	}
-}
-else {
 	$source = rex_request('quelle_id');
 
 	// ! we don't read "id names" from tableManager because can also be different from DB (convention of MODULE code)
@@ -60,6 +35,8 @@ else {
 	printCardWithList($vm, 'languagestyles', 'sprachstil_id');
 	printCardWithList($vm, 'regions', 'region_id');
 	printCardWithList($vm, 'states', 'begriffsstatus_id');
+	printCardWithList($vm, 'edit', 'edit_value'); 
+	printCardWithList($vm, 'is_category', 'category_value'); 
 
 	if ($source || 0 === $source || '0' === $source) {
 		// !!! you'll need to find another way for "not set"
@@ -123,11 +100,48 @@ else {
 	<p><strong>Begriffsstatus:</strong> <?=$vm->getLinkList($stati, 'begriffsstatus_id', 'status')?></p>
 	<?php
 
+	$edit = [
+		[
+			'id' => 'FALSE',
+			'edit' => 'nein'
+		],
+		[
+			'id' => 'TRUE',
+			'edit' => 'ja'
+		],
+		[
+			'id' => '0',
+			'edit' => 'nicht gesetzt'
+		]
+	];
+	?>
+	<p><strong>Noch bearbeiten:</strong> <?=$vm->getLinkList($edit, 'edit_value', 'edit')?></p>
+	<?php
+
+	// !!! also put in function or method!
+	$isCat = [
+		[
+			'id' => 'FALSE',
+			'is_category' => 'nein'
+		],
+		[
+			'id' => 'TRUE',
+			'is_category' => 'ja'
+		],
+		[
+			'id' => '0',
+			'is_category' => 'nicht gesetzt'
+		]
+	];
+	?>
+	<p><strong>Kategorie:</strong> <?=$vm->getLinkList($isCat, 'category_value', 'is_category')?></p>
+	<?php
+
 	$quellen = $sql->getArray("SELECT id,kurz FROM tth_quellen WHERE 1");
 	// ! you'll need to find another way for "not set"
 	array_push($quellen, array( 'id' => 0, 'kurz' => 'nicht gesetzt'));
 	?>
 	<p><strong>Quelle:</strong> <?=$vm->getLinkList($quellen, 'quelle_id', 'kurz')?></p>
 	<?php
-}
+
 ?>

@@ -52,12 +52,13 @@ class TableManager {
 		'relatives' => 'verwandter_id',
 		'equivalents' => 'aequivalent_id',
 		'tags' => 'tag_id',
-		'is_category' => 'kategorie'
 	);
-
+	
 	protected $tableFields = array(
 		'name' => 'name',
-		'entity' => 'begriff'
+		'entity' => 'begriff',
+		'is_category' => 'kategorie',
+		'edit' => 'bearbeiten'
 	);
 
 	// combines: tableName, idField, readableNameField(for output)
@@ -285,11 +286,19 @@ class TableManager {
 	 */
 	public function getEntitiesByField($subject, $value) {
 		$field = $this->tableIdFields[$subject];
+		if (!isset($field)){
+			$field = $this->getTableField($subject);
+		}
+
 		if (isset($field)) {
-			$query = "SELECT id, begriff FROM ".$this->tableNames['entities']." WHERE kategorie = :value ORDER BY begriff ASC";
+			$query = "SELECT id, begriff FROM ".$this->tableNames['entities']." WHERE $field = :value ORDER BY begriff ASC";
 			return $this->sqlObject->getArray($query, ['value' => $value]);
 		}
 
 		return [];
+	}
+
+	public function getTableField($id) {
+		return $this->tableFields[$id];
 	}
 }

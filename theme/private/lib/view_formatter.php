@@ -108,13 +108,32 @@ class ViewFormatter {
 	public function getFilteredLinks($table, $id, $articleId = '')
 	{
 		if ($id || 0 === $id || '0' === $id) {
-			$id = intval($id);
 
+			$data = [];
+			
 			$name = $this->model->getOuterRelationName($table, $id);
-			if(!$name) $name = 'nicht gesetzt';
-
-			$html = $this->getEntityLinkList($this->model->getEntitiesForOuterRelation($table, $id), $articleId);
-			;
+			
+			if (!$name) {
+				$data = $this->model->getEntitiesByField($table, $id); // $id is used as a value
+				// when inner field we set readable name *here* 	
+				if (count($data)) {
+					// getting here means $table value valid and was subject for inner field
+					switch ($table) {
+						case 'edit':
+						case 'is_category':
+							$name = ($id == 'TRUE' ? 'ja' : 'nein');
+							break;
+					}
+				}
+				else {
+					$name = 'nicht gesetzt';
+				}
+			}
+			else {
+				$data = $this->model->getEntitiesForOuterRelation($table, intval($id));
+			}
+			
+			$html = $this->getEntityLinkList($data, $articleId);
 			
 			if (!$html) $html = "(Keine Einträge gefunden.)";
 			
