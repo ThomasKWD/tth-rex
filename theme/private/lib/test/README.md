@@ -4,7 +4,7 @@
 
 For making config easier (and maybe test other stuff in `theme/` too) the Docker volume is mounted to `lib/`.
 
-Hence run it from there. Just execute `theme/private/runphpunit.sh`.
+Hence run it from there. Just execute `theme/private/phpunit.sh`.
 
 This version gets around without Redaxo and thus needs a considerable amount of mocks and stubs.
     

@@ -119,7 +119,7 @@ class TableManager {
 	 * 
 	 * @return int id 
 	 */
-	public function getFacetteId() {
+	public function getFacetId() {
 		return (self::FACETTE_ID);
 	}
 
@@ -131,8 +131,6 @@ class TableManager {
 	public function getDescriptorId() {
 		return (self::DESCRIPTOR_ID);
 	}
-
-	
 
 	public function getOuterRelationTableInfo($subject) {
 		if (array_key_exists($subject, $this->outerRelations)) {

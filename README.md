@@ -52,7 +52,7 @@ Tabelle Wortliste : begriffe
 
 Die meisten Beziehungen *innerhalb* `tth_begriffe` (Wortliste) sind 1-to-Many-Beziehungen (1:n) oder Many-to-Many-Beziehungen (n:m) mit `tth_begriffe` selbst.
 
-Für die in der folgenden Tabelle Felder gilt:
+Für die in der folgenden Tabelle aufgelisteten Felder gilt:
 
 * Das urspüngliche Feld der accdb wird erhalten aber nicht mehr verändert. 
 * Für n:m-Beziehungen wurde eine separate Beziehungstabelle angelegt.

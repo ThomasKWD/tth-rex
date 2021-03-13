@@ -22,7 +22,7 @@
 		$tm = $vm->getTableManagerInstance();
 		// get this from TableManager, not from rex_config because is DB related, not page structure related
 		$descriptorId = $tm->getDescriptorId();
-		$facetteId = $tm->getFacetteId();
+		$facetteId = $tm->getFacetId();
 		
 		$glossarArticleId = rex_config::get('tth', 'article_glossar');
 		// ! localhost = 21, on kwd = 20 
