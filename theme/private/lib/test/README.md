@@ -7,7 +7,7 @@ For making config easier (and maybe test other stuff in `theme/` too) the Docker
 Hence run it from there. Just execute `theme/private/runphpunit.sh`.
 
 This version gets around without Redaxo and thus needs a considerable amount of mocks and stubs.
-
+    
 ## Testing with local PHPUnit install
 
 * Always install php unit by composer

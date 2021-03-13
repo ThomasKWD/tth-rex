@@ -20,9 +20,9 @@ Ziel ist später die Anbindung an die wissenschaftliche Datenbasis, welche in "x
 
 ## Tabellenstruktur
 
-Die meisten Feldnamen wurden geändert, um die Bezeichnungen zu vereinfachen und sie mehr den Konventionen anzupassen (falls später fremde Leute die DB Konvertieren/reparieren müssen). 
+Die meisten Feldnamen wurden geändert, um die Bezeichnungen zu vereinfachen und sie mehr den Konventionen anzupassen. 
 
-! Welche Konventionen von Museumsdatenbanken sollten beachtet werden??
+* [ ] Welche Konventionen von Museumsdatenbanken sollten beachtet werden??
 
 Tabelle Wortliste : begriffe
 
