@@ -26,11 +26,11 @@ class ViewFormatterTest extends TestCase {
 	*/
 	public function testGetEntityFields() {
 		$checkEntityFields = $this->vm->getEntityFields();
-		$this->assertArrayHasKey('entity_id', $checkEntityFields);
+		// $this->assertArrayHasKey('entity_id', $checkEntityFields); // currently not used
 		$this->assertArrayHasKey('entity_name', $checkEntityFields);
 		
 		// !!! check depends on current implementation of TableManager:
-		$this->assertEquals('begriff_id',$checkEntityFields['entity_id']);
+		// $this->assertEquals('begriff_id',$checkEntityFields['entity_id']);
 		$this->assertEquals('begriff',$checkEntityFields['entity_name']);
 	}
 

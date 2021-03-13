@@ -233,6 +233,43 @@ class TableManager {
 	}
 
 	/**
+	 * Finds a single entity OR all entities which are named exactly the same
+	 * 
+	 * ! searchPattern must be correctly inserted by fetch function
+	 */
+	public function buildSingleEntityQuery() {
+		return "SELECT id, {$this->tableFields['entity']} from {$this->tableNames['entities']} WHERE {$this->tableFields['entity']} = :wordsearch";
+	}
+
+	/**
+	 * Returns a single entity OR all entities which are named exactly the same
+	 * 
+	 * That's why we still need to return array
+	 */	
+	public function findSingleEntities($searchPattern) {
+		return $this->sqlObject->getArray(
+			$this->buildSingleEntityQuery(),
+			['wordsearch' => $searchPattern]
+		);
+	}
+	
+	/**
+	 * Finds entities by search pattern
+	 * 
+	 * ! searchPattern must be correctly inserted by fetch function
+	 */
+	public function buildSearchEntitiesQuery() {
+		return "SELECT id, {$this->tableFields['entity']} from {$this->tableNames['entities']} WHERE {$this->tableFields['entity']} LIKE :wordsearch";
+	}
+
+	public function findEntities($searchPattern) {
+		return $this->sqlObject->getArray(
+			$this->buildSearchEntitiesQuery(),
+			['wordsearch' => str_replace('*','%',$searchPattern)]
+		);
+	}
+
+	/**
 	 * check a boolean field expressed by a word (string) as provided by YForm or Access
 	 * 
 	 * ! returns `NULL` when is real `false` because this is considered empty

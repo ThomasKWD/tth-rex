@@ -30,10 +30,9 @@ class TableManagerTest extends TestCase {
         self::assertEquals(8, $this->tm->getFacetId());
     }
 
-
 	/**
 	*	@test
-	*   @covers prove of phpunit
+	*   @covers checkTruthyWord
     * 
 	*/
 	public function testCheckTruthyWord() {
@@ -48,5 +47,26 @@ class TableManagerTest extends TestCase {
         $this->assertSame(null, $tm->checkTruthyWord(false)); 
         $this->assertSame(null, $tm->checkTruthyWord(''));
         $this->assertSame(null, $tm->checkTruthyWord(0));
+	}
+
+    
+	/**
+	*	@test
+	*   @covers buildSingleEntityQuery
+    * 
+	*/
+	public function testBuildSingleEntityQuery() {
+        $tm = $this->tm;
+        $this->assertSame('SELECT id, begriff from tth_wortliste WHERE begriff = :wordsearch', $tm->buildSingleEntityQuery());
+	}
+
+	/**
+	*	@test
+	*   @covers buildSearchEntitiesQuery
+    * 
+	*/
+	public function testBuildSearchEntitiesQuery() {
+        $tm = $this->tm;
+        $this->assertSame('SELECT id, begriff from tth_wortliste WHERE begriff LIKE :wordsearch', $tm->buildSearchEntitiesQuery());
 	}
 }

@@ -13,8 +13,8 @@ class ViewFormatter {
 	function __construct($sqlObject, $getUrlFunction) {
 		$this->model = new TableManager($sqlObject);
         $this->getUrlFunction = $getUrlFunction;
-		$this->entityFields['entity_id'] = $this->model->getTableIdField('entity'); // results in 'begriff_id'
-		$this->entityFields['entity_name'] = $this->model->getTableField('entity'); // results in 'begriff'
+		// $this->entityFields['entity_id'] = $this->model->getTableIdField('entity'); // results in 'begriff_id'; //! currently not used
+		$this->entityFields['entity_name'] = $this->model->getTableField('entity'); // results in 'begriff' 
     }
 
 	/** Get field names for entity access
@@ -107,33 +107,27 @@ class ViewFormatter {
 	/**
 	 * returns all entities which are related to another 1:n table
 	 * 
-     * MUST extract out DB related stuff (which must return arrays)
-     * 
 	 * e.g. language, region
 	 * 
-	 * @param sql reference to rex_sql object
-	 * 
-	 * // !!! these 3 must be read!!!
-	 * 
-	 * @param table name of table
+	 * @param subject name to map on table or relation type 
 	 * @param idField name of field for referenced id in tth_wortliste
 	 * @param nameField name of field for readable name of referenced table
 	 * 
 	 * @param id selected id to filter for, 0 allowed, e.g. of 1 language when demanding language table  
 	 * @param articleId destination article for link
 	 */
-	public function getFilteredLinks($table, $id, $articleId = '')
+	public function getFilteredLinks($subject, $id, $articleId = '')
 	{
 		if ($id || 0 === $id || '0' === $id) {
 			$data = [];			
-			$name = $this->model->getOuterRelationName($table, $id);
+			$name = $this->model->getOuterRelationName($subject, $id);
 			
 			if (!$name) {
-				$data = $this->model->getEntitiesByField($table, $id); // $id is used as a value
+				$data = $this->model->getEntitiesByField($subject, $id); // $id is used as a value
 				// when inner field we set readable name *here* 	
 				if (count($data)) {
 					// getting here means $table value valid and was subject for inner field
-					switch ($table) {
+					switch ($subject) {
 						case 'edit':
 						case 'is_category':
 							$name = ($id == 'TRUE' ? 'ja' : 'nein');
@@ -146,7 +140,7 @@ class ViewFormatter {
 			}
 
 			if (!count($data)) {
-				$data = $this->model->getEntitiesForOuterRelation($table, intval($id));
+				$data = $this->model->getEntitiesForOuterRelation($subject, intval($id));
 			}
 			
 			$html = $this->getEntityLinkList($data, $articleId);
