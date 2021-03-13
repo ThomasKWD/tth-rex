@@ -1,7 +1,8 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
-require_once('../../theme/private/lib/table_manager.php');
+// phpunit does not find relative parent path
+require_once(realpath(dirname(dirname(__FILE__))).'/table_manager.php');
 
 use kwd\tth\TableManager as TableManager;
 
