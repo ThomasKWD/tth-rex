@@ -235,20 +235,23 @@ class TableManager {
 	/**
 	 * check a boolean field expressed by a word (string) as provided by YForm or Access
 	 * 
-	 * !!! language independent
+	 * ! returns `NULL` when is real `false` because this is considered empty
+	 * ! returns `true` on real boolean `true`
 	 * 
 	 * @param word string as found in DB field
-	 * @return string in German which expresses true ("ja") or false ("nein")
+	 * @return boolean OR null when word itself is falsy/empty
 	 */
-	function checkTruthyWord($word) {
-		if ($word) {
-			if ($word !== true) $word = strtoupper($word);
-			if($word === true || $word === 'WAHR' || $word === 'TRUE'){					
-				return 'ja';
-			}
+	public function checkTruthyWord($word) {
+		if (true === $word) return true;
+		if (!$word) return null; // also '', 0, false, unset
+
+		$word = strtoupper(strval($word));
+			
+		if($word === 'WAHR' || $word === 'TRUE'){					
+			return true;
 		}
 
-		return 'nein';
+		return false;
 	}
 
 	/** queries rows from SQL and produced markup for link list

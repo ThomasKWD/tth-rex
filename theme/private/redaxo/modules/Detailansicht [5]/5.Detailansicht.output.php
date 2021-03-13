@@ -20,6 +20,7 @@
 		if (!isset($sql)) $sql = rex_sql::factory();
 		if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
 		$tm = $vm->getTableManagerInstance();
+
 		// get this from TableManager, not from rex_config because is DB related, not page structure related
 		$descriptorId = $tm->getDescriptorId();
 		$facetteId = $tm->getFacetId();
@@ -158,7 +159,7 @@
 
 				$html = '';
 
-				if ($tm->checkTruthyWord($r['bearbeiten']) == 'ja') {
+				if ($tm->checkTruthyWord($r['bearbeiten'])) {
 					$html .= rex_view::warning('Dieser Eintrag (ID: '.$r['id'].') muss noch überarbeitet werden.');
 				}
 
@@ -327,10 +328,10 @@
 				// if ($r['quelle_seite']) $html .= $vm->getRow('Seite in Quelle',$r['quelle_seite']);
 				
 				$html .= $vm->getRow('Scoped Notes',$r['notes']);
-				$html .= $vm->getRow('Kategorie', '<a href="'.rex_getUrl($filterArticleId,'',['category_value'=>$r['kategorie']]).'">'.$tm->checkTruthyWord($r['kategorie']).'</a>');
+				$html .= $vm->getRow('Kategorie', '<a href="'.rex_getUrl($filterArticleId,'',['category_value'=>$r['kategorie']]).'">'.$vm->getTruthyWord($r['kategorie']).'</a>');
 				// ;
-				$html .= $vm->getRow('Veröffentlichen?',$tm->checkTruthyWord($r['veroeffentlichen']));
-				$html .= $vm->getRow('Noch bearbeiten','<a href="'.rex_getUrl($filterArticleId,'',['edit_value'=>$r['bearbeiten']]).'">'.$tm->checkTruthyWord($r['bearbeiten']).'</a>');
+				$html .= $vm->getRow('Veröffentlichen?',$vm->getTruthyWord($r['veroeffentlichen']));
+				$html .= $vm->getRow('Noch bearbeiten','<a href="'.rex_getUrl($filterArticleId,'',['edit_value'=>$r['bearbeiten']]).'">'.$vm->getTruthyWord($r['bearbeiten']).'</a>');
 				
 				$authorText = '';
 				// ! the `if` is important because the SQL may still returen the first entry of tth_autoren for some reason when autor_id=''  ! whole data set not returned when no author; need 0 clause in inner join

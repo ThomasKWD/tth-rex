@@ -206,4 +206,17 @@ class ViewFormatter {
 		// $descriptorLink = '  <a href="'.rex_getUrl($glossarArticleId).'#deskriptor">(?)</a>';
 		return ('<a href="'. $this->getUrl($articleId) .'#'.$anchor.'">(?)</a>');
 	}
+
+	/**
+	 * Uses checkTruthyWord and answer in a language, currently German
+	 * 
+	 * !!! a better naming would be "getBooleanWord"
+	 */
+	public function getTruthyWord($word) {
+		$result = $this->model->checkTruthyWord($word);
+		
+		if ($result) return 'ja';
+		if (false === $result) return 'nein';
+		return '(nicht gesetzt)'; // $result === null
+	}
 }

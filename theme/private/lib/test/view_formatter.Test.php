@@ -94,4 +94,29 @@ class ViewFormatterTest extends TestCase {
 		// hence swallows all entries but the 2nd one
 		$this->assertSame('<a href="/abfragen/details/?begriff_id=1">Abbund</a>', $this->vm->getEntityLinkList($data));
 	}
+
+	
+	/**
+	*	@test
+	*   @covers getTruthyWord
+	* 
+	* !!! Not clear if init of objects can work because of inner dependencies
+	*
+	*
+	*
+	*
+	*/
+	public function testGetTruthyWord() {
+		$vm = $this->vm;
+        $this->assertSame('ja', $vm->getTruthyWord('true'));
+        $this->assertSame('ja', $vm->getTruthyWord('TRUE'));
+        $this->assertSame('ja', $vm->getTruthyWord('True'));
+        $this->assertSame('nein', $vm->getTruthyWord('false'));
+        $this->assertSame('nein', $vm->getTruthyWord('FALSE'));
+        $this->assertSame('nein', $vm->getTruthyWord('falSE'));	
+		// concept of unset/empty
+		$this->assertSame('(nicht gesetzt)', $vm->getTruthyWord(false)); 
+		$this->assertSame('(nicht gesetzt)', $vm->getTruthyWord(''));
+		$this->assertSame('(nicht gesetzt)', $vm->getTruthyWord(0));
+	}
 }

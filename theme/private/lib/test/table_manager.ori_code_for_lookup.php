@@ -136,26 +136,6 @@ class DataSetQuellenTest extends TestCase {
 
 	/**
 	 * @test
-	 * @covers checkTruthyWord
-	 * 
-	 */
-	function testCheckTruthyWord() {
-		$tm = new TableManager();
-
-		$this->assertSame('nein', $tm->checkTruthyWord(false));
-		$this->assertSame('ja', $tm->checkTruthyWord(true));
-		$this->assertSame('nein', $tm->checkTruthyWord('false'));
-		$this->assertSame('ja', $tm->checkTruthyWord('true'));
-		$this->assertSame('nein', $tm->checkTruthyWord('FALSE'));
-		$this->assertSame('ja', $tm->checkTruthyWord('TRUE'));
-		$this->assertSame('nein', $tm->checkTruthyWord('Falsch'));
-		$this->assertSame('ja', $tm->checkTruthyWord('WAHR'));
-		$this->assertSame('nein', $tm->checkTruthyWord('falsch'));
-		$this->assertSame('ja', $tm->checkTruthyWord('Wahr'));
-	}
-
-	/**
-	 * @test
 	 * @covers makeRow
 	 * 
 	 */
