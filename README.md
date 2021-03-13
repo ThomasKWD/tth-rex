@@ -1,20 +1,14 @@
 # Thesaurus Traditioneller Holzbau (TTH)
 
-{:toc}
-
-[[_TOC_]]
-
-[toc]
-
 Ein Projekt, initiiert von [Timm Miersch](mailto:timm.miersch@googlemail.com).
 
 Demo: https://www.thesaurus-traditioneller-holzbau.net/
 
-Dies ist eine [MySQL](https://de.wikipedia.org/wiki/MySQL)-Umsetzung der ursprünglichen MS-Access-Datenbank. Sie ist eingebettet in eine [Redaxo](https://www.redaxo.org)-Installation mit YForm. Sie erlaubt eine flexible Online-Bearbeitung der Daten. Außerdem ist eine benutzerfreundliche Abfrage und Präsentation von Daten der DB ohne Login möglich.
+Dies ist eine [MySQL](https://de.wikipedia.org/wiki/MySQL)-Umsetzung der ursprünglichen Datenbank (MS Access), eingebettet in eine [Redaxo](https://www.redaxo.org)-Installation mit YForm.
 
-Das vorliegende System ist als Entwurf einer unabhängigen, redaktionellen Datenbank zu verstehen.
+Sie erlaubt eine flexible Online-Bearbeitung der Daten. Außerdem ist eine benutzerfreundliche Abfrage und Präsentation von Daten der DB ohne Login möglich.
 
-Ziel ist später die Anbindung an die wissenschaftliche Datenbasis, welche in "xtree.digicult.de" verwaltet wird.
+Das vorliegende System ist der Entwurf einer unabhängigen, redaktionellen Datenbank welche später eine Anbindung an die wissenschaftliche Datenbasis ("xtree.digicult.de") erhalten soll.
 
 
 

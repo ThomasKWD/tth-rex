@@ -1,1 +1,0 @@
-Remove this folder when tests in Docker work.
