@@ -4,13 +4,27 @@
 namespace kwd\tth;
 
 class ViewFormatter {
+	const entityIdForUrl = 'begriff_id';
+
     protected $model = null;
     protected $getUrlFunction = null;
+	protected $entityFields = [];
 
 	function __construct($sqlObject, $getUrlFunction) {
 		$this->model = new TableManager($sqlObject);
         $this->getUrlFunction = $getUrlFunction;
+		$this->entityFields['entity_id'] = $this->model->getTableIdField('entity'); // results in 'begriff_id'
+		$this->entityFields['entity_name'] = $this->model->getTableField('entity'); // results in 'begriff'
     }
+
+	/** Get field names for entity access
+	 * 
+	 * also needed in view because sometimes view gets assoc arrays with keys as described here.
+	 * These keys should not be hard coded in view to allow later changes.
+	*/
+	public function getEntityFields() {
+		return $this->entityFields;
+	}
 
 	public function &getTableManagerInstance() {
 		return $this->model;
@@ -28,13 +42,16 @@ class ViewFormatter {
 	 * uses *predefined* `rex_getUrl` stub
 	 */
 	public function getLink($idName, $id, $desc, $article_id = '') {
-		return '<a href="'.rex_getUrl($article_id, '', array($idName => $id)).'">'.$desc.'</a>';
+		return '<a href="'.$this->getUrl($article_id, '', array($idName => $id)).'">'.$desc.'</a>';
 	}
 
 	public function getLinkList($array, $linkUrlId, $linkName, $articleId = '') {
 		$str = '';
 		foreach($array as $s) {
-			$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ', ';
+			// ! silently omitting errors
+			if (isset($s['id']) && isset($s[$linkName])) {
+				$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ', ';
+			}
 		}
 		return trim($str,', ');
 	}
@@ -67,7 +84,7 @@ class ViewFormatter {
 	 * 
 	 */
 	public function getEntityLinkList($data, $articleId = '') {
-		return $this->getLinkList($data, 'begriff_id', 'begriff', $articleId);
+		return $this->getLinkList($data, self::entityIdForUrl, $this->entityFields['entity_name'], $articleId);
 	}
 	
 	/**

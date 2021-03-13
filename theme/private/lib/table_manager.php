@@ -302,4 +302,8 @@ class TableManager {
 	public function getTableField($id) {
 		return $this->tableFields[$id];
 	}
+
+	public function getTableIdField($id) {
+		return $this->tableIdFields[$id];
+	}
 }
