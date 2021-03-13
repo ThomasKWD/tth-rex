@@ -50,15 +50,6 @@ class TableManagerTest extends TestCase {
 	}
 
     
-	/**
-	*	@test
-	*   @covers buildSingleEntityQuery
-    * 
-	*/
-	public function testBuildSingleEntityQuery() {
-        $tm = $this->tm;
-        $this->assertSame('SELECT id, begriff from tth_wortliste WHERE begriff = :wordsearch', $tm->buildSingleEntityQuery());
-	}
 
 	/**
 	*	@test
@@ -67,6 +58,14 @@ class TableManagerTest extends TestCase {
 	*/
 	public function testBuildSearchEntitiesQuery() {
         $tm = $this->tm;
-        $this->assertSame('SELECT id, begriff from tth_wortliste WHERE begriff LIKE :wordsearch', $tm->buildSearchEntitiesQuery());
-	}
+        $this->assertSame(
+            'SELECT id, begriff from tth_wortliste WHERE begriff LIKE :wordsearch',
+            $tm->buildSearchEntitiesQuery()
+        );
+        // set $strict == `true`
+        $this->assertSame(
+            'SELECT id, begriff from tth_wortliste WHERE begriff = :wordsearch',
+            $tm->buildSearchEntitiesQuery(true)
+        );
+    	}
 }

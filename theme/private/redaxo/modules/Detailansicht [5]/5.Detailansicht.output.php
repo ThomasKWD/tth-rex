@@ -58,7 +58,7 @@
 				if (false === strpos($searchPattern,'*')) {
 					// search for word as is 
 					// ! note that can still be more than 1 because of possible entities with exact same name
-					$singleEntities= $tm->findSingleEntities($searchPattern);
+					$singleEntities= $tm->findEntities($searchPattern, true); // true means strictly the word/pattern
 					if (1 === count($singleEntities)) {
 						// redirect is cleaner (HTTP url consistency)
 						rex_redirect('','',['begriff_id' => $singleEntities[0]['id']]);
