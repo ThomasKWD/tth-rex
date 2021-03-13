@@ -1,5 +1,11 @@
 # Thesaurus Traditioneller Holzbau (TTH)
 
+{:toc}
+
+[[_TOC_]]
+
+[toc]
+
 Ein Projekt, initiiert von [Timm Miersch](mailto:timm.miersch@googlemail.com).
 
 Demo: https://www.thesaurus-traditioneller-holzbau.net/
@@ -11,15 +17,6 @@ Das vorliegende System ist als Entwurf einer unabhängigen, redaktionellen Daten
 Ziel ist später die Anbindung an die wissenschaftliche Datenbasis, welche in "xtree.digicult.de" verwaltet wird.
 
 
-## Installation
-
-Das Repository stellt das Basis-Verzeichnis einer lauffähigen [Redaxo 5.10.x](https://redaxo.org/download/core/) Installation dar (Apache, MySQL, PHP entsprechend Erfordernissen von Redaxo benötigt).
-
-Das Redaxo benötigt für dieses Projekt folgende Addons: developer, markitup, phpmailer, theme, YForm, YCom, xoutputfilter (optional).
-
-Es sollte zuerst Redaxo und alle benötigten Addons installiert werden und dann der Inhalt des Downloads (https://github.com/ThomasKWD/tth-rex/archive/master.zip) hinein kopiert werden.
-
-Eine Anpassung verschiedener Einstellungen ist erforderlich. Es werden Administrator-Kenntnisse von Redaxo vorausgesetzt.
 
 ## Tabellenstruktur
 
@@ -112,3 +109,24 @@ Konvertieren einzelne n:m-Tabelle
 
 ~~Inhalte aller n:m-Tabellen (Ansicht der Haupt-Tabellen gibt es ja im Backend)~~
 braucht man eigentlich nicht, ist ja nur für Admins und die können in phpMyAdmin schauen oder die Tabellen in YForm auf sichtbar stellen.
+
+## Implementation
+
+`README.md` Texte in Unterordnern, die nur die Implementation betreffen, sind in Englisch.
+
+### Datenbank
+
+Die aktuelle lokale Test-Datenbank ist unter ... gespeichert.
+
+Die aktuelle Datenbank, die zur öffentlichen Anzeige geeignet ist, ist unter ... archiviert. Diese sollte stets importiert werden, wenn das Projekt auf einer neuen Umgebung aufgesetzt wird.
+
+
+## Installation
+
+Das Repository stellt das Basis-Verzeichnis einer lauffähigen [Redaxo 5.10.x](https://redaxo.org/download/core/) Installation dar (Apache, MySQL, PHP entsprechend Erfordernissen von Redaxo benötigt).
+
+Das Redaxo benötigt für dieses Projekt folgende Addons: developer, markitup, phpmailer, theme, YForm, YCom, xoutputfilter (optional).
+
+Es sollte zuerst Redaxo und alle benötigten Addons installiert werden und dann der Inhalt des Downloads (https://github.com/ThomasKWD/tth-rex/archive/master.zip) hinein kopiert werden.
+
+Eine Anpassung verschiedener Einstellungen ist erforderlich. Es werden Administrator-Kenntnisse von Redaxo vorausgesetzt.
