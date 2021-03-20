@@ -110,9 +110,9 @@ braucht man eigentlich nicht, ist ja nur für Admins und die können in phpMyAdm
 
 ### Datenbank
 
-Die aktuelle lokale Test-Datenbank ist unter ... gespeichert.
+Die aktuelle lokale Test-Datenbank ist unter [redaxo/data/addons/backup/](redaxo/data/addons/backup/) gespeichert.
 
-Die aktuelle Datenbank, die zur öffentlichen Anzeige geeignet ist, ist unter ... archiviert. Diese sollte stets importiert werden, wenn das Projekt auf einer neuen Umgebung aufgesetzt wird.
+<!-- Die aktuelle Datenbank, die zur öffentlichen Anzeige geeignet ist, ist unter ... archiviert. Diese sollte stets importiert werden, wenn das Projekt auf einer neuen Umgebung aufgesetzt wird. -->
 
 
 ## Installation
