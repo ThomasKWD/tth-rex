@@ -6,7 +6,7 @@ if ($quelleId && is_numeric($quelleId)) {
 
 	// !!! how pack in function? not possible
 	if (!isset($sql)) $sql = rex_sql::factory();
-	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, rex_getUrl); 
+	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
 
 	echo 'Zeige Quelle id '.$quelleId;
 	$sql = rex_sql::factory();

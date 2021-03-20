@@ -46,6 +46,7 @@
 			$searchPattern = rex_escape($wSearch);
 			if ($searchPattern) {
 				// !!! Problem wenn Anfuehrungszeichen in gespeichertem Wort
+				
 				$searchPattern = 
 					str_replace("'","",
 					str_replace("`","",

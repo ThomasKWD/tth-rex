@@ -7,7 +7,7 @@ class ViewFormatter {
 	const entityIdForUrl = 'begriff_id';
 
     protected $model = null;
-    protected $getUrlFunction = null;
+    protected $getUrlFunction = '';
 	protected $entityFields = [];
 
 	function __construct($sqlObject, $getUrlFunction) {
@@ -26,7 +26,7 @@ class ViewFormatter {
 		return $this->entityFields;
 	}
 
-	public function &getTableManagerInstance() {
+	public function getTableManagerInstance() {
 		return $this->model;
 	}
 
@@ -169,7 +169,7 @@ class ViewFormatter {
 	 * But all objects are passed and can easily be stubbed.
 	 * 
 	 */
-	public function getMarkDownText($parseFunction, &$addonObject, $text)
+	public function getMarkDownText($parseFunction, $addonObject, $text)
 	{
 		// !!! make surrounding p when none inside
 		$parsedHtml = '';

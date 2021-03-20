@@ -67,5 +67,18 @@ class TableManagerTest extends TestCase {
             'SELECT id, begriff from tth_wortliste WHERE begriff = :wordsearch',
             $tm->buildSearchEntitiesQuery(true)
         );
-    	}
+    }
+
+    
+	/**
+	*	@test
+	*   @covers getEntitiesByField
+    * 
+	*/
+    public function testGetEntitiesByField() {
+        $tm = $this->tm;
+        // !!! mock of rex_sql needed
+        $entities = $tm->getEntitiesByField();
+        $this->assertEquals(['peter'], $entities); // hier weiter
+    }
 }

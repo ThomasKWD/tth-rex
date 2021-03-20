@@ -126,7 +126,7 @@
 
 	// !!! how pack in function? not possible
     if (!isset($sql)) $sql = rex_sql::factory();
-	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, rex_getUrl); 
+	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
 
     // !!! how to store facet id in DB as value, maybe we need a "config table"
     $facetArray = $sql->getArray("SELECT id, begriff FROM tth_wortliste WHERE begriffsstatus_id = 8");

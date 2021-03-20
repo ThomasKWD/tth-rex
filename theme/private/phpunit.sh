@@ -10,7 +10,8 @@
 # sudo docker run -v $(pwd)/tests:/app --rm phpunit/phpunit myautoload.php 
 
 # specifiy test file 
-sudo docker run -v $(pwd)/lib:/app --rm phpunit/phpunit ./test
+# sudo docker run -v $(pwd)/lib:/app --rm phpunit/phpunit ./test
+docker run -v $(pwd)/lib:/app --rm phpunit/phpunit ./test
 # sudo docker run -v $(pwd)/lib:/app --rm phpunit/phpunit ./test/view_formatter.Test.php
 
 # TODO: specify everything needed by phpunit.xml

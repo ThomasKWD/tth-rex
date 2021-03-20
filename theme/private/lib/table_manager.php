@@ -68,7 +68,12 @@ class TableManager {
 
 	protected $sqlObject = null;
 
-	function __construct(&$sql) {
+	/**
+	 * inits instance of TableManager.
+	 * 
+	 * @param sql rex_sql object, (don't need to pass by reference objects!) 
+	 */
+	function __construct($sql) {
 		// check why i need to re-configure prefix and table names
 		// initTableNames()
 		$this->sqlObject = $sql; // does this pass reference?
@@ -269,13 +274,10 @@ class TableManager {
 	public function checkTruthyWord($word) {
 		if (true === $word) return true;
 		if (!$word) return null; // also '', 0, false, unset
-
 		$word = strtoupper(strval($word));
-			
 		if($word === 'WAHR' || $word === 'TRUE'){					
 			return true;
 		}
-
 		return false;
 	}
 
@@ -312,24 +314,26 @@ class TableManager {
 	 * filter entities by a certain 1:n field of tth_wortliste
 	 */
 	public function getEntitiesByField($subject, $value) {
-		$field = $this->tableIdFields[$subject];
-		if (!isset($field)){
-			$field = $this->getTableField($subject);
-		}
-
-		if (isset($field)) {
+		$field = $this->getTableIdField($subject);
+		if (!$field) $field = $this->getTableField($subject);
+		if ($field) {
 			$query = "SELECT id, begriff FROM ".$this->tableNames['entities']." WHERE $field = :value ORDER BY begriff ASC";
 			return $this->sqlObject->getArray($query, ['value' => $value]);
 		}
-
 		return [];
 	}
 
 	public function getTableField($id) {
-		return $this->tableFields[$id];
+		if (array_key_exists($id, $this->tableFields)) {
+			return $this->tableFields[$id];
+		}
+		return '';
 	}
 
 	public function getTableIdField($id) {
-		return $this->tableIdFields[$id];
+		if (array_key_exists($id, $this->tableIdFields)) {
+			return $this->tableIdFields[$id];
+		}
+		return '';
 	}
 }
