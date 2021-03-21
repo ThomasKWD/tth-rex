@@ -227,14 +227,12 @@ class ViewFormatter {
 	public function getForeignEntriesLinkList($subject, $id, $articleId = '') : string {
 		$entries = $this->model->getForeignEntries($subject, $id);
 		$info = $this->model->getOuterRelationTableInfo($subject);
-		dump($entries);
 		if (count($info)) { // can be empty array due to wrong subject
-			dump($info);
 			// ! note that idName is view related (will be used for URL) and not DB related
 			// ! must request matching idName and name field
 			//   hence is requested from a list *of this class*
 			// !!! only convention to take actual db field as url name, could also be anything
-			return $this->getLinkList($entries, $info['id'], $info['name'], $articleId, 'tag_id');
+			return $this->getLinkList($entries, $info['id'], $info['name'], $articleId, $info['id']);
 		}
 
 		return '';

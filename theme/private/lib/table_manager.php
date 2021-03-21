@@ -115,6 +115,12 @@ class TableManager {
 				'id' => 'tag_id', // used for query for n:m relation table (tth_begriff_tags)
 				'name' => 'name', // only for easy listing/sorting
 				'relationTable' => $this->tableNames['entity_tags']
+			],
+			'references' => [
+				'table' => $this->tableNames['sources'],
+				'id' => 'quelle_id', // used for query for n:m relation table (tth_quellenangaben)
+				'name' => 'kurz', // only for easy listing/sorting
+				'relationTable' => $this->tableNames['references']
 			]
 		);
 	}
@@ -332,15 +338,18 @@ class TableManager {
 	 * 
 	 * reads table name and required name fields form subjects table `outerRelations`
 	 * an empty info field means invalid subject
+	 * 
+	 * returns *all* fields from the relation table (not the joined table!)
 	 */
 	public function buildForeignEntriesQuery($subject, $idValueName) {
 		
 		$info = $this->getOuterRelationTableInfo($subject);
 		if (count($info)) {
-			$query = "SELECT r.tag_id, r.begriff_id, s.name ";
+			// $query = "SELECT r.{$info['id']}, r.begriff_id, s.* "; // would return whole row data from *joined* table
+			$query = "SELECT r.*, s.{$info['name']} ";
 			$query.= "FROM {$info['relationTable']} r ";
-			$query.= "JOIN {$info['table']} s ON r.tag_id = s.id ";
-			$query.= "WHERE r.begriff_id = :$idValueName ORDER BY s.name ASC";			
+			$query.= "JOIN {$info['table']} s ON r.{$info['id']} = s.id ";
+			$query.= "WHERE r.begriff_id = :$idValueName ORDER BY s.{$info['name']} ASC";
 			return $query;
 		}
 

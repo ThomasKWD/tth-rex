@@ -92,6 +92,10 @@ class TableManagerTest extends TestCase {
             'SELECT r.tag_id, r.begriff_id, s.name FROM tth_begriff_tags r JOIN tth_tags s ON r.tag_id = s.id WHERE r.begriff_id = :entity_id ORDER BY s.name ASC',
             $this->tm->buildForeignEntriesQuery('tags', 'entity_id')
         );
+        $this->assertEquals(
+            'SELECT r.quelle_id, r.begriff_id, s.kurz FROM tth_quellenangaben r JOIN tth_quellen s ON r.quelle_id = s.id WHERE r.begriff_id = :entity_id ORDER BY s.kurz ASC',
+            $this->tm->buildForeignEntriesQuery('references','entity_id')
+        );
     }
 
 }

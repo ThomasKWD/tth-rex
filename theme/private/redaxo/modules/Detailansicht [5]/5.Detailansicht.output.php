@@ -100,22 +100,7 @@
 			// !!! this can later be used for 'facette_id' and all 1:n innner relations
 			$synonymsQuery = "SELECT t1.id,t1.begriff from $tableEntities t1 WHERE t1.benutze=$id";
 			$synonyms = $sql->getArray($synonymsQuery);
-			
-			// references list
-			$query = "SELECT r.id, r.quelle_id, r.seitenzahl, r.bevorzugt, s.kurz "; //s.kurz
-			$query.= "FROM $tableReferences r ";
-			$query.= "JOIN $tableSources s ON r.quelle_id = s.id ";
-			// $query.= "JOIN $tableSources ON $tableSources.id = $tableRelationSources.quelle_id ";
-			$query.= "WHERE r.begriff_id=$id ORDER BY r.id ASC";
-			$sourcesArray = $sql->getArray($query);
-			
-			// tags
-			$tagsQuery = "SELECT r.tag_id, r.begriff_id, s.name ";
-			$tagsQuery.= "FROM $tableRelationTags r ";
-			$tagsQuery.= "JOIN $tableTags s ON r.tag_id = s.id ";
-			$tagsQuery.= "WHERE r.begriff_id=$id ORDER BY s.name ASC";
-			$tags = $sql->getArray($tagsQuery);
-			
+						
 			// ! b is first alias for $tableEntities, b2 is the second for benutze
 			$query = "SELECT b.begriff,b.id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.bild,b.begriffsstatus_id,$tableStati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,b.sprache_id,b.sprachstil_id,b.region_id,";
 			$query .= "b2.begriff AS benutze_begriff,CONCAT($tableAuthors.vorname, ' ', $tableAuthors.name) AS autor,";
@@ -133,18 +118,7 @@
 			$rows = $sql->getArray($query);
 			if ($rows && count($rows)) {
 
-				$r = $rows[0]; // because selected by ID, there can only be 1 row
-
-				// stuff needed for Details AND grid view:
-
-				// !!! need method for this code synonyms + tags
-				//     (code DRY)
-				$tagList = '';
-				foreach($tags as $s) {
-					$tagList .= $vm->getLink('tag_id', $s['tag_id'],$s['name'], $tagsArticleId.', ');
-				}
-				$tagList = rtrim($tagList,',');
-				
+				$r = $rows[0]; // because selected by ID, there can only be 1 row			
 				$detailView = rex_escape(rex_request('view','string'));
 
 				$html = '';
@@ -263,7 +237,6 @@
 				$html .= '<br>'.$vm->getReverseRelationLinkList('supers', $id);
 				$html .= '</td>';
 				$html .= '<td>Schlagwörter:<br>';
-				$html .= $tagList.'<br>new code:<br>';
 				$html .= $vm->getForeignEntriesLinkList('tags', $id, $tagsArticleId);
 				$html .= '</td>';
 				$html .= '</tr>';
@@ -335,35 +308,38 @@
 				$html .= '</table>';
 				echo $html;
 					
-				// dump($rows[0]);
-				// begin new table for Sources-Entries:
-					$html = '<hr><table class="table table-responsive">';
-					// make header line of table
-					$html .= "<thead><tr><th>#</th><th>Quelle</th><th>Seitenzahl</th><th>Bevorzugt?</th></thead>\n";
-					$i = 1;
-					foreach($sourcesArray as $s) {
-						$html .= "<tr>\n";
-						$html .= "<td>$i</td> ";
-						$html .= "<td>".$vm->getLink('quelle_id',$s['quelle_id'], '<div class="author-name">'.$s['kurz'].'</div>', $sourcesArticleId)."</td> ";
-						// check for any truthy value
-						$html .= "<td>".($s['seitenzahl'] ? $s['seitenzahl'] : '')."</td> ";
-						// check for any truthy value
-						$html .= "<td>".($s['bevorzugt'] ? 'bevorzugt' : '')."</td> ";
-						// $html .= "<td>${s['bevorzugt']}</td> ";
-						$html .= "</tr>\n";
-						$i++;
-					}
-					echo $html.'</table>';
+				// !!! remove after tests because unnessecary doubled sql query
+				// !!! or refactor by using getLinkList directly, but then you'll need to query names from TableManager
+				// echo '<p>new code list of sources: '.$vm->getForeignEntriesLinkList('references', $id, $sourcesArticleId). '</p>';
 				
-					// write a string with begriff
-					echo '{{{'.$r['begriff'].'}}}';
-					// rex_config::set('tth','current_entity',$r['begriff']);
+				$sourcesArray = $tm->getForeignEntries('references', $id);
+				$html = '<hr><table class="table table-responsive">';
+				// make header line of table
+				$html .= "<thead><tr><th>#</th><th>Quelle</th><th>Seitenzahl</th><th>Bevorzugt?</th></thead>\n";
+				$i = 1;
+				foreach($sourcesArray as $s) {
+					$html .= "<tr>\n";
+					$html .= "<td>$i</td> ";
+					$html .= "<td>".$vm->getLink('quelle_id',$s['quelle_id'], '<div class="author-name">'.$s['kurz'].'</div>', $sourcesArticleId)."</td> ";
+					// check for any truthy value
+					$html .= "<td>".($s['seitenzahl'] ? $s['seitenzahl'] : '')."</td> ";
+					// check for any truthy value
+					$html .= "<td>".($s['bevorzugt'] ? 'bevorzugt' : '')."</td> ";
+					// $html .= "<td>${s['bevorzugt']}</td> ";
+					$html .= "</tr>\n";
+					$i++;
 				}
-				else {
-					echo rex_view::warning('Eintrag für ID = '.$id.' nicht gefunden.');
-				}
-
+				echo $html.'</table>';
+			
+				// write a string with begriff
+				echo '{{{'.$r['begriff'].'}}}';
+				// rex_config::set('tth','current_entity',$r['begriff']);
 			}
+			else {
+				echo rex_view::warning('Eintrag für ID = '.$id.' nicht gefunden.');
+			}
+
+		}
 
 			// !!! check: remove this if when hierarchy is always on other page 
 			else if (!rex_request('facette_id')) {
