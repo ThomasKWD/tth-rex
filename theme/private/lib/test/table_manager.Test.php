@@ -1,5 +1,4 @@
 <?php
-
 require_once('test_init.php');
 use PHPUnit\Framework\TestCase;
 
@@ -105,6 +104,14 @@ class TableManagerTest extends TestCase {
         $this->assertEquals(
             'SELECT b.id, b.begriff FROM tth_wortliste b LEFT OUTER JOIN tth_quellenangaben o ON o.begriff_id = b.id WHERE o.begriff_id is NULL ORDER BY b.begriff ASC',
             $this->tm->buildUnsetRelationQuery('references')
+        );
+        $this->assertEquals(
+            "SELECT b.id, b.begriff FROM tth_wortliste b LEFT OUTER JOIN tth_begriff_oberbegriffe o ON o.begriff_id = b.id WHERE o.begriff_id is NULL ORDER BY b.begriff ASC",
+            $this->tm->buildUnsetRelationQuery('entity_supers')
+        );
+        $this->assertEquals(
+            "SELECT b.id, b.begriff FROM tth_wortliste b LEFT OUTER JOIN tth_begriff_unterbegriffe o ON o.begriff_id = b.id WHERE o.begriff_id is NULL ORDER BY b.begriff ASC",
+            $this->tm->buildUnsetRelationQuery('entity_subs')
         );
     }
 }

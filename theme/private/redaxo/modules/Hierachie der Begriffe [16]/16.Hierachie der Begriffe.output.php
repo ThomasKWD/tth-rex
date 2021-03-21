@@ -1,7 +1,6 @@
 <?php
 	// !!! all functions into model/viewmodel classes
 
-
 	if (!function_exists('addNewPathElement')) {
 		function addNewPathElement($id, $path, &$paths) {
 			$paths[] = array( 'id' => $id, 'path' => $path);
@@ -126,7 +125,7 @@
 
 	// !!! how pack in function? not possible
     if (!isset($sql)) $sql = rex_sql::factory();
-	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
+	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl');
 
     // !!! how to store facet id in DB as value, maybe we need a "config table"
     $facetArray = $sql->getArray("SELECT id, begriff FROM tth_wortliste WHERE begriffsstatus_id = 8");
@@ -166,23 +165,21 @@
 	?>
 	<hr>
 	<?php
+	// !!! directly write select results as other table entries (inside SQL) for building tree
+	//     - too complicated without logic in PHP
 
 	// works:
 	// $allOberbegriffe = $sql->getArray("SELECT begriff_id, oberbegriff_id FROM tth_begriff_oberbegriffe");
 	// $allUnterBegriffe = $sql->getArray("SELECT begriff_id, unterbegriff_id FROM tth_begriff_unterbegriffe");
 
-	// for compare first find all where nothing set! MUST use OUTER join, wonder why works? see: https://www.xaprb.com/blog/2005/09/23/how-to-write-a-sql-exclusion-join/
-	// ! problem: lots of root parents because oberbegriffe *very often* not defined
-	$allRootParents = $sql->getArray("SELECT b.id, b.begriff FROM tth_wortliste b LEFT OUTER JOIN tth_begriff_oberbegriffe o ON o.begriff_id = b.id WHERE o.begriff_id is NULL ORDER BY b.begriff ASC");
-	$warnText = '';
-	$warnText = '<p>Es wurden '.count($allRootParents).' Entitäten ohne Oberbegriff gefunden.</p>';
-	
-	$allDeadEnds = $sql->getArray("SELECT b.id, b.begriff FROM tth_wortliste b LEFT OUTER JOIN tth_begriff_unterbegriffe u ON u.begriff_id = b.id WHERE u.begriff_id is NULL");
-	$warnText .= '<p>Es wurden '.count($allDeadEnds).' Entitäten ohne Unterbegriff gefunden.</p>';
-	
+	// entities which have no "oberbegriffe", needed later 
+	$allRootParents = $vm->getTableManagerInstance()->getEntitiesForUnsetRelation('entity_supers');
+
+	$warnText = '<p>Es wurden '.count($allRootParents).' Entitäten ohne Oberbegriff gefunden.</p>';	
+	$warnText .= '<p>Es  wurden'.count($vm->getTableManagerInstance()->getEntitiesForUnsetRelation('entity_subs')).' Entitäten ohne Unterbegriff gefunden.</p>';
 	$warnText .= '<p>Die 2. Zahl ist weniger aussagekräftig, da es mehr Unterbegriff-Beziehungen gibt, die bereits durch Oberbegriff-Beziehungen indirekt ausgedrückt sind.</p>';
 
-	// echo rex_view::warning($warnText);
+	echo rex_view::warning($warnText);
 
 	// ! need all because eventually all entities are in hierarchy
 	$alleBegriffe = $sql->getArray("SELECT id, begriff FROM tth_wortliste WHERE 1");
@@ -190,8 +187,15 @@
 	$unterbegriffe = $sql->getArray("SELECT * FROM tth_begriff_unterbegriffe WHERE 1 ORDER BY begriff_id");
 	$paths = array();
 
-	// dump(count($allRootParents));
-	$html = '<ul>';
+	// must build all as arrays of arrays 
+	$entry = [
+		'id' => 645,
+		'begriff' => 'Abbund',
+		'children' => [], // array of entries
+		'message' => '' // for error messages e.g. Selbstbezug
+	];
+
+	$html = '<ul>';	
 	foreach($allRootParents as $parent) {
 		// - remove those which have been detected to be a unterbegriff of something
 		if (!tth_foundInUnterbegriffe($parent['id'], $unterbegriffe)) {
@@ -204,7 +208,6 @@
 				$html .= '</li>';
 			}
 		}
-
 	}
 	$html .= '</ul>';
 

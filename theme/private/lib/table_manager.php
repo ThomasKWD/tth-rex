@@ -218,8 +218,7 @@ class TableManager {
 	/**
 	 * queries entities which don't provide relation to a n:m relation table 
 	 * 
-	 * MUST use OUTER join, wonder why works? see: https://www.xaprb.com/blog/2005/09/23/how-to-write-a-sql-exclusion-join/
-	 * 
+	 * - must use OUTER join, see: https://www.xaprb.com/blog/2005/09/23/how-to-write-a-sql-exclusion-join/
 	 * - can easily be used for oberbegriffe/unterbegriffe as well! use `entity_supers` and `entity_subs`
 	 * ! only work because all relation tables use the same field name `begriff_id`
 	 */

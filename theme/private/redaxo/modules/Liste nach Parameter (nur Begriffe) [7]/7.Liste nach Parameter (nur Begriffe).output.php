@@ -54,7 +54,6 @@ if ($source || 0 === $source || '0' === $source) {
 
 	$referencesLinkList = '';
 	if ($source) {
-		
 		// $query = "SELECT $tableEntities.id,$tableEntities.begriff
 		// FROM $tableRelationSources
 		// INNER JOIN $tableEntities
@@ -69,12 +68,12 @@ if ($source || 0 === $source || '0' === $source) {
 		$referencesLinkList = $vm->getEntityLinkListForOuterRelation('references', $source, $detailsArticleId);
 	}
 	else {
-		$query = "SELECT $tableEntities.id,$tableEntities.begriff
-		FROM   $tableEntities
-		WHERE  NOT EXISTS
-			(SELECT *
-			FROM   $tableRelationSources
-			WHERE  $tableRelationSources.begriff_id = $tableEntities.id)";
+		// $query = "SELECT $tableEntities.id,$tableEntities.begriff
+		// FROM   $tableEntities
+		// WHERE  NOT EXISTS
+		// 	(SELECT *
+		// 	FROM   $tableRelationSources
+		// 	WHERE  $tableRelationSources.begriff_id = $tableEntities.id)";
 		// finds all where source not set,
 		// !!! wrong because old table structure
 		// !!! is still more complicated with the_quellenangaben (see the NULL set strategy in other n:m relation tables!)
