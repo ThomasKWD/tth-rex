@@ -85,17 +85,26 @@ class TableManagerTest extends TestCase {
 	/**
 	*	@test
 	*   @covers buildForeignEntriesQuery 
-    * 
 	*/
     public function testBuildForeignEntriesQuery() {
         $this->assertEquals(
-            'SELECT r.tag_id, r.begriff_id, s.name FROM tth_begriff_tags r JOIN tth_tags s ON r.tag_id = s.id WHERE r.begriff_id = :entity_id ORDER BY s.name ASC',
+            'SELECT r.*, s.name FROM tth_begriff_tags r JOIN tth_tags s ON r.tag_id = s.id WHERE r.begriff_id = :entity_id ORDER BY s.name ASC',
             $this->tm->buildForeignEntriesQuery('tags', 'entity_id')
         );
         $this->assertEquals(
-            'SELECT r.quelle_id, r.begriff_id, s.kurz FROM tth_quellenangaben r JOIN tth_quellen s ON r.quelle_id = s.id WHERE r.begriff_id = :entity_id ORDER BY s.kurz ASC',
+            'SELECT r.*, s.kurz FROM tth_quellenangaben r JOIN tth_quellen s ON r.quelle_id = s.id WHERE r.begriff_id = :entity_id ORDER BY s.kurz ASC',
             $this->tm->buildForeignEntriesQuery('references','entity_id')
         );
     }
 
+	/**
+	*	@test
+	*   @covers buildUnsetRelationQuery
+	*/
+    public function testBuildUnsetRelationQuery() {
+        $this->assertEquals(
+            'SELECT b.id, b.begriff FROM tth_wortliste b LEFT OUTER JOIN tth_quellenangaben o ON o.begriff_id = b.id WHERE o.begriff_id is NULL ORDER BY b.begriff ASC',
+            $this->tm->buildUnsetRelationQuery('references')
+        );
+    }
 }

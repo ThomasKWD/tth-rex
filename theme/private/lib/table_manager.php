@@ -199,7 +199,7 @@ class TableManager {
 		$outerTable = $this->getOuterRelationTableInfo($subject);
 		if (count($outerTable)) {
 			if (array_key_exists('relationTable',$outerTable)) {
-				$query = "SELECT r.tag_id, r.begriff_id, e.begriff, e.id ";
+				$query = "SELECT r.{$outerTable['id']}, r.begriff_id, e.begriff, e.id ";
 				 // e.id for output getLinkList
 				$query.= "FROM ".$outerTable['relationTable']." r ";
 				$query.= "JOIN ".$this->tableNames['entities']." e ON r.begriff_id = e.id ";
@@ -212,6 +212,35 @@ class TableManager {
 			return $this->sqlObject->getArray($query,['idForSubject' => $id]);
 		}
 
+		return [];
+	}
+
+	/**
+	 * queries entities which don't provide relation to a n:m relation table 
+	 * 
+	 * MUST use OUTER join, wonder why works? see: https://www.xaprb.com/blog/2005/09/23/how-to-write-a-sql-exclusion-join/
+	 * 
+	 * - can easily be used for oberbegriffe/unterbegriffe as well! use `entity_supers` and `entity_subs`
+	 * ! only work because all relation tables use the same field name `begriff_id`
+	 */
+	public function buildUnsetRelationQuery($subject) {
+		$table = $this->getTableName($subject);
+		if ($table) {
+			return "SELECT b.id, b.{$this->tableFields['entity']} FROM {$this->tableNames['entities']} b LEFT OUTER JOIN $table o ON o.{$this->tableIdFields['entity']} = b.id WHERE o.begriff_id is NULL ORDER BY b.begriff ASC";
+		}
+		return '';
+	}
+
+	/**
+	 * returns array of entities which are *not* found in thes specified in the inner or foreign n:m relation
+	 * 
+	 * @param subject is used to select the correct relation table, same naming schema as for `outerRelations` data
+	 */
+	public function getEntitiesForUnsetRelation($subject): array {
+		$query = $this->buildUnsetRelationQuery($subject);
+		if ($query) {
+			return $this->sqlObject->getArray($query);
+		}
 		return [];
 	}
 
@@ -305,6 +334,13 @@ class TableManager {
 
 	public function getTableNames() {
 		return $this->tableNames; // ! makes copy
+	}
+
+	public function getTableName($subject) {
+		if (array_key_exists($subject, $this->tableNames)) {
+			return $this->tableNames[$subject];
+		}
+		return '';
 	}
 
 	public function getTablePrefix() {

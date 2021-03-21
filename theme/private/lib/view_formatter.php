@@ -166,6 +166,17 @@ class ViewFormatter {
 	}
 
 	/**
+	 * returns a list with all entities where inner or outer relation not found
+	 * 
+	 * works for inner AND outer (foreign) relations because of definitions in `tableNames` in TableManager
+	 * 
+	 * e.g. all entities which have no definition for supers ("tth_begriff_oberbegriffe"), or references ("tth_quellenangaben")
+	 */
+	public function getEntityLinkListForUnsetRelation($subject, $articleId = '') {
+		return $this->getEntityLinkList($this->model->getEntitiesForUnsetRelation($subject), $articleId);
+	}
+	
+	/**
 	 * returns markdown parsed string
 	 * 
 	 * Depends on Redaxo objects
