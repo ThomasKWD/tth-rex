@@ -94,7 +94,6 @@ class ViewFormatterTest extends TestCase {
 		// hence swallows all entries but the 2nd one
 		$this->assertSame('<a href="/abfragen/details/?begriff_id=1">Abbund</a>', $this->vm->getEntityLinkList($data));
 	}
-
 	
 	/**
 	*	@test

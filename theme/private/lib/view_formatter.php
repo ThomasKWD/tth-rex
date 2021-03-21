@@ -1,10 +1,13 @@
 <?php
+declare(strict_types = 1);
 // !!! maybe need 3rd class (viewmodel) which brings model and view together and is called by MODULE code
 
 namespace kwd\tth;
 
 class ViewFormatter {
+
 	const entityIdForUrl = 'begriff_id';
+	const tagsIdForUrl = 'begriff_id';
 
     protected $model = null;
     protected $getUrlFunction = '';
@@ -45,12 +48,12 @@ class ViewFormatter {
 		return '<a href="'.$this->getUrl($article_id, '', array($idName => $id)).'">'.$desc.'</a>';
 	}
 
-	public function getLinkList($array, $linkUrlId, $linkName, $articleId = '') {
+	public function getLinkList(&$array, $linkUrlId, $linkName, $articleId = '', $idName = 'id') {
 		$str = '';
 		foreach($array as $s) {
 			// ! silently omitting errors
-			if (isset($s['id']) && isset($s[$linkName])) {
-				$str .= $this->getLink($linkUrlId, $s['id'], $s[$linkName], $articleId) . ', ';
+			if (isset($s[$idName]) && isset($s[$linkName])) {
+				$str .= $this->getLink($linkUrlId, $s[$idName], $s[$linkName], $articleId) . ', ';
 			}
 		}
 		return trim($str,', ');
@@ -156,7 +159,7 @@ class ViewFormatter {
 	/**
 	 * returns a list with all entities which satisfy an outer relation
 	 * 
-	 * e.g. all entities for a certain tag_id
+	 * e.g. all entities for a certain tag_id (but NOT vice versa, see: getForeignEntriesLinkList )
 	 */
 	public function getEntityLinkListForOuterRelation($subject, $outerId, $articleId = '') {
 		return $this->getEntityLinkList($this->model->getEntitiesForOuterRelation($subject, $outerId), $articleId);
@@ -212,5 +215,28 @@ class ViewFormatter {
 		if ($result) return 'ja';
 		if (false === $result) return 'nein';
 		return '(nicht gesetzt)'; // $result === null
+	}
+
+	/**
+	 * gets names of foreign table which is related n:m to entities
+	 * 	 
+	 * Need name field read from tableManager
+	 * @param subject project internal name which maps to actual DB table (see: tableNames, tableIdFields in TableManager)
+	 * @param id current entity for which the foreign linked entries are searched
+	 */
+	public function getForeignEntriesLinkList($subject, $id, $articleId = '') : string {
+		$entries = $this->model->getForeignEntries($subject, $id);
+		$info = $this->model->getOuterRelationTableInfo($subject);
+		dump($entries);
+		if (count($info)) { // can be empty array due to wrong subject
+			dump($info);
+			// ! note that idName is view related (will be used for URL) and not DB related
+			// ! must request matching idName and name field
+			//   hence is requested from a list *of this class*
+			// !!! only convention to take actual db field as url name, could also be anything
+			return $this->getLinkList($entries, $info['id'], $info['name'], $articleId, 'tag_id');
+		}
+
+		return '';
 	}
 }

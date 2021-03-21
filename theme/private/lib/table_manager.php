@@ -146,7 +146,9 @@ class TableManager {
 	}
 
 	/**
-	 * returns only name of outer relation table defined by id
+	 * returns only name of outer relation table *entry* defined by idate
+	 * 
+	 * Reads actual name determined by id from DB
 	 * 
 	 * @param subject key of my internal naming of data tables or inner relations (see above in this class)
 	 * @param id entry in outer relation table, e.g. id of a language in the table of languages
@@ -320,6 +322,41 @@ class TableManager {
 			$query = "SELECT id, begriff FROM ".$this->tableNames['entities']." WHERE $field = :value ORDER BY begriff ASC";
 			return $this->sqlObject->getArray($query, ['value' => $value]);
 		}
+		return [];
+	}
+
+	/**
+	 * generates query for getting names of foreign n:m table
+	 * 
+	 * e.g. 'tags', 'references'
+	 * 
+	 * reads table name and required name fields form subjects table `outerRelations`
+	 * an empty info field means invalid subject
+	 */
+	public function buildForeignEntriesQuery($subject, $idValueName) {
+		
+		$info = $this->getOuterRelationTableInfo($subject);
+		if (count($info)) {
+			$query = "SELECT r.tag_id, r.begriff_id, s.name ";
+			$query.= "FROM {$info['relationTable']} r ";
+			$query.= "JOIN {$info['table']} s ON r.tag_id = s.id ";
+			$query.= "WHERE r.begriff_id = :$idValueName ORDER BY s.name ASC";			
+			return $query;
+		}
+
+		return '';
+	}
+
+	/**
+	 * returns entry names + ids of a foreign table which is n:m related to "entities"
+	 * 
+	 * Currently these can only be the 'tags', 'references', 'tth_begriff_quellen'(not even subject name defined!)
+	 * empty query due to invalid `subject` should lead to doing nothing
+	 */
+	public function getForeignEntries($subject, $id) {
+		$queryVarName = 'entity_id';
+		$query = $this->buildForeignEntriesQuery($subject, $queryVarName); 
+		if ($query) return $this->sqlObject->getArray($query, [ $queryVarName  => $id ]);
 		return [];
 	}
 

@@ -110,7 +110,6 @@
 			$sourcesArray = $sql->getArray($query);
 			
 			// tags
-			// !!! could make "getOuterRelation in table manager
 			$tagsQuery = "SELECT r.tag_id, r.begriff_id, s.name ";
 			$tagsQuery.= "FROM $tableRelationTags r ";
 			$tagsQuery.= "JOIN $tableTags s ON r.tag_id = s.id ";
@@ -264,7 +263,8 @@
 				$html .= '<br>'.$vm->getReverseRelationLinkList('supers', $id);
 				$html .= '</td>';
 				$html .= '<td>Schlagwörter:<br>';
-				$html .= $tagList;
+				$html .= $tagList.'<br>new code:<br>';
+				$html .= $vm->getForeignEntriesLinkList('tags', $id, $tagsArticleId);
 				$html .= '</td>';
 				$html .= '</tr>';
 

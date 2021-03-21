@@ -75,10 +75,23 @@ class TableManagerTest extends TestCase {
 	*   @covers getEntitiesByField
     * 
 	*/
-    public function testGetEntitiesByField() {
-        $tm = $this->tm;
-        // !!! mock of rex_sql needed
-        $entities = $tm->getEntitiesByField();
-        $this->assertEquals(['peter'], $entities); // hier weiter
+    // public function testGetEntitiesByField() {
+    //     $tm = $this->tm;
+    //     // !!! mock of rex_sql needed
+    //     $entities = $tm->getEntitiesByField();
+    //     $this->assertEquals(['peter'], $entities); // hier weiter
+    // }
+
+	/**
+	*	@test
+	*   @covers buildForeignEntriesQuery 
+    * 
+	*/
+    public function testBuildForeignEntriesQuery() {
+        $this->assertEquals(
+            'SELECT r.tag_id, r.begriff_id, s.name FROM tth_begriff_tags r JOIN tth_tags s ON r.tag_id = s.id WHERE r.begriff_id = :entity_id ORDER BY s.name ASC',
+            $this->tm->buildForeignEntriesQuery('tags', 'entity_id')
+        );
     }
+
 }
