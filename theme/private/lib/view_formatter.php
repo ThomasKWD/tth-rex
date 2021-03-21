@@ -242,10 +242,30 @@ class ViewFormatter {
 			// ! note that idName is view related (will be used for URL) and not DB related
 			// ! must request matching idName and name field
 			//   hence is requested from a list *of this class*
-			// !!! only convention to take actual db field as url name, could also be anything
+			// ! only convention to take actual db field as url name, could also be anything
 			return $this->getLinkList($entries, $info['id'], $info['name'], $articleId, $info['id']);
 		}
 
+		return '';
+	}
+
+	/**
+	 * returns link list for *all* entries of a table != entities
+	 * 
+	 * - needs to lookup id and name fields from TableManager
+	 */
+	public function getAllEntriesLinkList(string $subject, $alphabetical = true, $addUnsetLink = false, $articleId = '') : string {
+		$tableInfo = $this->model->getOuterRelationTableInfo($subject);
+		if (count($tableInfo)) {
+			$entries = $this->model->getAllEntries($subject, $alphabetical);
+			if ($addUnsetLink) {
+				array_push($entries, array( 'id' => 0, $tableInfo['name'] => 'nicht gesetzt'));
+			}
+			if (count($entries)) {
+				// ! only convention to take actual db field $tableInfo['id'] as url name, could also be anything
+				return $this->getLinkList($entries, $tableInfo['id'], $tableInfo['name'], $articleId);
+			}
+		}
 		return '';
 	}
 }

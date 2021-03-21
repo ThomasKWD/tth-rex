@@ -79,7 +79,13 @@ class TableManager {
 		$this->sqlObject = $sql; // does this pass reference?
 
 		// !!! how write on init or more automated? maybe more consistent naming
+		// !!! rename because entities are here too, needed to prevent get all fields in some situations
 		$this->outerRelations = array(			
+			'entities' => [
+				'table' => $this->tableNames['entities'],
+				'id' => 'begriff_id', // useful in relation contexts
+				'name' => 'begriff', 
+			],
 			'authors' => [
 				'table' => $this->tableNames['authors'],
 				'id' => 'autor_id', // used in ttq_quellen, tth_quellenangaben, not in tth_wortlise
@@ -401,6 +407,24 @@ class TableManager {
 		$queryVarName = 'entity_id';
 		$query = $this->buildForeignEntriesQuery($subject, $queryVarName); 
 		if ($query) return $this->sqlObject->getArray($query, [ $queryVarName  => $id ]);
+		return [];
+	}
+
+	/** returns all entries from a table
+	 * 
+	 * only returns short info (id and a name)
+	 * 
+	 * for return *all* data for *all* entries make separate function or parameter when needed
+	 */
+	public function getAllEntries($subject, $sortAlphabetical = true) : array{
+		$info = $this->getOuterRelationTableInfo($subject);
+		if (count($info)) {
+			// "SELECT id,region FROM tth_regionen WHERE 1");
+			// ! implicitly assuming id is always present
+			$query = "SELECT id, {$info['name']} FROM {$info['table']} WHERE 1";
+			if ($sortAlphabetical) $query .= " ORDER BY {$info['name']} ASC";
+			return $this->sqlObject->getArray($query);
+		}
 		return [];
 	}
 
