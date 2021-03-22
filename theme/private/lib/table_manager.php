@@ -477,6 +477,24 @@ class TableManager {
 		return [];
 	}
 
+	/** returns data of an entity specified by id
+	 * 
+	 * Some id relations are resolved to readable names (sql joins)
+	 */
+	public function getSingleDataSet($subject, $id) {
+		$table = $this->getTableName($subject);
+		if ($table) {
+			$query = "SELECT * FROM $table WHERE id = :dataSetId";
+			$rows = $this->sqlObject->getArray($query, [ 'dataSetId' => $id]);
+			// return first, assuming there is just 1
+			if (count($rows)) {
+				return $rows[0];
+			}
+		}
+
+		return [];
+	}
+
 	public function getTableField($id) {
 		if (array_key_exists($id, $this->tableFields)) {
 			return $this->tableFields[$id];

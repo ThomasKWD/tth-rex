@@ -1,6 +1,6 @@
 <?php
 
-$quelleId = rex_request('quelle_id','int'); // the param 'int' should prevent from dangerous inputs
+$quelleId = rex_escape(rex_request('quelle_id','int')); // the param 'int' should prevent from dangerous inputs
 // is_numeric is enough sanitize if we just need an id
 if ($quelleId && is_numeric($quelleId)) {
 
@@ -9,10 +9,7 @@ if ($quelleId && is_numeric($quelleId)) {
 	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
 
 	echo 'Zeige Quelle id '.$quelleId;
-	$sql = rex_sql::factory();
-	// $rows = $sql->getArray("SELECT q.*,a.* FROM tth_quellen q LEFT JOIN tth_autoren a ON a.id = q.autor_id WHERE q.id = $quelleId");
-	$rows = $sql->getArray("SELECT q.* FROM tth_quellen q WHERE q.id = $quelleId");
-	// don't know how to combine the queries
+	$r = $vm->getTableManagerInstance()->getSingleDataSet('sources', $quelleId);
 	// select all authors for this source, similar to code for relation in begriffe
 	$query = "SELECT a.* ";
 	$query.= "FROM tth_autoren a ";
@@ -22,8 +19,7 @@ if ($quelleId && is_numeric($quelleId)) {
 
 	$authors = $sql->getArray($query);
 
-	if (count($rows)) {
-		$r = $rows[0];
+	if ($r) {
 		echo "<h2>${r['kurz']}</h2>";
 		?>
 		<table class="table table-responsive">
@@ -43,7 +39,7 @@ if ($quelleId && is_numeric($quelleId)) {
 			}
 			$authorsHtml .= ", ";
 		}
-		$html .= $vm->getRow('Autoren',$authorsHtml.'<small>alte Autor-IDs zum Abgleich: '.$r['autor_id'].'</small>');
+		$html .= $vm->getRow('Autoren',$authorsHtml.'<small>ID: '.$r['autor_id'].'</small>');
 
 		echo $html;
 		?>
