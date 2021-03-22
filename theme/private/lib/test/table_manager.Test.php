@@ -58,12 +58,12 @@ class TableManagerTest extends TestCase {
 	public function testBuildSearchEntitiesQuery() {
         $tm = $this->tm;
         $this->assertSame(
-            'SELECT id, begriff from tth_wortliste WHERE begriff LIKE :wordsearch',
+            'SELECT id, begriff from tth_wortliste WHERE begriff LIKE :wordsearch ORDER BY begriff ASC',
             $tm->buildSearchEntitiesQuery()
         );
         // set $strict == `true`
         $this->assertSame(
-            'SELECT id, begriff from tth_wortliste WHERE begriff = :wordsearch',
+            'SELECT id, begriff from tth_wortliste WHERE begriff = :wordsearch ORDER BY begriff ASC',
             $tm->buildSearchEntitiesQuery(true)
         );
     }

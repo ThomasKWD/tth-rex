@@ -74,8 +74,8 @@
 				}
 				
 				$entities = $tm->findEntities($searchPattern);
-				if (count($entities)) {
-					$searchResultList = $vm->getLinkList($entities, 'begriff_id', 'begriff', '');
+				if ($entities) {
+					$searchResultList = $vm->getEntityLinkList($entities);
 				}
 			}
 		}
@@ -223,7 +223,13 @@
 				// $html .= $vm->getRow('Region', ($r['region']) ? $r['region'] : "");
 				$html .= $vm->getRow('ID', $r['id']);
 				$html .= $vm->getRow('Begriffcode', $r['code']);
-				$html .= $vm->getRow('Begriffs-Status',$r['status']);
+				$html .= $vm->getRow('Begriffs-Status','<a href="'
+				.rex_getUrl(
+					$filterArticleId,
+					'',
+					[ 'begriffsstatus_id' => $r['begriffsstatus_id'] ]
+				)
+				.'">'.$r['status']).'</a>';
 				// ! redaxo file list is *comma* separated
 				if ($r['bild']) {
 					// ! separator ',' is determined by redaxo

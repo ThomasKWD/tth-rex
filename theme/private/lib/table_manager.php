@@ -298,7 +298,7 @@ class TableManager {
 	 * @param strict makes `=` when true, else `LIKE` keyword for SQL
 	 */
 	public function buildSearchEntitiesQuery($strict = false) {
-		return "SELECT id, {$this->tableFields['entity']} from {$this->tableNames['entities']} WHERE {$this->tableFields['entity']} ".($strict ? '=' : "LIKE")." :wordsearch";
+		return "SELECT id, {$this->tableFields['entity']} from {$this->tableNames['entities']} WHERE {$this->tableFields['entity']} ".($strict ? '=' : "LIKE")." :wordsearch ORDER BY {$this->getTableField('entity')} ASC";
 	}
 
 	/**
