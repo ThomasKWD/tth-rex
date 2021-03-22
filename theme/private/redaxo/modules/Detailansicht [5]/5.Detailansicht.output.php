@@ -160,11 +160,17 @@
 					// !!! should read all anchors from DB 
 					
 					$html .= $benutzeBegriff.'<br>'; // ! always
-					
-					
+
+					// !!! check if is descriptor,
+					//     if not, get class of descriptor id,
+					//     in both cases we should get data about begriffsstatus of each entity in list to mark 
+					//     linking errors.
 					$html .= 'Äquivalenzklasse:'.$vm->getGlossarLink('aequivalenzklasse',$glossarArticleId).'<br>';		
-					$html .= 'benutze new code:<br>'.$vm->getEntityLinkListByFieldValue('descriptor',$id);
-					// ! note that 
+					$html .= $vm->getEntityLinkListByFieldValue('descriptor',$id);
+					if ($r['benutze']) {
+						$html .= $vm->getEntityLinkListByFieldValue('descriptor',$r['benutze']);
+						$html .= '<br><span class="small"><em>(falls hier Dopplungen auftreten, sind unzulässigerweise Deskriptoren verkettet.)</em></span>';
+					}
 				}
 					
 				$html .'</td>';
