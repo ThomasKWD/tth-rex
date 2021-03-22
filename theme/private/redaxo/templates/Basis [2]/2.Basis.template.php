@@ -4,14 +4,10 @@
     // in contrast to yrewrite theme does not give trailing slash
     // $assetsUrlBase = theme_url::assets() .'/';
 	// -- also there: theme_url::base()
-
-	// if (!function_exists('getPosted')) {
-	// 	function getPosted($name) {
-	// 		return rex_escape(rex_request($name,'string'));
-	// 	}
-	// }
 	
-	// !!! put into module or class, like callback for sources
+	//    it comes from an YForm block
+	//     could be stuffed into module which is then added to the 
+	// !!! just remove when new converting not needed anymore
 	function convertCallback($request) {
 		
 		$formData = rex_request('FORM');
@@ -57,22 +53,11 @@
 	
 		// when 'default' -- can easily happen when form changed in structure content form module
 		if ($sourceField) {
-			// dump($sourceField);
-			// dump($targetTable);
-			// dump($targetIdField);
-
-			// $sourceField = 'grobgliederung';
-			// $sourceField = 'quellen_idlist';
-			// $sourceField = 'oberbegriffe';
-			// $targetTable = 'tth_begriff_grobgliederung';
-			// $targetTable = 'tth_begriff_quellen';
-			// $targetTable = 'tth_begriff_oberbegriffe';
-			// $targetIdField = 'oberbegriff_id';
 			$sql = rex_sql::factory();
 
-				// $query = 'TRUNCATE '.$targetTable;
-				// $sql->setQuery($query);
-			
+			// $query = 'TRUNCATE '.$targetTable;
+			// $sql->setQuery($query);
+		
 			// !!! for a new operation you must be sure the last one is ready (maybe asynch!!)
 
 			// - begriff field only for control outputs
@@ -159,50 +144,6 @@
 	$completeWordList = '';
 	foreach($rows as $k => $v) {
 		$completeWordList .= '"'. $v['begriff'] .'", ';
-	}
-
-	// echo $completeWordList;
-
-	// central search form EVALUATE-received
-	///////////////////////////////////////////////////////////////////////////////
-
-	// !!! go directly to details
-	//     you can achieve this by sending ids? read more in autocomplete docs!!!
-	// !!! just get action from searchfield *without YForm*	
-	$wSearch = rex_escape(rex_request('wordlistsearch','string'));
-	// *** disabled because testing code in module
-	if ($wSearch && 0) {
-		$searchPattern = rex_escape($wSearch);
-		if ($searchPattern) {
-
-			// !!! sanitize (e.g. only letters, underscore, space and *)
-
-			// ! change pattern to always have PART of word when no *
-			if (false === strpos($searchPattern,'*')) {
-				$searchPattern = '*'.$searchPattern.'*';
-			}
-			
-			$searchPattern = 
-				str_replace("'","",
-				str_replace("`","",
-				str_replace('"','',
-				str_replace("\n",'',
-				str_replace(';','',
-				$searchPattern
-			)))));
-
-			// !!! set article id by module param
-			// $sql = rex_sql::factory();
-			$query = "SELECT id,begriff from tth_wortliste WHERE begriff LIKE ".str_replace('*','%',$sql->escape($searchPattern));
-			$rows = $sql->getArray($query);
-			if ($rows && count($rows)) {
-				$tm = new \kwd\tth\TableManager();
-				$searchResultList = $tm->makeLinkList($rows, 'begriff_id', 'begriff', $detailsArticleId);
-			}
-			else {
-				$searchResultList = '';
-			}
-		}
 	}
 
 	if (rex_backend_login::createUser()) {
@@ -369,21 +310,11 @@
 		</div>
 		<?php endif; ?>
 
-		<?php 
-		// think about redirecting to a certain search page
-		if ($wSearch && 0):
-		?>
-		<div class="jumbotron">
-			<h3><?php echo $searchResultList ? '' : '<strong>Keine</strong> '?>Ergebnisse für "<?=$wSearch?>"</h3>
-			<p><?=$searchResultList?></p>
-		</div>
-		<?php endif; ?>
 		<h1><?php echo $this->getValue('name')?></h1>
 
 		<?php 
 			// ! convention every module must be aware to be inside the main container and should always provide rows and cols
-			if ($isBlog):
-				
+			if ($isBlog):				
 				// !!! better compose template like in community demo or other modern redaxo demos
 				//     - header + default content
 				//     - blog stuff (commenting)
