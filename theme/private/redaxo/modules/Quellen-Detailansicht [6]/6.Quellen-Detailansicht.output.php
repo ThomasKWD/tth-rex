@@ -9,15 +9,9 @@ if ($quelleId && is_numeric($quelleId)) {
 	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
 
 	echo 'Zeige Quelle id '.$quelleId;
-	$r = $vm->getTableManagerInstance()->getSingleDataSet('sources', $quelleId);
-	// select all authors for this source, similar to code for relation in begriffe
-	$query = "SELECT a.* ";
-	$query.= "FROM tth_autoren a ";
-	$query.= "JOIN tth_quellen_autoren g1 ON a.id = g1.autor_id ";
-	$query.= "JOIN tth_quellen q ON q.id = g1.quelle_id ";
-	$query.= "WHERE q.id=$quelleId ";
-
-	$authors = $sql->getArray($query);
+	$tm = $vm->getTableManagerInstance();
+	$r = $tm->getSingleDataSet('sources', $quelleId);
+	$authors = $tm->getAuthorsForSource($quelleId);
 
 	if ($r) {
 		echo "<h2>${r['kurz']}</h2>";
@@ -39,7 +33,7 @@ if ($quelleId && is_numeric($quelleId)) {
 			}
 			$authorsHtml .= ", ";
 		}
-		$html .= $vm->getRow('Autoren',$authorsHtml.'<small>ID: '.$r['autor_id'].'</small>');
+		$html .= $vm->getRow('Autoren',$authorsHtml.' <small>(ID in altem System: '.$r['autor_id'].')</small>');
 
 		echo $html;
 		?>

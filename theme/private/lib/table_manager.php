@@ -495,6 +495,33 @@ class TableManager {
 		return [];
 	}
 
+	/**
+	 * build the query for better unit testing
+	 * 
+	 * !!!  use vars from field names
+	 */
+	public function buildAuthorsForSourceQuery() {
+		// select all authors for this source, similar to code for relation in begriffe
+		$query = "SELECT a.* ";
+		$query.= "FROM {$this->getTableName('authors')} a ";
+		$query.= "JOIN {$this->getTableName('sources_authors')} g1 ON a.id = g1.autor_id ";
+		$query.= "JOIN {$this->getTableName('sources')} q ON q.id = g1.quelle_id ";
+		$query.= "WHERE q.id = :sourceId ORDER BY a.name ASC";
+		return $query;
+	}
+
+	/**
+	 * specialized search for "authors" of a "source" via n:m relation table
+	 * 
+	 * ! There has not been found a more general function for that purpose yet
+	 */
+	public function getAuthorsForSource($id) {
+		return $this->sqlObject->getArray(
+			$this->buildAuthorsForSourceQuery(),
+			[ 'sourceId' => $id]
+		);
+	}
+
 	public function getTableField($id) {
 		if (array_key_exists($id, $this->tableFields)) {
 			return $this->tableFields[$id];
