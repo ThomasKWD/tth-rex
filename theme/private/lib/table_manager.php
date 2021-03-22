@@ -448,7 +448,7 @@ class TableManager {
 		$tableEntities = $this->getTableName('entities');
 		
 		// ! b is first alias for $tableEntities, b2 is the second for benutze
-		$query = "SELECT b.begriff,b.id,b.autor_id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.bild,b.begriffsstatus_id,$tableStati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,b.sprache_id,b.sprachstil_id,b.region_id,";
+		$query = "SELECT b.begriff,b.id,b.autor_id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.bild,b.begriffsstatus_id,$tableStati.status,b.notes,b.benutze,b.benutzt_fuer,b.kategorie,b.veroeffentlichen,b.bearbeiten,b.sprache_id,b.sprachstil_id,b.region_id,";
 		$query .= "b2.begriff AS benutze_begriff,CONCAT($tableAuthors.vorname, ' ', $tableAuthors.name) AS autor,";
 		$query .= "$tableLanguage.sprache AS sprache,";
 		$query .= "$tableRegions.region AS region, ";
@@ -641,5 +641,21 @@ class TableManager {
 		}
 
 		return $resultInfo;	
+	}
+
+	/**
+	 * produces list of entities (short info) from list of ids
+	 * 
+	 * !!! vars for field names
+	 */
+	public function getEntitiesFromIdList($idList) {
+		$query = "SELECT id,begriff from tth_wortliste WHERE ";
+		for($i = count($idList) - 1; $i >= 0; $i--) {
+			$query .= "id = ".$idList[$i];
+			if ($i) $query .= " OR ";
+		} 
+		$query .= " ORDER BY begriff ASC";
+		// dump($query);
+		return $this->sqlObject->getArray($query);
 	}
 }

@@ -121,7 +121,7 @@ class TableManagerTest extends TestCase {
 	*/
     public function testBuildSingleEntityQuery() {
       	// ! b is first alias for $tableEntities, b2 is the second for benutze
-		$query = "SELECT b.begriff,b.id,b.autor_id,tth_autoren.gnd,b.quelle_seite,b.code,b.definition,b.bild,b.begriffsstatus_id,tth_begriffsstati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,b.sprache_id,b.sprachstil_id,b.region_id,";
+		$query = "SELECT b.begriff,b.id,b.autor_id,tth_autoren.gnd,b.quelle_seite,b.code,b.definition,b.bild,b.begriffsstatus_id,tth_begriffsstati.status,b.notes,b.benutze,b.benutzt_fuer,b.kategorie,b.veroeffentlichen,b.bearbeiten,b.sprache_id,b.sprachstil_id,b.region_id,";
 		$query .= "b2.begriff AS benutze_begriff,CONCAT(tth_autoren.vorname, ' ', tth_autoren.name) AS autor,";
 		$query .= "tth_sprachen.sprache AS sprache,";
 		$query .= "tth_regionen.region AS region, ";
