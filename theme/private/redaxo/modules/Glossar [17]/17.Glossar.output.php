@@ -1,12 +1,13 @@
 <?php
 	if (!isset($sql)) $sql = rex_sql::factory();
-
-	$query = "SELECT * from tth_glossar WHERE 1 ORDER BY wort ASC";
-    $entries = $sql->getArray($query);
+	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
+	$entries = $vm->getTableManagerInstance()->getAllEntries('glossar', true, true);
 ?>
 
 <?php 
 	// !!! even better: output in grid system: only stacked when small screens - also better to prevent huge text lines in large screens
+
+	// !!! how request field names from TableManager?
 ?> 
 <?php foreach($entries as $e): ?>
 	<hr>

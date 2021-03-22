@@ -85,18 +85,6 @@
 			$sourcesArticleId = 'REX_LINK[id=1 output=id]';
 			$tagsArticleId = 'REX_LINK[id=2 output=id]';
 			if (!$sourcesArticleId) $sourcesArticleId = 'REX_ARTICLE_ID';
-
-			// $tableEntities = 'tth_wortliste';
-			// $tableAuthors = 'tth_autoren';
-			// $tableStati = 'tth_begriffsstati';
-			// $tableLanguage = 'tth_sprachen';
-			// $tableRegions = 'tth_regionen';
-			// $tableStyles = 'tth_sprachstile';
-			// $tableTags = 'tth_tags';
-			// $tableSources = 'tth_quellen'; // needed for resolving names in $tableReferences
-			// // $tableRelationSources = 'tth_begriff_quellen';
-			// $tableReferences = 'tth_quellenangaben';
-			// $tableRelationTags = 'tth_begriff_tags';
 									
 			$r = $tm->getSingleEntity($id); // getSingleEntity returns empty array when not found
 			if ($r) { 

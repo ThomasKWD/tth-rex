@@ -41,6 +41,7 @@ class TableManager {
 		'entity_tags' => self::TABLE_PREFIX .'begriff_tags',
 		'references' => self::TABLE_PREFIX .'quellenangaben',
 		'references_fields' => self::TABLE_PREFIX .'quellenangaben_felder',
+		'glossar' => self::TABLE_PREFIX.'glossar',
 		'tablenames' => self::TABLE_PREFIX .'tabellennamen'
 	);
 
@@ -61,7 +62,8 @@ class TableManager {
 		'is_category' => 'kategorie',
 		'edit' => 'bearbeiten',
 		'synonyms' => 'benutzt_fuer', // ! 
-		'descriptor' => 'benutze'
+		'descriptor' => 'benutze',
+		'description' => 'beschreibung'
 	);
 
 	// combines: tableName, idField, readableNameField(for output)
@@ -129,6 +131,11 @@ class TableManager {
 				'id' => 'quelle_id', // used for query for n:m relation table (tth_quellenangaben)
 				'name' => 'kurz', // only for easy listing/sorting
 				'relationTable' => $this->tableNames['references']
+			],
+			'glossar' => [
+				'table' => $this->tableNames['glossar'],
+				'id' => 'id', // actually unused
+				'name' => 'wort'
 			]
 		);
 	}
@@ -418,12 +425,14 @@ class TableManager {
 	 * 
 	 * for return *all* data for *all* entries make separate function or parameter when needed
 	 */
-	public function getAllEntries($subject, $sortAlphabetical = true) : array{
+	public function getAllEntries($subject, $sortAlphabetical = true, $fullData = false) : array{
 		$info = $this->getOuterRelationTableInfo($subject);
 		if (count($info)) {
 			// "SELECT id,region FROM tth_regionen WHERE 1");
 			// ! implicitly assuming id is always present
-			$query = "SELECT id, {$info['name']} FROM {$info['table']} WHERE 1";
+			$query = "SELECT ";
+			$query .= ($fullData ? "* " : "id, {$info['name']} ");
+			$query .= "FROM {$info['table']} WHERE 1";
 			if ($sortAlphabetical) $query .= " ORDER BY {$info['name']} ASC";
 			return $this->sqlObject->getArray($query);
 		}
