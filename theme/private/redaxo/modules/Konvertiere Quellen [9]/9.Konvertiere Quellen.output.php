@@ -2,6 +2,7 @@
 Der Callback heißt 'convertSourcesCallback'. Du brauchst einen YForm-Block zum Starten.
 <?php endif; 
 
+// !!! remove code, probably not needed again
 if (!function_exists('convertSourcesCallback')) {
 	function convertSourcesCallback($request) {
 		// echo 'absenden erkannt';
