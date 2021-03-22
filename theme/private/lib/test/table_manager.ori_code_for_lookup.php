@@ -73,7 +73,7 @@ class DataSetQuellenTest extends TestCase {
 		$this->assertSame($tables['authors'], $prefix.'autoren');
 		$this->assertSame($tables['languages'], $prefix.'sprachen');
 		$this->assertSame($tables['regions'], $prefix.'regionen');
-		$this->assertSame($tables['entitystates'], $prefix.'begriffsstati');
+		$this->assertSame($tables['states'], $prefix.'begriffsstati');
 		$this->assertSame($tables['languagestyles'], $prefix.'sprachstile');
 		$this->assertSame($tables['metaentities'], $prefix.'metabegriffe');
 		$this->assertSame($tables['entity_relatives'], $prefix.'begriff_verwandte');

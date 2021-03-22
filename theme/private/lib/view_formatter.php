@@ -16,6 +16,7 @@ class ViewFormatter {
 	function __construct($sqlObject, $getUrlFunction) {
 		$this->model = new TableManager($sqlObject);
         $this->getUrlFunction = $getUrlFunction;
+		// !!! must be used for more fields in this class (prevent hard coded field names from/for db)
 		// $this->entityFields['entity_id'] = $this->model->getTableIdField('entity'); // results in 'begriff_id'; //! currently not used
 		$this->entityFields['entity_name'] = $this->model->getTableField('entity'); // results in 'begriff' 
     }

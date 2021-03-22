@@ -29,7 +29,7 @@ class TableManager {
 		'authors' => self::TABLE_PREFIX . 'autoren',
 		'languages' => self::TABLE_PREFIX .'sprachen',
 		'regions' => self::TABLE_PREFIX .'regionen',
-		'entitystates' => self::TABLE_PREFIX .'begriffsstati',
+		'states' => self::TABLE_PREFIX .'begriffsstati',
 		'languagestyles' => self::TABLE_PREFIX .'sprachstile',
 		'metaentities' => self::TABLE_PREFIX .'metabegriffe',
 		'tags' => self::TABLE_PREFIX .'tags',
@@ -59,7 +59,9 @@ class TableManager {
 		'name' => 'name',
 		'entity' => 'begriff',
 		'is_category' => 'kategorie',
-		'edit' => 'bearbeiten'
+		'edit' => 'bearbeiten',
+		'synonyms' => 'benutzt_fuer', // ! 
+		'descriptor' => 'benutze'
 	);
 
 	// combines: tableName, idField, readableNameField(for output)
@@ -107,7 +109,7 @@ class TableManager {
 				'name' => 'region', 
 			],
 			'states' => [
-				'table' => $this->tableNames['entitystates'],
+				'table' => $this->tableNames['states'],
 				'id' => 'begriffsstatus_id', //$this->getTableIdField['state'], // !!! access like this also the others...
 				'name' => 'status', 
 			],
@@ -424,6 +426,44 @@ class TableManager {
 			$query = "SELECT id, {$info['name']} FROM {$info['table']} WHERE 1";
 			if ($sortAlphabetical) $query .= " ORDER BY {$info['name']} ASC";
 			return $this->sqlObject->getArray($query);
+		}
+		return [];
+	}
+
+	public function buildSingleEntityQuery() {
+		$tableAuthors = $this->getTableName('authors');
+		$tableStati = $this->getTableName('states');
+		$tableLanguage = $this->getTableName('languages');
+		$tableRegions = $this->getTableName('regions');
+		$tableStyles = $this->getTableName('languagestyles');
+		$tableEntities = $this->getTableName('entities');
+		
+		// ! b is first alias for $tableEntities, b2 is the second for benutze
+		$query = "SELECT b.begriff,b.id,b.autor_id,$tableAuthors.gnd,b.quelle_seite,b.code,b.definition,b.bild,b.begriffsstatus_id,$tableStati.status,b.notes,b.benutze,b.kategorie,b.veroeffentlichen,b.bearbeiten,b.sprache_id,b.sprachstil_id,b.region_id,";
+		$query .= "b2.begriff AS benutze_begriff,CONCAT($tableAuthors.vorname, ' ', $tableAuthors.name) AS autor,";
+		$query .= "$tableLanguage.sprache AS sprache,";
+		$query .= "$tableRegions.region AS region, ";
+		$query .= "$tableStyles.stil AS sprachstil ";
+		$query .= "FROM $tableEntities b ";
+		$query .= "LEFT JOIN $tableAuthors ON b.autor_id = $tableAuthors.id ";
+		$query .= "LEFT JOIN $tableStati ON b.begriffsstatus_id = $tableStati.id ";
+		$query .= "LEFT JOIN $tableLanguage ON b.sprache_id = $tableLanguage.id ";
+		$query .= "LEFT JOIN $tableRegions ON b.region_id = $tableRegions.id ";
+		$query .= "LEFT JOIN $tableStyles ON b.sprachstil_id = $tableStyles.id ";
+		$query .= "LEFT JOIN $tableEntities b2 ON b2.id = b.benutze WHERE b.id = :entityId";
+
+		return $query;
+	}
+
+	/** returns data of an entity specified by id
+	 * 
+	 * Some id relations are resolved to readable names (sql joins)
+	 */
+	public function getSingleEntity($id) {
+		$rows = $this->sqlObject->getArray($this->buildSingleEntityQuery(), [ 'entityId' => $id]);
+		// return first, assuming there is just 1
+		if (count($rows)) {
+			return $rows[0];
 		}
 		return [];
 	}
