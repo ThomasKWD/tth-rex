@@ -8,106 +8,112 @@
 	//    it comes from an YForm block
 	//     could be stuffed into module which is then added to the 
 	// !!! just remove when new converting not needed anymore
-	function convertCallback($request) {
-		
+	function convertCallback() {		
 		$formData = rex_request('FORM');
 		$fieldFromForm = strtolower($formData['formular'][0]);
-		
-		switch ($fieldFromForm) {
-			case 'nd_beleg quellen':
-				$sourceField = 'quellen_idlist';
-				$targetTable = 'tth_begriff_quellen';
-				$targetIdField = 'quelle_id';
-				break;
-			case 'oberbegriffe':
-				$sourceField = 'oberbegriffe';
-				$targetTable = 'tth_begriff_oberbegriffe';
-				$targetIdField = 'oberbegriff_id';
-				break;
-			case 'unterbegriffe':
-				$sourceField = 'unterbegriffe';
-				$targetTable = 'tth_begriff_unterbegriffe';
-				$targetIdField = 'unterbegriff_id';
-				break;
-			case 'aequivalente begriffe':
-				$sourceField = 'aequivalent';
-				$targetTable = 'tth_begriff_aequivalente';
-				$targetIdField = 'aequivalent_id';
-				break;
-			case 'verwandte begriffe':
-				$sourceField = 'verwandte_begriffe';
-				$targetTable = 'tth_begriff_verwandte';
-				$targetIdField = 'verwandter_id';
-				break;
-			case 'grobgliederung':
-				$sourceField = 'grobgliederung';
-				$targetTable = 'tth_begriff_grobgliederung';
-				$targetIdField = 'grobgliederung_id';
-				break;
-			default:
-				$sourceField = '';
-				$targetTable = '';
-				$targetIdField = '';
-			break;
+		if ($fieldFromForm) {
+			if (!isset($sql)) $sql = rex_sql::factory();
+			if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
+			$vm->getTableManagerInstance()->convertRelationTable($fieldFromForm);
 		}
+
+		// !!! evaluation for the texts below with resultSet returned by `convertRelationTable`
+
+		// switch ($fieldFromForm) {
+		// 	case 'nd_beleg quellen':
+		// 		$sourceField = 'quellen_idlist';
+		// 		$targetTable = 'tth_begriff_quellen';
+		// 		$targetIdField = 'quelle_id';
+		// 		break;
+		// 	case 'oberbegriffe':
+		// 		$sourceField = 'oberbegriffe';
+		// 		$targetTable = 'tth_begriff_oberbegriffe';
+		// 		$targetIdField = 'oberbegriff_id';
+		// 		break;
+		// 	case 'unterbegriffe':
+		// 		$sourceField = 'unterbegriffe';
+		// 		$targetTable = 'tth_begriff_unterbegriffe';
+		// 		$targetIdField = 'unterbegriff_id';
+		// 		break;
+		// 	case 'aequivalente begriffe':
+		// 		$sourceField = 'aequivalent';
+		// 		$targetTable = 'tth_begriff_aequivalente';
+		// 		$targetIdField = 'aequivalent_id';
+		// 		break;
+		// 	case 'verwandte begriffe':
+		// 		$sourceField = 'verwandte_begriffe';
+		// 		$targetTable = 'tth_begriff_verwandte';
+		// 		$targetIdField = 'verwandter_id';
+		// 		break;
+		// 	case 'grobgliederung':
+		// 		$sourceField = 'grobgliederung';
+		// 		$targetTable = 'tth_begriff_grobgliederung';
+		// 		$targetIdField = 'grobgliederung_id';
+		// 		break;
+		// 	default:
+		// 		$sourceField = '';
+		// 		$targetTable = '';
+		// 		$targetIdField = '';
+		// 	break;
+		// }
 	
-		// when 'default' -- can easily happen when form changed in structure content form module
-		if ($sourceField) {
-			$sql = rex_sql::factory();
+		// // when 'default' -- can easily happen when form changed in structure content form module
+		// if ($sourceField) {
+		// 	$sql = rex_sql::factory();
 
-			// $query = 'TRUNCATE '.$targetTable;
-			// $sql->setQuery($query);
+		// 	// $query = 'TRUNCATE '.$targetTable;
+		// 	// $sql->setQuery($query);
 		
-			// !!! for a new operation you must be sure the last one is ready (maybe asynch!!)
+		// 	// !!! for a new operation you must be sure the last one is ready (maybe asynch!!)
 
-			// - begriff field only for control outputs
-			$query = 'SELECT id,begriff,'.$sourceField.' FROM tth_wortliste WHERE 1';
-			// $query = 'SELECT id,begriff,grobgliederung FROM tth_wortliste WHERE grobgliederung LIKE "%;%"';
-			$rows = $sql->getArray($query);
+		// 	// - begriff field only for control outputs
+		// 	$query = 'SELECT id,begriff,'.$sourceField.' FROM tth_wortliste WHERE 1';
+		// 	// $query = 'SELECT id,begriff,grobgliederung FROM tth_wortliste WHERE grobgliederung LIKE "%;%"';
+		// 	$rows = $sql->getArray($query);
 			
-			$insertList = '';
-			$count = 0;
-			$insertCount = 0;
-			foreach($rows as $row) {
-				if(trim($row[$sourceField])) {
-					$count++;
-					$nodes = explode(';',$row[$sourceField]);
-					// - don't need NULL check for $nodes
-					foreach($nodes as $node) {
-						if (trim($node)) {
-							$insertList .= '('.$row['id'].','.$node."),\n";
-							$insertCount++;
-						}
-					}
-				}
-			}
+		// 	$insertList = '';
+		// 	$count = 0;
+		// 	$insertCount = 0;
+		// 	foreach($rows as $row) {
+		// 		if(trim($row[$sourceField])) {
+		// 			$count++;
+		// 			$nodes = explode(';',$row[$sourceField]);
+		// 			// - don't need NULL check for $nodes
+		// 			foreach($nodes as $node) {
+		// 				if (trim($node)) {
+		// 					$insertList .= '('.$row['id'].','.$node."),\n";
+		// 					$insertCount++;
+		// 				}
+		// 			}
+		// 		}
+		// 	}
 
-			// remove last comma!
-			$insertList = substr($insertList,0,strrpos($insertList,','));
-			// dump($insertList);
-			// echo $insertList;
-			$query = 'INSERT INTO '.$targetTable.' (begriff_id, '.$targetIdField.') VALUES '.$insertList;
-			echo '<h3>SQL-Befehl</h3><p>'.$query.'</p>';
+		// 	// remove last comma!
+		// 	$insertList = substr($insertList,0,strrpos($insertList,','));
+		// 	// dump($insertList);
+		// 	// echo $insertList;
+		// 	$query = 'INSERT INTO '.$targetTable.' (begriff_id, '.$targetIdField.') VALUES '.$insertList;
+		// 	echo '<h3>SQL-Befehl</h3><p>'.$query.'</p>';
 
-			// $sql->setQuery($query);
+		// 	// $sql->setQuery($query);
 
-			echo '<div class="alert alert-success" role="alert">
-				<p>
-				Quell-Feld: '.$fieldFromForm.'<br>
-				Ziel-ID-Feld: '.$targetIdField.'<br>
-				Betroffene Datensätze: '.$count.' von '.count($rows).'</p>
-				<p>'.$insertCount.' Einträge in Tabelle <strong>'.$targetTable.'</strong> neu geschrieben (vorige Einträge bestehen weiterhin zusätzlich!).</p>
-				</div>';
-			echo '<div class="alert alert-warning" role="alert">
-			<p>
-			Der eigentliche Schreibvorgang ist aus Sicherheitsgründen <em>deaktiviert</em>. Die DB wurde nicht verändert.
-			</p></div>';
-		}
-		else {
-			echo '<div class="alert alert-primary" role="alert">
-				<p>Ungültige Auswahl. Überprüfe das Eingabe-Formular!</p>
-				</div>';
-		}
+		// 	echo '<div class="alert alert-success" role="alert">
+		// 		<p>
+		// 		Quell-Feld: '.$fieldFromForm.'<br>
+		// 		Ziel-ID-Feld: '.$targetIdField.'<br>
+		// 		Betroffene Datensätze: '.$count.' von '.count($rows).'</p>
+		// 		<p>'.$insertCount.' Einträge in Tabelle <strong>'.$targetTable.'</strong> neu geschrieben (vorige Einträge bestehen weiterhin zusätzlich!).</p>
+		// 		</div>';
+		// 	echo '<div class="alert alert-warning" role="alert">
+		// 	<p>
+		// 	Der eigentliche Schreibvorgang ist aus Sicherheitsgründen <em>deaktiviert</em>. Die DB wurde nicht verändert.
+		// 	</p></div>';
+		// }
+		// else {
+		// 	echo '<div class="alert alert-primary" role="alert">
+		// 		<p>Ungültige Auswahl. Überprüfe das Eingabe-Formular!</p>
+		// 		</div>';
+		// }
 	}
 
 	
@@ -137,10 +143,10 @@
 	// central search form PRE-send
 	///////////////////////////////////////////////////////////////////////////////
 
-	$sql = rex_sql::factory();
-	$query = "SELECT begriff from tth_wortliste WHERE 1 ORDER BY begriff ASC";
-	$rows = $sql->getArray($query);
-	
+	if (!isset($sql)) $sql = rex_sql::factory();
+	if (!isset($vm)) $vm = new \kwd\tth\ViewFormatter($sql, 'rex_getUrl'); 
+
+	$rows = $vm->getTableManagerInstance()->getAllEntries('entities');	
 	$completeWordList = '';
 	foreach($rows as $k => $v) {
 		$completeWordList .= '"'. $v['begriff'] .'", ';
@@ -167,12 +173,11 @@
         $subject = $ep->getSubject();
 		// // find "entity marker" (first match)
 		if (preg_match('#{{{(.*?)}}}#u',$subject, $matches)) {
-			// dump($matches);
-		}
-
-		if (isset( $matches[1]) && $matches[1]) {
-			// not modifier 'U' but always '?' for ungreedy!
-			return preg_replace('#<title>.*?</title>#iu','<title>'.$matches[1].' - TTH</title>',$subject);
+			// dump($matches);	
+			if (isset($matches[1]) && $matches[1]) {
+				// not modifier 'U' but always '?' for ungreedy! - don't confuse with 'u' (minuscle)
+				return preg_replace('#<title>.*?</title>#iu','<title>'.$matches[1].' - TTH</title>',$subject);
+			}
 		}
 
 		return $subject;
