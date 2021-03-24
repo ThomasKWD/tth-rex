@@ -1,6 +1,7 @@
 # redaxo configuration
 # contains sensitive data and should not be stored in a git repo!
-/redaxo/data/core/config.yml
+# can be stored in test/dev env
+# /redaxo/data/core/config.yml
 
 # cache folder (except hidden files)
 /redaxo/cache/*
@@ -17,13 +18,12 @@ assets/
 # as long as theme addon there
 !theme/public/assets/
 
-redaxo/index.php
 redaxo/cache/
 
 redaxo/data/addons/mform/
 redaxo/data/addons/phpmailer/mail_log/
 redaxo/data/addons/sked/definitions/.cache/
-redaxo/data/addons/install/
+# redaxo/data/addons/install/
 redaxo/data/addons/cronjob/cronjob.log
 redaxo/data/addons/backup/*.cronjob.sql
 # as long as theme addon there
@@ -31,25 +31,14 @@ redaxo/data/addons/developer/
 
 redaxo/data/core/system.log
 
-redaxo/src/.htaccess
-redaxo/src/addons/*
-redaxo/src/addons/index.php
+# redaxo/src/.htaccess
+# redaxo/src/addons/*
+# redaxo/src/addons/index.php
 #!redaxo/src/addons/project/
 #!redaxo/src/addons/project/**
 #!redaxo/src/addons/project/**/*
 
-redaxo/src/core/
-
 # project specific
-
-# layout/css/*.css
-# layout/js/main.min.js
-
-# this must negate the defs above for sub dir
-phpunit/vendor/
-
-res/**/*.png
-res/**/*.jpg
 
 node_modules/
 cypress/integration/examples/

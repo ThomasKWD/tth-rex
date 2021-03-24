@@ -286,7 +286,7 @@ INSERT INTO `rex_config` VALUES
   ('core','package-order','[\"be_style\",\"be_style\\/customizer\",\"be_style\\/redaxo\",\"users\",\"backup\",\"cronjob\",\"developer\",\"install\",\"markitup\",\"media_manager\",\"mediapool\",\"phpmailer\",\"structure\",\"metainfo\",\"structure\\/content\",\"theme\",\"yform\",\"yform\\/email\",\"yform\\/manager\",\"yrewrite\",\"ycom\",\"ycom\\/auth\",\"ycom\\/docs\",\"ycom\\/group\",\"project\"]'),
   ('core','utf8mb4','true'),
   ('core','version','\"5.11.0\"'),
-  ('cronjob','nexttime','1616454000'),
+  ('cronjob','nexttime','1616626800'),
   ('developer','actions','true'),
   ('developer','delete','true'),
   ('developer','dir_suffix','true'),
@@ -379,7 +379,7 @@ CREATE TABLE `rex_cronjob` (
 LOCK TABLES `rex_cronjob` WRITE;
 /*!40000 ALTER TABLE `rex_cronjob` DISABLE KEYS */;
 INSERT INTO `rex_cronjob` VALUES 
-  (1,'Täglich 1x wenn eingeloggt','wird beim ersten Login des Tages ausgeführt','rex_cronjob_export','{\"rex_cronjob_export_filename\":\"%REX_SERVER_%Y%m%d_%H%M_rex%REX_VERSION\",\"rex_cronjob_export_blacklist_tables\":null,\"rex_cronjob_export_sendmail\":null,\"rex_cronjob_export_mailaddress\":\"\",\"rex_cronjob_export_delete_interval\":\"YW\"}','{\"minutes\":[0],\"hours\":[0],\"days\":\"all\",\"weekdays\":\"all\",\"months\":\"all\"}','2021-03-23 00:00:00','|backend|',0,'0000-00-00 00:00:00',1,'2020-05-20 12:58:22','Thomas','2020-05-20 12:58:22','Thomas');
+  (1,'Täglich 1x wenn eingeloggt','wird beim ersten Login des Tages ausgeführt','rex_cronjob_export','{\"rex_cronjob_export_filename\":\"%REX_SERVER_%Y%m%d_%H%M_rex%REX_VERSION\",\"rex_cronjob_export_blacklist_tables\":null,\"rex_cronjob_export_sendmail\":null,\"rex_cronjob_export_mailaddress\":\"\",\"rex_cronjob_export_delete_interval\":\"YW\"}','{\"minutes\":[0],\"hours\":[0],\"days\":\"all\",\"weekdays\":\"all\",\"months\":\"all\"}','2021-03-25 00:00:00','|backend|',0,'0000-00-00 00:00:00',1,'2020-05-20 12:58:22','Thomas','2020-05-20 12:58:22','Thomas');
 /*!40000 ALTER TABLE `rex_cronjob` ENABLE KEYS */;
 UNLOCK TABLES;
 

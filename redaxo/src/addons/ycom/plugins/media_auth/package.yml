@@ -1,0 +1,12 @@
+package: ycom/media_auth
+version: '4.0.3'
+author: Yakamara Media GmbH & Co. KG
+title: 'MediaAuth'
+nav_icon: fa-minus
+description: 'translate:ycom_media_auth'
+
+page:
+    title: 'translate:ycom_media_auth_title'
+    hidden: false
+    subpages:
+        settings: { title: 'translate:ycom_media_auth_settings'}

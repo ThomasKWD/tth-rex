@@ -1,0 +1,68 @@
+ycom_auth_title = Authentication
+
+ycom_auth_settings = Settings
+ycom_auth_description = Explanation
+
+ycom_auth_config 				= Configuration
+ycom_auth_config_save 			= Save configuration
+ycom_auth_config_status 			= Status
+ycom_auth_config_security 		= Security
+ycom_auth_config_forwarder 		= Forward to article
+ycom_auth_config_login_field		= Login field
+
+ycom_auth_config_status_authactive = Authentication active
+ycom_auth_config_status_stayactive = "Remain signed in" active
+ycom_auth_config_security_hashedpasswd = Encrypted passwords (sha1)
+ycom_auth_config_id_jump_ok		= ... when successfully signed in
+ycom_auth_config_id_jump_not_ok	= ... when sign in is unsuccessfull
+ycom_auth_config_id_jump_logout	= ... when signed out
+ycom_auth_config_id_jump_denied	= ... when attempting to access a restricted article
+ycom_auth_config_id_jump_denied_notice	= When not already signed in visitors will be redirected to the sign in page. Afterwards visitors will be redirected to the access denied article if they have insufficient permissions to view this article.
+
+ycom_auth_config_id_jump_activation_ok = ... when successfully activated
+ycom_auth_config_id_jump_activation_fail = ... when activation was unsuccessfull
+ycom_auth_config_id_jump_newpassword_ok = ... when successfully reset password
+ycom_auth_config_id_jump_newpassword_fail = ... when password reset was unsuccessfull
+ycom_auth_config_id_jump_password = ... if setting a new password (new_password_required field) [optional]
+ycom_auth_config_id_jump_termsofuse = ... if terms of use have not been confirmed (termsofuse_accepted field not set) [optional]
+
+ycom_auth_settings_updated = Configuration has been saved
+
+ycom_auth_info_title = Explanation
+
+ycom_auth_perm = Permissions
+ycom_auth_update_perm = Update
+ycom_auth_perm_updated = Permissions updated
+
+ycom_auth_password_not_updated = Password was not updated
+ycom_auth_password_updated = Password was updated
+ycom_auth_password_exists = Password exists
+ycom_auth_password_isempty = Password does not exist
+
+ycom_auth_config_auth_rules = Rules for authentication
+ycom_auth_config_login_tries_deactivateafter = User will be deactived after {0} login-tries
+ycom_auth_config_login_tries = Maximum login tries
+ycom_auth_config_login_tries_unlimited = Unlimited tries
+ycom_auth_config_login_tries_pause = User will be blocked for {1} minutes after each {0} login attempts
+ycom_auth_config_login_tries_always_pause = User will be blocked for {1} minutes after {0} login attempts
+
+perm_options_ycomArticlePermissions[] = YCom - Page access rights
+
+no_permission_to_edit = No permission to edit
+
+ycom_validate_password_policy_rules_error = Please adhere to standard rules, at least 1 upper case and lower case letter, at least 8 characters
+ycom_validate_password_policy_rules = Password rules in JSON
+ycom_validate_password_policy_rules_error_message = Error message
+
+ycom_validate_password_policy_rules_script = Activate PasswordCreator
+
+ycom_auth_config_pages = General pages
+ycom_auth_config_id_login = Login page
+ycom_auth_config_id_logout = Logout page
+ycom_auth_config_id_register = Register page
+ycom_auth_config_id_password = Reset password
+
+ycom_auth_config_auth_cookie_ttl = Cookie lifespan for "remain signed in"
+ycom_days = {0} days
+
+ycom_auth_config_extern = authentication (SAML/CAS/OAUTH2)

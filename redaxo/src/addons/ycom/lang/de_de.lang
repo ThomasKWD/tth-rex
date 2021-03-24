@@ -1,0 +1,62 @@
+ycom_perm = Community Rechte
+
+ycom_page_perm = Community Seitenrechte
+
+navigation_ycom = Community
+ycom_title = Community: Einstellungen
+ycom_navi_title = Einstellungen
+
+ycom_main_title = Info
+ycom_info = Readme
+ycom_info_title = Nützliche Informationen zur Verwendung des Community Addons
+ycom_manual = Anleitung / Beispiele
+ycom_manual_title = Anleitung / Beispiele
+ycom_changelog = Changelog
+ycom_changelog_title	= Changelog
+ycom_license = Lizenz
+ycom_license_title = Lizenz
+ycom_overview = Übersicht
+ycom_user_management = User Verwaltung
+ycom_field_management = Felder anpassen
+
+ycom_user = User
+yform_ycom_user = Community Benutzer
+rex_ycom_user = User
+
+email = E-Mail
+status = Status
+firstname = Vorname
+activation_key = Aktivierungsschlüssel
+session_key = Sessionschlüssel
+last_login_time = Letzter erfolgreicher Login
+last_action_time = Letzte Aktion
+termination_time = Kündigungszeitpunkt
+login_failed = Fehlgeschlagene Logins
+login_tries = Login Fehlversuche
+
+ycom_login_tries_info = Erlaubte Fehlversuche werden im <a href="index.php?page=ycom/auth/settings">Plugin YCom/Auth</a> definiert.
+
+ycom_account_inactive_termination = Zugang wurde gekündigt
+ycom_account_inactive_logins = Zugang wurde deaktiviert [Loginfehlversuche]
+ycom_account_inactive = Zugang ist inaktiv
+ycom_account_requested = Zugang wurde angefragt
+ycom_account_confirm = Zugang wurde bestätigt und ist aktiv
+ycom_account_active = Zugang ist aktiv
+
+ycom_status = Status
+
+ycom_perm_type = Seitenberechtigungen
+
+ycom_perm_extends = Aus übergeordneter Kategorie übernehmen ansonsten Zugriff für alle User
+ycom_perm_only_logged_in = Zugriff für eingeloggte User
+ycom_perm_only_not_logged_in = Zugriff für alle nicht eingeloggten User
+ycom_perm_all = Zugriff für alle User
+
+ycom_this_login_exists_already = Dieser Login existiert bereits
+ycom_this_email_exists_already = Diese E-Mail existiert bereits
+ycom_please_enter_login = Bitte das Login eingeben
+ycom_please_enter_email = Bitte die E-mail eingeben
+
+last_password_time = Letzter Passwortwechsel
+termsofuse_accepted = Nutzungsbedingungen bestätigt
+new_password_required = Neues Passwort muss gesetzt werden

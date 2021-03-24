@@ -1,0 +1,22 @@
+package: ycom
+version: '4.0.3'
+author: Yakamara Media GmbH & Co. KG, concedra GmbH
+supportpage: https://github.com/yakamara/redaxo_ycom/
+
+page:
+    title: 'translate:ycom_navi_title'
+    perm: ycom[]
+    block: ycom
+    icon: rex-icon fa-group
+
+requires:
+    packages:
+        yform: '^3.3.1'
+        yrewrite: '^2.6'
+        phpmailer: '^2.2'
+    redaxo: '^5.8'
+
+system_plugins:
+    - auth
+    - group
+    - docs

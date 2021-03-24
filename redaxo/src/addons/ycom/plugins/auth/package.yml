@@ -1,0 +1,12 @@
+package: ycom/auth
+version: '4.0.3'
+author: Yakamara Media GmbH & Co. KG / concedra GmbH
+title: 'Auth'
+nav_icon: fa-minus
+description: 'translate:ycom_auth_plugin'
+
+page:
+    title: 'translate:ycom_auth_title'
+    hidden: false
+    subpages:
+        settings: { title: 'translate:ycom_auth_settings'}
