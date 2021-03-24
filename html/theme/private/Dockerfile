@@ -63,6 +63,9 @@ ONBUILD RUN \
 VOLUME ["/app"]
 WORKDIR /app
 
-ENTRYPOINT ["/usr/local/bin/phpunit"]
+# ENTRYPOINT ["/usr/local/bin/phpunit"]
 # ENTRYPOINT ["/bin/bash"]
-CMD ["--help"]
+# CMD ["--help"]
+
+# crook entry point, now you can exec into it (??)
+ENTRYPOINT ["tail", "-f", "/dev/null"]

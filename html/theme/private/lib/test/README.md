@@ -15,5 +15,5 @@ This version gets around without Redaxo and thus needs a considerable amount of 
 
 To speed up tests and perform unit tests and integration at the same run I use a present Redaxo 5.10.x installation reachable under http://localhost/tk/tth-rex. Hence some _tests cannot be run without this Redaxo_
 
-Use [test.sh](./test.sh) for independent unit test (May fail because mock objects are incomplete).
+Use call `../vendor/bin/phpunit --bootstrap ../vendor/autoload.php .` in `./test` sub folder
 
