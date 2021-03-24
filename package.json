@@ -1,7 +1,7 @@
 {
   "name": "tth-rex",
-  "version": "1.0.0",
-  "description": "portal for tth",
+  "version": "1.0.1",
+  "description": "portal for TTH",
   "main": "index.js",
   "dependencies": {
     "node-sass": "^5.0.0"

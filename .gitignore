@@ -1,44 +1,45 @@
+# database
+db
+
+# redaxo cache folder
+# html/redaxo/cache
+
+# redaxo media files (except in subfolders)
+html/media/*.*
+
+# diverse
+.idea
+
 # redaxo configuration
 # contains sensitive data and should not be stored in a git repo!
 # can be stored in test/dev env
 # /redaxo/data/core/config.yml
 
 # cache folder (except hidden files)
-/redaxo/cache/*
-!/redaxo/cache/.*
+html/redaxo/cache/*
+!html/redaxo/cache/.*
 
 # media folder (except hidden files)
-/media/*
-!/media/.*
+!html/media/.*
 
 # log files
 *.log
 
-assets/
+html/assets/
 # as long as theme addon there
-!theme/public/assets/
+!html/theme/public/assets/
 
-redaxo/cache/
-
-redaxo/data/addons/mform/
-redaxo/data/addons/phpmailer/mail_log/
-redaxo/data/addons/sked/definitions/.cache/
+html/redaxo/data/addons/mform/
+html/redaxo/data/addons/phpmailer/mail_log/
 # redaxo/data/addons/install/
-redaxo/data/addons/cronjob/cronjob.log
-redaxo/data/addons/backup/*.cronjob.sql
+html/redaxo/data/addons/cronjob/cronjob.log
+html/redaxo/data/addons/backup/*.cronjob.sql
 # as long as theme addon there
-redaxo/data/addons/developer/
+html/redaxo/data/addons/developer/
 
-redaxo/data/core/system.log
-
-# redaxo/src/.htaccess
-# redaxo/src/addons/*
-# redaxo/src/addons/index.php
-#!redaxo/src/addons/project/
-#!redaxo/src/addons/project/**
-#!redaxo/src/addons/project/**/*
+html/redaxo/data/core/system.log
 
 # project specific
-
-node_modules/
-cypress/integration/examples/
+# node_modules/
+# html/node_modules/
+# html/cypress/integration/examples/
