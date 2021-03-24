@@ -64,4 +64,5 @@ VOLUME ["/app"]
 WORKDIR /app
 
 ENTRYPOINT ["/usr/local/bin/phpunit"]
+# ENTRYPOINT ["/bin/bash"]
 CMD ["--help"]
