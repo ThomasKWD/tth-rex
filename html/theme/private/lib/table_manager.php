@@ -5,7 +5,7 @@
 //  - manage names
 //  - DON'T use redaxo classes like rex_sql directly (pass or wrap)
 //  - OR pass the needed classes/methods/information from Redaxo as reference
-//  - *cache* DB output, esp. for detailed view and hierarchy because ALL entities (id, name) need to be read anyway
+//  - *cache* DB output, esp. for  detailed view and hierarchy because ALL entities (id, name) need to be read anyway
 
 // !!! only module related code
 //     - no formatting, no views
@@ -655,7 +655,6 @@ class TableManager {
 			if ($i) $query .= " OR ";
 		} 
 		$query .= " ORDER BY begriff ASC";
-		// dump($query);
 		return $this->sqlObject->getArray($query);
 	}
 }

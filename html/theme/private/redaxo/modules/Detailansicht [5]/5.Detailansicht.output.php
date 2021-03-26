@@ -166,7 +166,7 @@
 					//     in both cases we should get data about begriffsstatus of each entity in list to mark 
 					//     linking errors.
 					$html .= 'Äquivalenzklasse:'.$vm->getGlossarLink('aequivalenzklasse',$glossarArticleId).'<br>';		
-					$html .= $vm->getEntityLinkListByFieldValue('descriptor',$id);
+					$html .= $vm->getEntityLinkListByFieldValue('descriptor',$id) . ' - '; // !!! make dash conditional
 					if ($r['benutze']) {
 						$html .= $vm->getEntityLinkListByFieldValue('descriptor',$r['benutze']);
 						$html .= '<br><span class="small"><em>(falls hier Dopplungen auftreten, sind unzulässigerweise Deskriptoren verkettet.)</em></span>';
@@ -174,12 +174,16 @@
 
 					if ($r['benutzt_fuer']) {
 						// make the whole logic in TableManager
-						$ids = $r['benutzt_fuer'];
-						if (false !== strpos($ids, ',')) $rawIds = explode(',', $ids);
-						else if (false !== strpos($ids, ';')) $rawIds = explode(';', $ids);						
-						$html .= '<hr><span class="small">("benutzt_fuer"): '
+						$ids = trim($r['benutzt_fuer']);
+						if ($ids) {
+							if (false !== strpos($ids, ',')) $rawIds = explode(',', $ids);
+							else if (false !== strpos($ids, ';')) $rawIds = explode(';', $ids);
+							else $rawIds = [ $ids ];
+							$html .= '<hr><span class="small">("benutzt_fuer"): '
 							.$vm->getEntityLinkList($tm->getEntitiesFromIdList($rawIds))
 							.'</span>';
+						}
+						else $html .= 'kein benutzt fuer';
 					}
 				}
 					
