@@ -177,7 +177,7 @@
 						$ids = $r['benutzt_fuer'];
 						if (false !== strpos($ids, ',')) $rawIds = explode(',', $ids);
 						else if (false !== strpos($ids, ';')) $rawIds = explode(';', $ids);						
-						$html .= '<hr><span class="small">("benutzt_fuer"): '
+						$html .= '<hr><span class="small">Manuelle Synonyme ("benutzt_fuer"): '
 							.$vm->getEntityLinkList($tm->getEntitiesFromIdList($rawIds))
 							.'</span>';
 					}
