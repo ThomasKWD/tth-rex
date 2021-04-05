@@ -110,17 +110,16 @@ braucht man eigentlich nicht, ist ja nur für Admins und die können in phpMyAdm
 
 ### Datenbank
 
-Die aktuelle lokale Test-Datenbank ist unter [redaxo/data/addons/backup/](redaxo/data/addons/backup/) gespeichert.
+Die aktuelle lokale Test-Datenbank ist unter [html/redaxo/data/addons/backup/](html/redaxo/data/addons/backup/) gespeichert.
 
-<!-- Die aktuelle Datenbank, die zur öffentlichen Anzeige geeignet ist, ist unter ... archiviert. Diese sollte stets importiert werden, wenn das Projekt auf einer neuen Umgebung aufgesetzt wird. -->
+### Installation
 
-
-## Installation
-
-Das Repository stellt das Basis-Verzeichnis einer lauffähigen [Redaxo 5.10.x](https://redaxo.org/download/core/) Installation dar (Apache, MySQL, PHP entsprechend Erfordernissen von Redaxo benötigt).
+Das Repository stellt das Basis-Verzeichnis einer lauffähigen [Redaxo 5.12.x](https://redaxo.org/download/core/)-Installation dar (Apache, MySQL, PHP entsprechend Erfordernissen von Redaxo benötigt).
 
 Das Redaxo benötigt für dieses Projekt folgende Addons: developer, markitup, phpmailer, theme, YForm, YCom, xoutputfilter (optional).
 
-Es sollte zuerst Redaxo und alle benötigten Addons installiert werden und dann der Inhalt des Downloads (https://github.com/ThomasKWD/tth-rex/archive/master.zip) hinein kopiert werden.
-
 Eine Anpassung verschiedener Einstellungen ist erforderlich. Es werden Administrator-Kenntnisse von Redaxo vorausgesetzt.
+
+### Entwicklungsumgebung
+
+Starte `docker compose up -d`. Redaxo muss ggf. manuell auf "setup" gesetzt werden.
