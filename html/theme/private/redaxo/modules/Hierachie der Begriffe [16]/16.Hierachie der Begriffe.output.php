@@ -90,10 +90,13 @@
 						$cleanedChildren[] = $c;
 					}
 				}
-				uasort($cleanedChildren,'sortEntities');
-				
-				$ret .= '<ul>';
-				foreach($cleanedChildren as $key => $child) {
+
+				$ret .= '<ul>';				
+				// ! benefit of recursive iterator only when need to do more complex array/iteration functionality
+				// uasort($cleanedChildren,'sortEntities');
+				$ccObject = new ArrayObject($cleanedChildren);
+				$ccObject->uasort('sortEntities');
+				foreach($ccObject as $child) {
 					if ($child['id'] == $id) {
 						$ret .= 'Fehler: Selbstbezug';
 					}
